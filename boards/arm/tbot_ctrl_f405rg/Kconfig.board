@@ -1,0 +1,7 @@
+# tbot_ctrl_f405rg board configuration
+
+# Copyright (c) 2022 Ruixiang Du (rdu)
+
+config BOARD_TBOT_CTRL_F405RG
+	bool "TBot Control Board: tbot_ctrl_f405rg"
+	depends on SOC_STM32F405XG

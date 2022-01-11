@@ -1,0 +1,11 @@
+# Beaglebone Racer Cape configuration
+
+# Copyright (c) 2021 Ruixiang Du
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_BBB_RACER_CAPE
+
+config BOARD
+	default "bbb_racer_cape"
+
+endif # BOARD_BB_RACER_CAPE

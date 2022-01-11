@@ -1,0 +1,8 @@
+# Beaglebone Racer Cape configuration
+
+# Copyright (c) 2021 Ruixiang Du
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_BBB_RACER_CAPE
+	bool "Beaglebone Black Racer Cape"
+	depends on SOC_STM32F427XX

@@ -1,0 +1,21 @@
+identifier: bbb_racer_cape
+name: Beaglebone Black Racer Cape
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+ram: 256
+flash: 2048
+supported:
+  - netif:eth
+  - i2c
+  - spi
+  - gpio
+  - pwm
+  - counter
+  - usb_device
+  - watchdog
+  - adc
+  - dac
