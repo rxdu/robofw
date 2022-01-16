@@ -24,9 +24,17 @@
 
   leds {
     compatible = "gpio-leds";
-    status_led: led_1 {
-      gpios = <&gpioc 12 GPIO_ACTIVE_LOW>;
-      label = "STATUS_LED";
+    status_led1: led_1 {
+      gpios = <&gpioa 7 GPIO_ACTIVE_LOW>;
+      label = "LED1";
+    };
+    status_led2: led_2 {
+        gpios = <&gpioc 4 GPIO_ACTIVE_LOW>;
+        label = "LED2";
+      };
+    status_led3: led_3 {
+    gpios = <&gpioc 5 GPIO_ACTIVE_LOW>;
+    label = "LED3";
     };
   };
 
@@ -62,7 +70,9 @@
 //   };
 
   aliases {
-    led0 = &status_led;
+    led1 = &status_led1;
+    led2 = &status_led2;
+    led3 = &status_led3;
 //     powerctrl = &power_ctrl;
 //     supply-19v = &power1;
 //     supply-12v = &power2;
