@@ -7,7 +7,7 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
-#include "bsp/interface.h"
+#include "driver/interface.h"
 
 #include <stdio.h>
 
@@ -47,7 +47,7 @@ bool SetupPwm(void) {
   return true;
 }
 
-void SetPwmDutyCycle(PwmIndex chn, float duty_cycle) {
+void SetPwmDutyCycle(PwmChannel chn, float duty_cycle) {
   if (duty_cycle < 0) duty_cycle = 0;
   if (duty_cycle > 1) duty_cycle = 1;
 

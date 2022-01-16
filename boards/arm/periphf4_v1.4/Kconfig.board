@@ -1,0 +1,7 @@
+# periphf4_v1.4 board configuration
+
+# Copyright (c) 2021 Weston Robot
+
+config BOARD_PERIPHF4_V1_4
+	bool "Weston Robot Peripheral Board: periphf4_v1.4"
+	depends on SOC_STM32F427XX

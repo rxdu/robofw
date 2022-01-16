@@ -1,0 +1,10 @@
+# periphf4_v1.4 board configuration
+
+# Copyright (c) 2021 Weston Robot
+
+if BOARD_PERIPHF4_V1_4
+
+config BOARD
+	default "periphf4_v1.4"
+
+endif # BOARD_PERIPHF4_V1_4

@@ -7,7 +7,7 @@
  * Copyright (c) 2021 Weston Robot
  */
 
-#include <bsp/interface.h>
+#include <driver/interface.h>
 
 #include <stdio.h>
 #include <strings.h>
@@ -44,7 +44,7 @@ static CanConfig can_cfg = {
                       .id_mask = CAN_EXT_ID_MASK},
     }};
 
-bool SetupCan(CanIndex chn, CANMode mode, uint32_t baudrate) {
+bool SetupCan(CanChannel chn, CANMode mode, uint32_t baudrate) {
   if (chn == DOWNLINK_CAN) {
     can_cfg.channels[chn].device =
         // device_get_binding(DT_LABEL(DT_NODELABEL(can1)));
@@ -76,7 +76,7 @@ bool SetupCan(CanIndex chn, CANMode mode, uint32_t baudrate) {
   return true;
 }
 
-CANMsgQueue *GetCanMessageQueue(CanIndex chn) {
+CANMsgQueue *GetCanMessageQueue(CanChannel chn) {
   return can_cfg.channels[chn].msgq;
 }
 
@@ -88,7 +88,7 @@ CANMsgQueue *GetCanMessageQueue(CanIndex chn) {
 //   }
 // }
 
-int SendCanFrame(CanIndex chn, uint32_t id, bool is_std_id, uint8_t data[],
+int SendCanFrame(CanChannel chn, uint32_t id, bool is_std_id, uint8_t data[],
                  uint32_t dlc) {
   struct zcan_frame frame;
   if (is_std_id) {

@@ -75,7 +75,7 @@ struct net_if *net_if_get_by_type(const struct net_l2 *l2, const char *socket_ca
   return NULL;
 }
 
-static int create_socket(CanIndex chn) {
+static int create_socket(CanChannel chn) {
   struct sockaddr_can can_addr;
   int fd, ret;
 
@@ -112,7 +112,7 @@ static int create_socket(CanIndex chn) {
   return fd;
 }
 
-static void rx_task(int *can_fd, CanIndex *chn,
+static void rx_task(int *can_fd, CanChannel *chn,
                     const struct can_filter *filter) {
   int fd = POINTER_TO_INT(can_fd);
   struct sockaddr_can can_addr;
@@ -137,11 +137,11 @@ static void rx_task(int *can_fd, CanIndex *chn,
     }
 
     can_copy_frame_to_zframe(&frame, &msg);
-    if ((CanIndex)(chn) == CAN_MESSENGER_CHN) {
+    if ((CanChannel)(chn) == CAN_MESSENGER_CHN) {
       while (k_msgq_put(&can_msgq1, &msg, K_NO_WAIT) != 0) {
         k_msgq_purge(&can_msgq1);
       }
-    } else if ((CanIndex)(chn) == CAN_INTERACTOR_CHN) {
+    } else if ((CanChannel)(chn) == CAN_INTERACTOR_CHN) {
       while (k_msgq_put(&can_msgq2, &msg, K_NO_WAIT) != 0) {
         k_msgq_purge(&can_msgq2);
       }
@@ -163,7 +163,7 @@ static void rx_task(int *can_fd, CanIndex *chn,
   }
 }
 
-bool SetupCan(CanIndex chn, CANMode mode, uint32_t baudrate) {
+bool SetupCan(CanChannel chn, CANMode mode, uint32_t baudrate) {
   static struct can_filter filter;
   can_copy_zfilter_to_filter(&can.channel[chn].rx_filter, &filter);
 
@@ -181,7 +181,7 @@ bool SetupCan(CanIndex chn, CANMode mode, uint32_t baudrate) {
         &rx_data1, rx_stack1, K_THREAD_STACK_SIZEOF(rx_stack1),
         (k_thread_entry_t)rx_task,
         INT_TO_POINTER(can.channel[chn].rx_socket_fd),
-        ((void *)(CanIndex)(chn)), &filter, PRIORITY, 0, K_NO_WAIT);
+        ((void *)(CanChannel)(chn)), &filter, PRIORITY, 0, K_NO_WAIT);
     if (!rx_tid1) {
       printk("Cannot create RX thread!\n");
       (void)close(can.channel[chn].rx_socket_fd);
@@ -201,7 +201,7 @@ bool SetupCan(CanIndex chn, CANMode mode, uint32_t baudrate) {
         &rx_data2, rx_stack2, K_THREAD_STACK_SIZEOF(rx_stack2),
         (k_thread_entry_t)rx_task,
         INT_TO_POINTER(can.channel[chn].rx_socket_fd),
-        ((void *)(CanIndex)(chn)), &filter, PRIORITY, 0, K_NO_WAIT);
+        ((void *)(CanChannel)(chn)), &filter, PRIORITY, 0, K_NO_WAIT);
     if (!rx_tid2) {
       printk("Cannot create RX thread!\n");
       (void)close(can.channel[chn].rx_socket_fd);
@@ -219,11 +219,11 @@ bool SetupCan(CanIndex chn, CANMode mode, uint32_t baudrate) {
   return true;
 }
 
-CANMsgQueue *GetCanMessageQueue(CanIndex chn) {
+CANMsgQueue *GetCanMessageQueue(CanChannel chn) {
   return can.channel[chn].msgq;
 }
 
-int SendCanFrame(CanIndex chn, uint32_t id, bool is_std_id, uint8_t data[],
+int SendCanFrame(CanChannel chn, uint32_t id, bool is_std_id, uint8_t data[],
                  uint32_t dlc) {
   struct zcan_frame zcan_frame;
   struct can_frame can_frame;

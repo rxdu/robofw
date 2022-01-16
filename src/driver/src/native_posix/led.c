@@ -32,6 +32,6 @@ bool LedSetup(void) {
   return true;
 }
 
-void ToggleLed(LedIndex led_num) {
+void ToggleLed(LedChannel led_num) {
 
 }

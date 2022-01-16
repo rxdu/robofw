@@ -13,8 +13,6 @@
 #include <device.h>
 #include <drivers/can.h>
 
-#define BOARD_BB_RACER_CAPE
-
 typedef enum can_mode CANMode;
 typedef struct k_msgq CANMsgQueue;
 
