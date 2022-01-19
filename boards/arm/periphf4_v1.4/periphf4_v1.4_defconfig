@@ -31,6 +31,9 @@ CONFIG_DEBUG_THREAD_INFO=y
 # floating point support
 CONFIG_FPU=y
 
+# Enable PWM
+CONFIG_PWM=y
+
 # temperature sensor
 # CONFIG_SENSOR=y
 CONFIG_ADC=y

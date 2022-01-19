@@ -28,6 +28,13 @@ void TurnOnLed(LedChannel led_num);
 void TurnOffLed(LedChannel led_num);
 void ToggleLed(LedChannel led_num);
 
+/// GPIO
+typedef enum { EN1, DIR1, EN2, DIR2 } GpioChannel;
+
+bool SetupGpio(void);
+void SetGpio(GpioChannel gpio_num, uint8_t value);
+void ToggleGpio(GpioChannel gpio_num);
+
 /// CAN Bus
 typedef enum { DOWNLINK_CAN = 0, UPLINK_CAN } CanChannel;
 
@@ -37,7 +44,7 @@ int SendCanFrame(CanChannel chn, uint32_t id, bool is_std_id, uint8_t data[],
                  uint32_t dlc);
 
 /// PWM
-typedef enum { SERVO_PWM = 0, MOTOR_PWM } PwmChannel;
+typedef enum { PWM1 = 0, PWM2 } PwmChannel;
 
 bool SetupPwm(void);
 void SetPwmDutyCycle(PwmChannel chn, float duty_cycle);

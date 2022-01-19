@@ -22,10 +22,9 @@ void main(void) {
   //   if (!CanSetup(UPLINK_CAN, CAN_NORMAL_MODE, 1000000))
   //     printk("[ERROR]: Failed to setup CAN\n");
 
-  //   if (!SetupPwm()) printk("[ERROR]: Failed to setup PWM\n");
+  if (!SetupPwm()) printk("[ERROR]: Failed to setup PWM\n");
 
-  //   SetPwmDutyCycle(SERVO_PWM, 0.05);
-  //   SetPwmDutyCycle(MOTOR_PWM, 0.05);
+  if (!SetupGpio()) printk("[ERROR]: Failed to setup GPIO\n");
 
   TurnOnLed(USER_LED1);
   TurnOnLed(USER_LED2);
@@ -34,11 +33,21 @@ void main(void) {
 
   uint8_t count = 0;
 
+  SetGpio(DIR1, 1);
+  SetGpio(EN1, 1);
+  SetGpio(DIR2, 0);
+  SetGpio(EN2, 1);
+
+  SetPwmDutyCycle(PWM1, 0.7);
+  SetPwmDutyCycle(PWM2, 0.7);
+
   while (1) {
     if (count % 2 == 0)
       ToggleLed(USER_LED1);
     else if (count % 2 == 1)
       ToggleLed(USER_LED2);
+
+    // ToggleGpio(EN1);
 
     ++count;
     k_msleep(SLEEP_TIME_MS);

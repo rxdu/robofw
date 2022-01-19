@@ -5,9 +5,10 @@ set(DRIVER_SRC
     src/native_posix/can.c)
 else()
   set(DRIVER_SRC 
+    src/stm32/gpio.c
     src/stm32/led.c
     # src/stm32/can.c
-    # src/stm32/pwm.c
+    src/stm32/pwm.c
     )
 endif()
 
