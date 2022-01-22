@@ -23,7 +23,6 @@
 typedef enum { USER_LED1 = 0, USER_LED2 } LedChannel;
 
 bool SetupLed(void);
-
 void TurnOnLed(LedChannel led_num);
 void TurnOffLed(LedChannel led_num);
 void ToggleLed(LedChannel led_num);
