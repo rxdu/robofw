@@ -5,8 +5,10 @@ if (BUILD_POSIX_NATIVE)
         src/native_posix/can.c)
 else()
     set(DRIVER_SRC 
-        src/init_dio.c
-        src/init_led.c)
+        src/dio_init.c
+        src/led_init.c
+        src/dio_interface.c
+        src/led_interface.c)
 endif()
 
 add_library(hwconfig ${DRIVER_SRC})

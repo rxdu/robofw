@@ -11,7 +11,7 @@
 #include <drivers/spi.h>
 #include <drivers/sensor.h>
 
-#include "hwconfig/hwinit.h"
+#include "hwconfig/hwconfig.h"
 
 #define SLEEP_TIME_MS 500
 
@@ -53,6 +53,10 @@ void main(void) {
   //   SetPwmDutyCycle(PWM1, 0.7);
   //   SetPwmDutyCycle(PWM2, 0.7);
 
+  LedDescription* led_desc = GetLedDescription();
+  TurnOnLed(&led_desc->descriptor[0]);
+  TurnOffLed(&led_desc->descriptor[1]);
+
   uint8_t count = 0;
 
   while (1) {
@@ -62,6 +66,8 @@ void main(void) {
     //   ToggleLed(USER_LED2);
 
     // ToggleGpio(EN1);
+    ToggleLed(&led_desc->descriptor[0]);
+    ToggleLed(&led_desc->descriptor[1]);
 
     ++count;
     k_msleep(SLEEP_TIME_MS);

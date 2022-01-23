@@ -1,5 +1,5 @@
 /* 
- * init_dio.h
+ * dio_init.h
  * 
  * Created on: Jan 22, 2022 23:34
  * Description: 
@@ -7,8 +7,8 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */ 
 
-#ifndef INIT_DIO_H
-#define INIT_DIO_H
+#ifndef DIO_INIT_H
+#define DIO_INIT_H
 
 #include <drivers/gpio.h>
 
@@ -25,7 +25,7 @@ typedef enum {
 // DIO
 typedef struct {
   bool active;
-  const struct device *dev;
+  const struct device *device;
   gpio_pin_t pin;
   gpio_flags_t flags;
 } DioDescriptor;
@@ -38,4 +38,4 @@ bool InitDio();
 DioDescription* GetDioDescription();
 void PrintDioInitResult();
 
-#endif /* INIT_DIO_H */
+#endif /* DIO_INIT_H */

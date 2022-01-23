@@ -1,5 +1,5 @@
 /* 
- * init_led.h
+ * led_init.h
  * 
  * Created on: Jan 22, 2022 23:36
  * Description: 
@@ -7,8 +7,8 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */ 
 
-#ifndef INIT_LED_H
-#define INIT_LED_H
+#ifndef LED_INIT_H
+#define LED_INIT_H
 
 #include <drivers/gpio.h>
 
@@ -23,7 +23,7 @@ typedef enum {
 // LED
 typedef struct {
   bool active;
-  const struct device *dev;
+  const struct device *device;
   gpio_pin_t pin;
 } LedDescriptor;
 
@@ -35,4 +35,4 @@ bool InitLed();
 LedDescription* GetLedDescription();
 void PrintLedInitResult();
 
-#endif /* INIT_LED_H */
+#endif /* LED_INIT_H */
