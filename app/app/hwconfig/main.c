@@ -48,14 +48,14 @@ void main(void) {
   ConfigureDio(&dio_desc->descriptor[1], GPIO_OUTPUT | GPIO_PULL_UP);
   ConfigureDio(&dio_desc->descriptor[2], GPIO_OUTPUT | GPIO_PULL_UP);
   ConfigureDio(&dio_desc->descriptor[3], GPIO_OUTPUT | GPIO_PULL_UP);
-  SetDio(&dio_desc->descriptor[0], 0);
-  SetDio(&dio_desc->descriptor[1], 0);
-  SetDio(&dio_desc->descriptor[2], 0);
+  SetDio(&dio_desc->descriptor[0], 1);
+  SetDio(&dio_desc->descriptor[1], 1);
+  SetDio(&dio_desc->descriptor[2], 1);
   SetDio(&dio_desc->descriptor[3], 0);
 
   PwmDescription* pwm_desc = GetPwmDescription();
-  SetPwmDutyCycle(&pwm_desc->descriptor[0], 0.55);
-  SetPwmDutyCycle(&pwm_desc->descriptor[1], 0.68);
+  SetPwmDutyCycle(&pwm_desc->descriptor[0], 0.5);
+  SetPwmDutyCycle(&pwm_desc->descriptor[1], 0.5);
 
   uint8_t count = 0;
 
