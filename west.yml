@@ -1,0 +1,16 @@
+# Copyright (c) 2021 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+manifest:
+  self:
+    path: robofw
+
+  remotes:
+    - name: westonrobot-zephyr
+      url-base: https://github.com/westonrobot
+
+  projects:
+    - name: zephyr
+      remote: westonrobot-zephyr
+      revision: rcu-zephyr-v2.7
+      import: true

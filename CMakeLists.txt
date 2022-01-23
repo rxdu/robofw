@@ -34,4 +34,4 @@ find_package(Zephyr 2.7.0)
 project(robofw)
 
 ## Add source code
-add_subdirectory(src)
+add_subdirectory(app)
