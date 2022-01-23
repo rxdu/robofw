@@ -17,4 +17,7 @@
 #include "hwconfig/led_init.h"
 #include "hwconfig/led_interface.h"
 
+#include "hwconfig/pwm_init.h"
+#include "hwconfig/pwm_interface.h"
+
 #endif /* HWCONFIG_H */

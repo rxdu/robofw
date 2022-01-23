@@ -32,6 +32,13 @@ void main(void) {
     printk("[ERROR]: Failed to setup DIO\n");
   }
 
+  if (InitPwm()) {
+    printk("[INFO]: Initialized PWM\n");
+    PrintPwmInitResult();
+  } else {
+    printk("[ERROR]: Failed to setup PWM\n");
+  }
+
   //   if (!SetupLed()) printk("[ERROR]: Failed to setup LED\n");
   //   //   if (!CanSetup(UPLINK_CAN, CAN_NORMAL_MODE, 1000000))
   //   //     printk("[ERROR]: Failed to setup CAN\n");
@@ -56,6 +63,10 @@ void main(void) {
   LedDescription* led_desc = GetLedDescription();
   TurnOnLed(&led_desc->descriptor[0]);
   TurnOffLed(&led_desc->descriptor[1]);
+
+  PwmDescription* pwm_desc = GetPwmDescription();
+  SetPwmDutyCycle(&pwm_desc->descriptor[0], 0.55);
+  SetPwmDutyCycle(&pwm_desc->descriptor[1], 0.68);
 
   uint8_t count = 0;
 

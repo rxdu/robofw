@@ -58,6 +58,16 @@
 		// };
 	};
 
+    pwm_outputs {
+		compatible = "pwm-leds";
+        dd_pwm0: pwm_output_0 {
+            pwms = <&pwm2 1 100 PWM_POLARITY_NORMAL>;
+        };
+        dd_pwm1: pwm_output_1 {
+            pwms = <&pwm2 3 100 PWM_POLARITY_NORMAL>;
+        };
+	};
+
     stm-temp {
         label = "DIE_TEMP";
         compatible = "st,stm32-temp";
@@ -174,6 +184,12 @@
         pinctrl-0 = <&tim2_ch1_pa0 &tim2_ch3_pa2>;
     };
 };
+
+// pwms {
+// dd_pwm0: node {
+//     pwms = <&pwm2 1 100 PWM_POLARITY_NORMAL>;
+// };
+// };
 
 // &rtc {
     //     status = "okay";

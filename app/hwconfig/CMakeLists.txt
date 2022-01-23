@@ -7,8 +7,10 @@ else()
     set(DRIVER_SRC 
         src/dio_init.c
         src/led_init.c
+        src/pwm_init.c
         src/dio_interface.c
-        src/led_interface.c)
+        src/led_interface.c
+        src/pwm_interface.c)
 endif()
 
 add_library(hwconfig ${DRIVER_SRC})

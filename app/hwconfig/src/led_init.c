@@ -70,7 +70,8 @@ LedDescription* GetLedDescription() { return &led_desc; }
 
 void PrintLedInitResult() {
   for (int i = 0; i < DD_LED_NUM; ++i) {
-    printk(" - [LED%d]: %s \n", i,
-           led_desc.descriptor[i].active ? "active" : "inactive");
+    if (led_desc.descriptor[i].active) {
+      printk(" - [LED%d]: %s \n", i, "active");
+    }
   }
 }

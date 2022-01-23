@@ -16,11 +16,11 @@
 
 #define initialize_dio(x, node_label, desc)                                    \
   {                                                                            \
-    desc.descriptor[x].device =                                                   \
+    desc.descriptor[x].device =                                                \
         device_get_binding(DT_GPIO_LABEL(DT_NODELABEL(node_label), gpios));    \
     desc.descriptor[x].pin = DT_GPIO_PIN(DT_NODELABEL(node_label), gpios);     \
     desc.descriptor[x].flags = DT_GPIO_FLAGS(DT_NODELABEL(node_label), gpios); \
-    if (!desc.descriptor[x].device) {                                             \
+    if (!desc.descriptor[x].device) {                                          \
       printk("DIO: Device driver not found.\n");                               \
       return false;                                                            \
     }                                                                          \
@@ -64,7 +64,8 @@ DioDescription* GetDioDescription() { return &dio_desc; }
 
 void PrintDioInitResult() {
   for (int i = 0; i < DD_DIO_NUM; ++i) {
-    printk(" - [DIO%d]: %s \n", i,
-           dio_desc.descriptor[i].active ? "active" : "inactive");
+    if (dio_desc.descriptor[i].active) {
+      printk(" - [DIO%d]: %s \n", i, "active");
+    }
   }
 }
