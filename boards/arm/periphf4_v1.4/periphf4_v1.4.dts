@@ -35,38 +35,38 @@
     };
 
     gpio_keys {
-		compatible = "gpio-keys";
-		dd_dio0: motor_en11 {
-			gpios = <&gpioe 9 GPIO_ACTIVE_HIGH>;
-			label = "Motor EN1";
-		};
-		dd_dio1: motor_dir1 {
-			gpios = <&gpioe 11 GPIO_ACTIVE_HIGH>;
-			label = "Motor DIR1";
-		};
-		dd_dio2: motor_en2 {
-			gpios = <&gpioe 13 GPIO_ACTIVE_HIGH>;
-			label = "Motor EN2";
-		};
-		dd_dio3: motor_dir2 {
-			gpios = <&gpioe 14 GPIO_ACTIVE_HIGH>;
-			label = "Motor DIR2";
-		};
-		// estop: exti_2 {
-		// 	gpios = <&gpioc 12 GPIO_ACTIVE_HIGH>;
-		// 	label = "Emergency Stop Button";
-		// };
-	};
+        compatible = "gpio-keys";
+        dd_dio0: motor_en11 {
+            gpios = <&gpioe 9 GPIO_ACTIVE_HIGH>;
+            label = "Motor EN1";
+        };
+        dd_dio1: motor_dir1 {
+            gpios = <&gpioe 11 GPIO_ACTIVE_HIGH>;
+            label = "Motor DIR1";
+        };
+        dd_dio2: motor_en2 {
+            gpios = <&gpioe 13 GPIO_ACTIVE_HIGH>;
+            label = "Motor EN2";
+        };
+        dd_dio3: motor_dir2 {
+            gpios = <&gpioe 14 GPIO_ACTIVE_HIGH>;
+            label = "Motor DIR2";
+        };
+        // estop: exti_2 {
+            //     gpios = <&gpioc 12 GPIO_ACTIVE_HIGH>;
+            //     label = "Emergency Stop Button";
+        // };
+    };
 
     pwm_outputs {
-		compatible = "pwm-leds";
+        compatible = "pwm-leds";
         dd_pwm0: pwm_output_0 {
             pwms = <&pwm2 1 100 PWM_POLARITY_NORMAL>;
         };
         dd_pwm1: pwm_output_1 {
             pwms = <&pwm2 3 100 PWM_POLARITY_NORMAL>;
         };
-	};
+    };
 
     stm-temp {
         label = "DIE_TEMP";
@@ -82,6 +82,7 @@
         // sw0 = &user_button;
         ctrlpwm1 = &pwm2;
         ctrlpwm2 = &pwm2;
+        dduart0 = &uart8;
     };
 };
 
@@ -164,6 +165,12 @@
     //     status = "okay";
 // };
 
+&uart8 {
+    pinctrl-0 = <&uart8_tx_pe1 &uart8_rx_pe0>;
+    current-speed = <115200>;
+    status = "okay";
+};
+
 // &usbotg_fs {
     //     status = "okay";
 // };
@@ -186,9 +193,9 @@
 };
 
 // pwms {
-// dd_pwm0: node {
-//     pwms = <&pwm2 1 100 PWM_POLARITY_NORMAL>;
-// };
+    // dd_pwm0: node {
+        //     pwms = <&pwm2 1 100 PWM_POLARITY_NORMAL>;
+    // };
 // };
 
 // &rtc {

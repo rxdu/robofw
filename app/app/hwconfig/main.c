@@ -39,6 +39,13 @@ void main(void) {
     printk("[ERROR]: Failed to setup PWM\n");
   }
 
+  if (InitUart()) {
+    printk("[INFO]: Initialized UART\n");
+    PrintUartInitResult();
+  } else {
+    printk("[ERROR]: Failed to setup UART\n");
+  }
+
   LedDescription* led_desc = GetLedDescription();
   TurnOnLed(&led_desc->descriptor[0]);
   TurnOffLed(&led_desc->descriptor[1]);
