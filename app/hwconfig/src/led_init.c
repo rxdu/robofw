@@ -12,6 +12,7 @@
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
+#include <drivers/led.h>
 #include <sys/printk.h>
 
 #define initialize_led(x, node_label, desc)                                   \

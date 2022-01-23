@@ -12,6 +12,7 @@
 
 #include "hwconfig/dio_init.h"
 
+void ConfigureDio(DioDescriptor* dd, gpio_flags_t flags);
 void SetDio(DioDescriptor* dd, uint8_t value);
 void ToggleDio(DioDescriptor* dd);
 

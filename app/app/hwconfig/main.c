@@ -39,30 +39,19 @@ void main(void) {
     printk("[ERROR]: Failed to setup PWM\n");
   }
 
-  //   if (!SetupLed()) printk("[ERROR]: Failed to setup LED\n");
-  //   //   if (!CanSetup(UPLINK_CAN, CAN_NORMAL_MODE, 1000000))
-  //   //     printk("[ERROR]: Failed to setup CAN\n");
-
-  //   if (!SetupPwm()) printk("[ERROR]: Failed to setup PWM\n");
-
-  //   if (!SetupGpio()) printk("[ERROR]: Failed to setup GPIO\n");
-
-  //   TurnOnLed(USER_LED1);
-  //   TurnOnLed(USER_LED2);
-
-  //   k_msleep(SLEEP_TIME_MS);
-
-  //   SetGpio(DIR1, 1);
-  //   SetGpio(EN1, 1);
-  //   SetGpio(DIR2, 0);
-  //   SetGpio(EN2, 1);
-
-  //   SetPwmDutyCycle(PWM1, 0.7);
-  //   SetPwmDutyCycle(PWM2, 0.7);
-
   LedDescription* led_desc = GetLedDescription();
   TurnOnLed(&led_desc->descriptor[0]);
   TurnOffLed(&led_desc->descriptor[1]);
+
+  DioDescription* dio_desc = GetDioDescription();
+  ConfigureDio(&dio_desc->descriptor[0], GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(&dio_desc->descriptor[1], GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(&dio_desc->descriptor[2], GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(&dio_desc->descriptor[3], GPIO_OUTPUT | GPIO_PULL_UP);
+  SetDio(&dio_desc->descriptor[0], 0);
+  SetDio(&dio_desc->descriptor[1], 0);
+  SetDio(&dio_desc->descriptor[2], 0);
+  SetDio(&dio_desc->descriptor[3], 0);
 
   PwmDescription* pwm_desc = GetPwmDescription();
   SetPwmDutyCycle(&pwm_desc->descriptor[0], 0.55);
@@ -71,11 +60,6 @@ void main(void) {
   uint8_t count = 0;
 
   while (1) {
-    // if (count % 2 == 0)
-    //   ToggleLed(USER_LED1);
-    // else if (count % 2 == 1)
-    //   ToggleLed(USER_LED2);
-
     // ToggleGpio(EN1);
     ToggleLed(&led_desc->descriptor[0]);
     ToggleLed(&led_desc->descriptor[1]);

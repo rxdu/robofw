@@ -36,21 +36,21 @@
 
     gpio_keys {
 		compatible = "gpio-keys";
-		dd_dio0: motor_dir1 {
-			gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
-			label = "Power Control";
+		dd_dio0: motor_dn11 {
+			gpios = <&gpioe 9 GPIO_ACTIVE_HIGH>;
+			label = "Motor EN1";
 		};
-		dd_dio1: motor_en1 {
-			gpios = <&gpioc 8 GPIO_ACTIVE_HIGH>;
-			label = "Fan Control";
+		dd_dio1: motor_dir1 {
+			gpios = <&gpioe 11 GPIO_ACTIVE_HIGH>;
+			label = "Motor DIR1";
 		};
-		dd_dio2: motor_dir2 {
-			gpios = <&gpiob 5 GPIO_ACTIVE_HIGH>;
-			label = "Buzzer Control";
+		dd_dio2: motor_en2 {
+			gpios = <&gpioe 13 GPIO_ACTIVE_HIGH>;
+			label = "Motor EN2";
 		};
-		dd_dio3: motor_en2 {
-			gpios = <&gpioc 11 GPIO_ACTIVE_HIGH>;
-			label = "External Interrupt 2";
+		dd_dio3: motor_dir2 {
+			gpios = <&gpioe 14 GPIO_ACTIVE_HIGH>;
+			label = "Motor DIR2";
 		};
 		// estop: exti_2 {
 		// 	gpios = <&gpioc 12 GPIO_ACTIVE_HIGH>;
