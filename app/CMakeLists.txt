@@ -12,5 +12,5 @@ set(GCC_FLAG "-lgcc")
 
 # Main application 
 add_subdirectory(app)
-add_subdirectory(driver)
+# add_subdirectory(driver)
 add_subdirectory(hwconfig)

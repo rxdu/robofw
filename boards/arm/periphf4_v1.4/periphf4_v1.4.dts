@@ -36,19 +36,19 @@
 
     gpio_keys {
         compatible = "gpio-keys";
-        dd_dio0: motor_en11 {
+        dio0: motor_en11 {
             gpios = <&gpioe 9 GPIO_ACTIVE_HIGH>;
             label = "Motor EN1";
         };
-        dd_dio1: motor_dir1 {
+        dio1: motor_dir1 {
             gpios = <&gpioe 11 GPIO_ACTIVE_HIGH>;
             label = "Motor DIR1";
         };
-        dd_dio2: motor_en2 {
+        dio2: motor_en2 {
             gpios = <&gpioe 13 GPIO_ACTIVE_HIGH>;
             label = "Motor EN2";
         };
-        dd_dio3: motor_dir2 {
+        dio3: motor_dir2 {
             gpios = <&gpioe 14 GPIO_ACTIVE_HIGH>;
             label = "Motor DIR2";
         };
@@ -78,10 +78,10 @@
     aliases {
         led1 = &dd_led0;
         led2 = &dd_led1;
-        // led3 = &red_led_2;
-        // sw0 = &user_button;
-        ctrlpwm1 = &pwm2;
-        ctrlpwm2 = &pwm2;
+        dddio0 = &dio0;
+        dddio0 = &dio0;
+        dddio0 = &dio0;
+        dddio0 = &dio0;
         dduart0 = &uart8;
     };
 };
