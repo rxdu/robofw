@@ -31,36 +31,36 @@ bool InitUart() {
   // disable all by default, enable only if successfully initialized below
   for (int i = 0; i < DD_UART_NUM; ++i) uart_desc.descriptor[i].active = false;
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart0), okay)
-  initialize_uart(0, dduart0, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart0), okay)
+  initialize_uart(0, xuart0, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart1), okay)
-  initialize_uart(1, dduart1, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart1), okay)
+  initialize_uart(1, xuart1, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart2), okay)
-  initialize_uart(2, dduart2, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart2), okay)
+  initialize_uart(2, xuart2, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart3), okay)
-  initialize_uart(3, dduart3, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart3), okay)
+  initialize_uart(3, xuart3, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart4), okay)
-  initialize_uart(4, dduart4, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart4), okay)
+  initialize_uart(4, xuart4, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart5), okay)
-  initialize_uart(5, dduart5, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart5), okay)
+  initialize_uart(5, xuart5, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart6), okay)
-  initialize_uart(6, dduart6, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart6), okay)
+  initialize_uart(6, xuart6, uart_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_ALIAS(dduart7), okay)
-  initialize_uart(7, dduart7, uart_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xuart7), okay)
+  initialize_uart(7, xuart7, uart_desc);
 #endif
 
   return true;
@@ -71,7 +71,7 @@ UartDescription* GetUartDescription() { return &uart_desc; }
 void PrintUartInitResult() {
   for (int i = 0; i < DD_UART_NUM; ++i) {
     if (uart_desc.descriptor[i].active) {
-      printk(" - [UART%d]: %s \n", i, "active");
+      printk(" - [xUART%d]: %s \n", i, "active");
     }
   }
 }

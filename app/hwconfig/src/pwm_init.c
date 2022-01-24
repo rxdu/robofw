@@ -67,7 +67,7 @@ PwmDescription* GetPwmDescription() { return &pwm_desc; }
 void PrintPwmInitResult() {
   for (int i = 0; i < DD_PWM_NUM; ++i) {
     if (pwm_desc.descriptor[i].active) {
-      printk(" - [PWM%d]: %s \n", i, "active");
+      printk(" - [xPWM%d]: %s \n", i, "active");
     }
   }
 }

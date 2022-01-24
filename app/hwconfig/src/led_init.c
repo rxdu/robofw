@@ -18,9 +18,9 @@
 #define initialize_led(x, node_label, desc)                                   \
   {                                                                           \
     desc.descriptor[x].device =                                               \
-        device_get_binding(DT_GPIO_LABEL(DT_NODELABEL(node_label), gpios));   \
-    desc.descriptor[x].pin = DT_GPIO_PIN(DT_NODELABEL(node_label), gpios);    \
-    flags = DT_GPIO_FLAGS(DT_NODELABEL(node_label), gpios);                   \
+        device_get_binding(DT_GPIO_LABEL(DT_ALIAS(node_label), gpios));       \
+    desc.descriptor[x].pin = DT_GPIO_PIN(DT_ALIAS(node_label), gpios);        \
+    flags = DT_GPIO_FLAGS(DT_ALIAS(node_label), gpios);                       \
     if (!desc.descriptor[x].device) {                                         \
       printk("LED: Device driver not found.\n");                              \
       return false;                                                           \
@@ -48,20 +48,20 @@ bool InitLed() {
   // disable all by default, enable only if successfully initialized below
   for (int i = 0; i < DD_LED_NUM; ++i) led_desc.descriptor[i].active = false;
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_led0), okay)
-  initialize_led(0, dd_led0, led_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xled0), okay)
+  initialize_led(0, xled0, led_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_led1), okay)
-  initialize_led(1, dd_led1, led_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xled1), okay)
+  initialize_led(1, xled1, led_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_led2), okay)
-  initialize_led(2, dd_led2, led_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xled2), okay)
+  initialize_led(2, xled2, led_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_led3), okay)
-  initialize_led(3, dd_led3, led_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xled3), okay)
+  initialize_led(3, xled3, led_desc);
 #endif
 
   return true;
@@ -72,7 +72,7 @@ LedDescription* GetLedDescription() { return &led_desc; }
 void PrintLedInitResult() {
   for (int i = 0; i < DD_LED_NUM; ++i) {
     if (led_desc.descriptor[i].active) {
-      printk(" - [LED%d]: %s \n", i, "active");
+      printk(" - [xLED%d]: %s \n", i, "active");
     }
   }
 }

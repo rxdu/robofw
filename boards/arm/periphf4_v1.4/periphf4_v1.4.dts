@@ -24,11 +24,11 @@
 
     leds {
         compatible = "gpio-leds";
-        dd_led0: led_1 {
+        led0: led_1 {
             gpios = <&gpiob 8 GPIO_ACTIVE_LOW>;
             label = "User LD1";
         };
-        dd_led1: led_2 {
+        led1: led_2 {
             gpios = <&gpiob 9 GPIO_ACTIVE_LOW>;
             label = "User LD2";
         };
@@ -76,13 +76,13 @@
     };
 
     aliases {
-        led1 = &dd_led0;
-        led2 = &dd_led1;
-        dddio0 = &dio0;
-        dddio0 = &dio0;
-        dddio0 = &dio0;
-        dddio0 = &dio0;
-        dduart0 = &uart8;
+        xled0 = &led0;
+        xled1 = &led1;
+        xdio0 = &dio0;
+        xdio1 = &dio1;
+        xdio2 = &dio2;
+        xdio3 = &dio3;
+        xuart0 = &uart8;
     };
 };
 

@@ -11,7 +11,8 @@ else()
         src/uart_init.c
         src/dio_interface.c
         src/led_interface.c
-        src/pwm_interface.c)
+        src/pwm_interface.c
+        src/uart_interface.c)
 endif()
 
 add_library(hwconfig ${DRIVER_SRC})

@@ -64,6 +64,11 @@ void main(void) {
   SetPwmDutyCycle(&pwm_desc->descriptor[0], 0.5);
   SetPwmDutyCycle(&pwm_desc->descriptor[1], 0.5);
 
+  UartDescription* uart_desc = GetUartDescription();
+  struct uart_config sbus_cfg;
+  GetUartSbusConfig(&sbus_cfg);
+  ConfigureUart(&uart_desc->descriptor[0], sbus_cfg);
+
   uint8_t count = 0;
 
   while (1) {
