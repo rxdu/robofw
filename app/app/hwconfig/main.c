@@ -79,6 +79,7 @@ void main(void) {
 
   ConfigureUart(&uart_desc->descriptor[0], uart_test_cfg);
   SetupUartAsyncMode(&uart_desc->descriptor[0]);
+  StartUartAsyncReceive(&uart_desc->descriptor[0]);
 
   ConfigureUart(&uart_desc->descriptor[1], uart_test_cfg);
   SetupUartAsyncMode(&uart_desc->descriptor[1]);
@@ -89,8 +90,8 @@ void main(void) {
 
   uint8_t count = 0;
   uint8_t data[] = "hello";
-  uint8_t buffer1[64];
-  uint8_t buffer2[64];
+  //   uint8_t buffer1[64];
+  //   uint8_t buffer2[64];
 
   while (1) {
     // ToggleGpio(EN1);
@@ -101,9 +102,16 @@ void main(void) {
                             200)) {
       printk("%s failed to send\n", uart_desc->descriptor[0].device->name);
     }
-    if (!StartUartAsyncSend(&uart_desc->descriptor[1], data, sizeof(data),
-                            200)) {
-      printk("%s failed to send\n", uart_desc->descriptor[1].device->name);
+    // if (!StartUartAsyncSend(&uart_desc->descriptor[1], data, sizeof(data),
+    //                         200)) {
+    //   printk("%s failed to send\n", uart_desc->descriptor[1].device->name);
+    // }
+
+    if (k_sem_take(&uart_desc->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
+      uint8_t ch;
+      while (ring_buf_get(&uart_desc->descriptor[0].ring_buffer, &ch, 1) != 0) {
+        printk("%02x\n", ch);
+      }
     }
 
     ++count;

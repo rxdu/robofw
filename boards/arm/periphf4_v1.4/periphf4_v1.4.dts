@@ -189,13 +189,13 @@
 //  dma-mask rx = 000000000000000 01 0 00 00 1 0 0 10 000000  0x10480
 //  dma-mask tx = 000000000000000 01 0 00 00 1 0 0 01 000000  0x10440
 // Reference: https://docs.zephyrproject.org/2.6.0/reference/devicetree/bindings/dma/st%2Cstm32-dma-v1.html#dtbinding-st-stm32-dma-v1
-// &uart8 {
-//     status = "okay";
-//     pinctrl-0 = <&uart8_tx_pe1 &uart8_rx_pe0>;
-//     current-speed = <100000>;
-//     dmas = <&dma1 6 5 0x10480 0x03>;
-// 	dma-names = "rx";
-// };
+&uart8 {
+    status = "okay";
+    pinctrl-0 = <&uart8_tx_pe1 &uart8_rx_pe0>;
+    current-speed = <100000>;
+    dmas = <&dma1 6 5 0x10480 0x03>;
+	dma-names = "rx";
+};
 
 // &usbotg_fs {
     //     status = "okay";

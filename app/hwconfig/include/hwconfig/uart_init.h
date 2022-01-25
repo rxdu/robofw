@@ -12,6 +12,15 @@
 
 #include <zephyr.h>
 #include <drivers/uart.h>
+#include <sys/ring_buffer.h>
+
+#ifndef UART_RX_BUF_SIZE
+#define UART_RX_BUF_SIZE 256
+#endif
+
+#ifndef UART_RX_TIMEOUT
+#define UART_RX_TIMEOUT 50
+#endif
 
 typedef enum {
   DD_UART0 = 0,
@@ -32,6 +41,11 @@ typedef struct {
   struct k_sem rx_sem;
   struct k_sem tx_sem;
   struct uart_config config;
+  struct ring_buf ring_buffer;
+  // memory pre-allocated for internal use
+  uint8_t double_buffer_index;
+  uint8_t rx_double_buffer[2][UART_RX_BUF_SIZE];
+  uint8_t ring_buffer_mem[2 * UART_RX_BUF_SIZE];
 } UartDescriptor;
 
 typedef struct {

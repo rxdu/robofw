@@ -39,6 +39,9 @@ bool SetupUartAsyncMode(UartDescriptor* dd) {
 
   uart_callback_set(dd->device, GenericUartCallback, (void*)dd);
 
+  ring_buf_init(&dd->ring_buffer, sizeof(dd->ring_buffer_mem),
+                dd->ring_buffer_mem);
+
   return true;
 }
 
@@ -51,6 +54,10 @@ bool StartUartAsyncSend(UartDescriptor* dd, const uint8_t* buf, size_t len,
 
 void StartUartAsyncReceive(UartDescriptor* dd) {
   if (!dd->active) return;
+
+  dd->double_buffer_index = 0;
+  uart_rx_enable(dd->device, dd->rx_double_buffer[dd->double_buffer_index],
+                 UART_RX_BUF_SIZE, UART_RX_TIMEOUT);
 }
 
 void StopUartAsyncReceive(UartDescriptor* dd) {
@@ -66,15 +73,23 @@ void GenericUartCallback(const struct device* uart_dev, struct uart_event* evt,
   switch (evt->type) {
     // Received data is ready for processing.
     case UART_RX_RDY:
+      ring_buf_put(&dd->ring_buffer, evt->data.rx.buf + evt->data.rx.offset,
+                   evt->data.rx.len);
+      k_sem_give(&dd->rx_sem);
       break;
     // Driver requests next buffer for continuous reception.
     case UART_RX_BUF_REQUEST:
+      dd->double_buffer_index = (dd->double_buffer_index + 1) % 2;
+      uart_rx_buf_rsp(dd->device, dd->rx_double_buffer[dd->double_buffer_index],
+                      UART_RX_BUF_SIZE);
       break;
     // Buffer is no longer used by UART driver.
     case UART_RX_BUF_RELEASED:
       break;
     // RX has been disabled and can be reenabled.
     case UART_RX_DISABLED:
+      dd->double_buffer_index = 0;
+      StartUartAsyncReceive(dd);
       break;
     // RX has stopped due to external event.
     case UART_RX_STOPPED:
