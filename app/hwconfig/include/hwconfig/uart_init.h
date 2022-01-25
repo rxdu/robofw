@@ -29,6 +29,8 @@ typedef enum {
 typedef struct {
   bool active;
   const struct device* device;
+  struct k_sem rx_sem;
+  struct k_sem tx_sem;
   struct uart_config config;
 } UartDescriptor;
 
