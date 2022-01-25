@@ -57,10 +57,12 @@ void main(void) {
   ConfigureDio(&dio_desc->descriptor[1], GPIO_OUTPUT | GPIO_PULL_UP);
   ConfigureDio(&dio_desc->descriptor[2], GPIO_OUTPUT | GPIO_PULL_UP);
   ConfigureDio(&dio_desc->descriptor[3], GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(&dio_desc->descriptor[4], GPIO_OUTPUT | GPIO_PULL_UP);
   SetDio(&dio_desc->descriptor[0], 1);
   SetDio(&dio_desc->descriptor[1], 1);
   SetDio(&dio_desc->descriptor[2], 1);
   SetDio(&dio_desc->descriptor[3], 0);
+  SetDio(&dio_desc->descriptor[4], 1);
 
   // PWM
   PwmDescription* pwm_desc = GetPwmDescription();
@@ -84,14 +86,15 @@ void main(void) {
   ConfigureUart(&uart_desc->descriptor[1], uart_test_cfg);
   SetupUartAsyncMode(&uart_desc->descriptor[1]);
 
-  //   struct uart_config sbus_cfg;
-  //   GetUartSbusConfig(&sbus_cfg);
-  //   ConfigureUart(&uart_desc->descriptor[2], sbus_cfg);
+  struct uart_config sbus_cfg;
+  GetUartSbusConfig(&sbus_cfg);
+
+  ConfigureUart(&uart_desc->descriptor[2], sbus_cfg);
+  SetupUartAsyncMode(&uart_desc->descriptor[2]);
+  StartUartAsyncReceive(&uart_desc->descriptor[2]);
 
   uint8_t count = 0;
   uint8_t data[] = "hello";
-  //   uint8_t buffer1[64];
-  //   uint8_t buffer2[64];
 
   while (1) {
     // ToggleGpio(EN1);
@@ -107,10 +110,10 @@ void main(void) {
     //   printk("%s failed to send\n", uart_desc->descriptor[1].device->name);
     // }
 
-    if (k_sem_take(&uart_desc->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
+    if (k_sem_take(&uart_desc->descriptor[2].rx_sem, K_MSEC(50)) == 0) {
       uint8_t ch;
-      while (ring_buf_get(&uart_desc->descriptor[0].ring_buffer, &ch, 1) != 0) {
-        printk("%02x\n", ch);
+      while (ring_buf_get(&uart_desc->descriptor[2].ring_buffer, &ch, 1) != 0) {
+        printk("%02x ", ch);
       }
     }
 

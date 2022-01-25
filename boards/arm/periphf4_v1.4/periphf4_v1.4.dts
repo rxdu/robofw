@@ -52,6 +52,10 @@
             gpios = <&gpioe 14 GPIO_ACTIVE_HIGH>;
             label = "Motor DIR2";
         };
+        dio4: sbus_inv {
+            gpios = <&gpioc 13 GPIO_ACTIVE_HIGH>;
+            label = "SBUS INV";
+        };
         // estop: exti_2 {
             //     gpios = <&gpioc 12 GPIO_ACTIVE_HIGH>;
             //     label = "Emergency Stop Button";
@@ -82,9 +86,10 @@
         xdio1 = &dio1;
         xdio2 = &dio2;
         xdio3 = &dio3;
+        xdio4 = &dio4;
         xuart0 = &usart3;
         xuart1 = &uart7;
-        // xuart2 = &uart8;
+        xuart2 = &uart8;
     };
 };
 

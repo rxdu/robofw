@@ -22,7 +22,10 @@ void GetUartSbusConfig(struct uart_config* cfg) {
 }
 
 bool ConfigureUart(UartDescriptor* dd, struct uart_config config) {
-  if (!dd->active) return false;
+  if (!dd->active) {
+    printk("[xUART]: device inactive\n");
+    return false;
+  }
 
   dd->config = config;
   int ret = uart_configure(dd->device, &dd->config);
@@ -30,7 +33,10 @@ bool ConfigureUart(UartDescriptor* dd, struct uart_config config) {
 }
 
 bool SetupUartAsyncMode(UartDescriptor* dd) {
-  if (!dd->active) return false;
+  if (!dd->active) {
+    printk("[xUART]: device inactive\n");
+    return false;
+  }
 
   if (k_sem_init(&dd->rx_sem, 0, 1) != 0 ||
       k_sem_init(&dd->tx_sem, 0, 1) != 0) {
@@ -47,13 +53,19 @@ bool SetupUartAsyncMode(UartDescriptor* dd) {
 
 bool StartUartAsyncSend(UartDescriptor* dd, const uint8_t* buf, size_t len,
                         int32_t timeout) {
-  if (!dd->active) return false;
+  if (!dd->active) {
+    printk("[xUART]: device inactive\n");
+    return false;
+  }
   int ret = uart_tx(dd->device, buf, len, timeout);
   return (ret == 0);
 }
 
 void StartUartAsyncReceive(UartDescriptor* dd) {
-  if (!dd->active) return;
+  if (!dd->active) {
+    printk("[xUART]: device inactive\n");
+    return;
+  }
 
   dd->double_buffer_index = 0;
   uart_rx_enable(dd->device, dd->rx_double_buffer[dd->double_buffer_index],
@@ -61,7 +73,10 @@ void StartUartAsyncReceive(UartDescriptor* dd) {
 }
 
 void StopUartAsyncReceive(UartDescriptor* dd) {
-  if (!dd->active) return;
+  if (!dd->active) {
+    printk("[xUART]: device inactive\n");
+    return;
+  }
 
   uart_rx_disable(dd->device);
 }
