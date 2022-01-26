@@ -1,4 +1,4 @@
-identifier: tbot_ctrl_f405rg
+identifier: tbotctrl_f405
 name: TBot Control Board
 type: mcu
 arch: arm

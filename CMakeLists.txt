@@ -10,7 +10,7 @@ if(BUILD_NATIVE_POSIX)
     set(BOARD "native_posix")
     add_definitions("-DTARGET_NATIVE_POSIX")
 else()
-    set(BOARD "periphf4_v1.4")
+    set(BOARD "tbotctrl_f405")
     add_definitions("-DTARGET_CORTEX_M4")
 endif()
 

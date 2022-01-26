@@ -14,19 +14,18 @@
 #include <drivers/pwm.h>
 #include <sys/printk.h>
 
-#define initialize_pwm(x, node_label, desc)                                   \
-  {                                                                           \
-    pwm_desc.descriptor[x].device =                                           \
-        DEVICE_DT_GET(DT_PWMS_CTLR(DT_NODELABEL(node_label)));                \
-    pwm_desc.descriptor[x].channel =                                          \
-        DT_PWMS_CHANNEL(DT_NODELABEL(node_label));                            \
-    pwm_desc.descriptor[x].period = DT_PWMS_PERIOD(DT_NODELABEL(node_label)); \
-    pwm_desc.descriptor[x].flags = DT_PWMS_FLAGS(DT_NODELABEL(node_label));   \
-    if (!desc.descriptor[x].device) {                                         \
-      printk("PWM: Device driver not found.\n");                              \
-      return false;                                                           \
-    }                                                                         \
-    desc.descriptor[x].active = true;                                         \
+#define initialize_pwm(x, node_label, desc)                                 \
+  {                                                                         \
+    pwm_desc.descriptor[x].device =                                         \
+        DEVICE_DT_GET(DT_PWMS_CTLR(DT_ALIAS(node_label)));                  \
+    pwm_desc.descriptor[x].channel = DT_PWMS_CHANNEL(DT_ALIAS(node_label)); \
+    pwm_desc.descriptor[x].period = DT_PWMS_PERIOD(DT_ALIAS(node_label));   \
+    pwm_desc.descriptor[x].flags = DT_PWMS_FLAGS(DT_ALIAS(node_label));     \
+    if (!desc.descriptor[x].device) {                                       \
+      printk("PWM: Device driver not found.\n");                            \
+      return false;                                                         \
+    }                                                                       \
+    desc.descriptor[x].active = true;                                       \
   }
 
 static PwmDescription pwm_desc;
@@ -35,28 +34,28 @@ bool InitPwm() {
   // disable all by default, enable only if successfully initialized below
   for (int i = 0; i < DD_PWM_NUM; ++i) pwm_desc.descriptor[i].active = false;
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_pwm0), okay)
-  initialize_pwm(0, dd_pwm0, pwm_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xpwm0), okay)
+  initialize_pwm(0, xpwm0, pwm_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_pwm1), okay)
-  initialize_pwm(1, dd_pwm1, pwm_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xpwm1), okay)
+  initialize_pwm(1, xpwm1, pwm_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_pwm2), okay)
-  initialize_pwm(2, dd_pwm2, pwm_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xpwm2), okay)
+  initialize_pwm(2, xpwm2, pwm_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_pwm3), okay)
-  initialize_pwm(3, dd_pwm3, pwm_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xpwm3), okay)
+  initialize_pwm(3, xpwm3, pwm_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_pwm4), okay)
-  initialize_pwm(4, dd_pwm4, pwm_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xpwm4), okay)
+  initialize_pwm(4, xpwm4, pwm_desc);
 #endif
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(dd_pwm5), okay)
-  initialize_pwm(5, dd_pwm5, pwm_desc);
+#if DT_NODE_HAS_STATUS(DT_ALIAS(xpwm5), okay)
+  initialize_pwm(5, xpwm5, pwm_desc);
 #endif
 
   return true;

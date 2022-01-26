@@ -2,9 +2,9 @@
 
 # Copyright (c) 2022 Ruixiang Du (rdu)
 
-if BOARD_TBOT_CTRL_F405RG
+if BOARD_TBOTCTRL_F405
 
 config BOARD
-	default "tbot_ctrl_f405rg"
+	default "tbotctrl_f405"
 
-endif # BOARD_TBOT_CTRL_F405RG
+endif # BOARD_TBOTCTRL_F405
