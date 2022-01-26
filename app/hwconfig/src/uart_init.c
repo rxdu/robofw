@@ -69,9 +69,12 @@ bool InitUart() {
 UartDescription* GetUartDescription() { return &uart_desc; }
 
 void PrintUartInitResult() {
+  uint32_t count = 0;
   for (int i = 0; i < DD_UART_NUM; ++i) {
     if (uart_desc.descriptor[i].active) {
+      count++;
       printk(" - [xUART%d]: %s \n", i, "active");
     }
   }
+  printk(" - Number of active instances: %d\n", count);
 }

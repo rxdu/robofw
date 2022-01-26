@@ -64,9 +64,12 @@ bool InitPwm() {
 PwmDescription* GetPwmDescription() { return &pwm_desc; }
 
 void PrintPwmInitResult() {
+  uint32_t count = 0;
   for (int i = 0; i < DD_PWM_NUM; ++i) {
     if (pwm_desc.descriptor[i].active) {
+      count++;
       printk(" - [xPWM%d]: %s \n", i, "active");
     }
   }
+  printk(" - Number of active instances: %d\n", count);
 }

@@ -46,6 +46,13 @@ void main(void) {
     printk("[ERROR]: Failed to setup UART\n");
   }
 
+  if (InitCan()) {
+    printk("[INFO]: Initialized CAN\n");
+    PrintCanInitResult();
+  } else {
+    printk("[ERROR]: Failed to setup CAN\n");
+  }
+
   // LED
   LedDescription* led_desc = GetLedDescription();
   TurnOnLed(&led_desc->descriptor[0]);
@@ -95,11 +102,23 @@ void main(void) {
   SetupUartAsyncMode(&uart_desc->descriptor[2]);
   StartUartAsyncReceive(&uart_desc->descriptor[2]);
 
-  printk("-----------------------------------------\n");
+  // CAN
+  CanDescription* can_desc = GetCanDescription();
+  struct zcan_filter can_filter;
+  can_filter.id_type = CAN_STANDARD_IDENTIFIER;
+  can_filter.rtr = CAN_DATAFRAME;
+  can_filter.rtr_mask = 1;
+  can_filter.id_mask = 0;
+  ConfigureCan(&can_desc->descriptor[0], CAN_NORMAL_MODE, 1000000, can_filter);
+  ConfigureCan(&can_desc->descriptor[1], CAN_NORMAL_MODE, 1000000, can_filter);
+
+  printk("--------------------------------------------\n");
 
   uint8_t count = 0;
   uint8_t data[] = "hello";
-  
+  uint8_t candata[] = {0x11, 0x22, 0x55, 0x66};
+  struct zcan_frame rx_frame;
+
   (void)data;
 
   while (1) {
@@ -123,6 +142,27 @@ void main(void) {
       while (ring_buf_get(&uart_desc->descriptor[0].ring_buffer, &ch, 1) != 0) {
         printk("%02x ", ch);
       }
+    }
+
+    if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0) {
+      printk("CAN1 %02x: ", rx_frame.id);
+      for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
+      printk("\n");
+    }
+    int ret = SendCanFrame(&can_desc->descriptor[0], 0x121, true, candata, 4);
+    if (ret != CAN_TX_OK) {
+      printk("%s send: %d\n", can_desc->descriptor[0].device->name, ret);
+    } else {
+      printk("%s sent\n", can_desc->descriptor[0].device->name);
+    }
+
+    if (k_msgq_get(can_desc->descriptor[1].msgq, &rx_frame, K_MSEC(50)) == 0) {
+      printk("CAN2 %02x: ", rx_frame.id);
+      for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
+      printk("\n");
+    }
+    if (SendCanFrame(&can_desc->descriptor[1], 0x121, true, candata, 4) !=
+        CAN_TX_OK) {
     }
 
     ++count;

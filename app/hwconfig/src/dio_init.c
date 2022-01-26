@@ -63,9 +63,12 @@ bool InitDio() {
 DioDescription* GetDioDescription() { return &dio_desc; }
 
 void PrintDioInitResult() {
+  uint32_t count = 0;
   for (int i = 0; i < DD_DIO_NUM; ++i) {
     if (dio_desc.descriptor[i].active) {
+      count++;
       printk(" - [xDIO%d]: %s \n", i, "active");
     }
   }
+  printk(" - Number of active instances: %d\n", count);
 }

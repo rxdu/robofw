@@ -70,9 +70,12 @@ bool InitLed() {
 LedDescription* GetLedDescription() { return &led_desc; }
 
 void PrintLedInitResult() {
+  uint32_t count = 0;
   for (int i = 0; i < DD_LED_NUM; ++i) {
     if (led_desc.descriptor[i].active) {
+      count++;
       printk(" - [xLED%d]: %s \n", i, "active");
     }
   }
+  printk(" - Number of active instances: %d\n", count);
 }
