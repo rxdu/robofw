@@ -14,15 +14,15 @@
 #include <drivers/can.h>
 #include <sys/printk.h>
 
-#define initialize_can(x, node_label, desc, msgqx)           \
+#define initialize_can(x, node_label, desc, msgqx)          \
   {                                                         \
     desc.descriptor[x].device =                             \
         device_get_binding(DT_LABEL(DT_ALIAS(node_label))); \
     if (!desc.descriptor[x].device) {                       \
-      printk("CAN: Device driver not found.\n");            \
+      printk("[ERROR] CAN device driver not found\n");      \
       return false;                                         \
     }                                                       \
-    desc.descriptor[x].msgq = &msgqx;                        \
+    desc.descriptor[x].msgq = &msgqx;                       \
     desc.descriptor[x].active = true;                       \
   }
 
@@ -48,6 +48,9 @@ bool InitCan() {
   initialize_can(1, xcan1, can_desc, can_msgq2);
 #endif
 
+  printk("[INFO] Initialized CAN\n");
+  PrintCanInitResult();
+
   return true;
 }
 
@@ -58,8 +61,8 @@ void PrintCanInitResult() {
   for (int i = 0; i < DD_CAN_NUM; ++i) {
     if (can_desc.descriptor[i].active) {
       count++;
-      printk(" - [xCAN%d]: %s \n", i, "active");
+      printk(" - [xCAN%d] %s \n", i, "active");
     }
   }
-  printk(" - Number of active instances: %d\n", count);
+  printk(" => Number of active instances: %d\n", count);
 }

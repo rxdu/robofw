@@ -22,14 +22,14 @@
     desc.descriptor[x].pin = DT_GPIO_PIN(DT_ALIAS(node_label), gpios);        \
     flags = DT_GPIO_FLAGS(DT_ALIAS(node_label), gpios);                       \
     if (!desc.descriptor[x].device) {                                         \
-      printk("LED: Device driver not found.\n");                              \
+      printk("[ERROR] LED device driver not found\n");                        \
       return false;                                                           \
     }                                                                         \
     ret =                                                                     \
         gpio_pin_configure(desc.descriptor[x].device, desc.descriptor[x].pin, \
                            flags | GPIO_OUTPUT_ACTIVE);                       \
     if (ret != 0) {                                                           \
-      printk("LED: Failed to set pin to GPIO_OUTPUT_ACTIVE mode.\n");         \
+      printk("[ERROR] Failed to set LED pin to GPIO_OUTPUT_ACTIVE mode\n");   \
       return false;                                                           \
     }                                                                         \
     desc.descriptor[x].active = true;                                         \
@@ -64,6 +64,9 @@ bool InitLed() {
   initialize_led(3, xled3, led_desc);
 #endif
 
+  printk("[INFO] Initialized LED\n");
+  PrintLedInitResult();
+
   return true;
 }
 
@@ -74,8 +77,8 @@ void PrintLedInitResult() {
   for (int i = 0; i < DD_LED_NUM; ++i) {
     if (led_desc.descriptor[i].active) {
       count++;
-      printk(" - [xLED%d]: %s \n", i, "active");
+      printk(" - [xLED%d] %s \n", i, "active");
     }
   }
-  printk(" - Number of active instances: %d\n", count);
+  printk(" => Number of active instances: %d\n", count);
 }

@@ -11,7 +11,7 @@
 
 void ConfigureDio(DioDescriptor* dd, gpio_flags_t flags) {
   if (!dd->active) {
-    printk("[xDIO]: device inactive\n");
+    printk("[xDIO] Device inactive\n");
     return;
   }
   gpio_pin_configure(dd->device, dd->pin, dd->flags | flags);
@@ -19,7 +19,7 @@ void ConfigureDio(DioDescriptor* dd, gpio_flags_t flags) {
 
 void SetDio(DioDescriptor* dd, uint8_t value) {
   if (!dd->active) {
-    printk("[xDIO]: device inactive\n");
+    printk("[xDIO] Device inactive\n");
     return;
   }
   gpio_pin_set(dd->device, dd->pin, value);
@@ -27,7 +27,7 @@ void SetDio(DioDescriptor* dd, uint8_t value) {
 
 void ToggleDio(DioDescriptor* dd) {
   if (!dd->active) {
-    printk("[xDIO]: device inactive\n");
+    printk("[xDIO] Device inactive\n");
     return;
   }
   gpio_pin_toggle(dd->device, dd->pin);

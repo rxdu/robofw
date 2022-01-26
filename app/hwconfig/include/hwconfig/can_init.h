@@ -20,6 +20,10 @@
 #define CAN_TX_TIMEOUT 10
 #endif
 
+#ifndef CAN_SAMPLING_POINT 
+#define CAN_SAMPLING_POINT 875
+#endif
+
 typedef enum { DD_CAN0 = 0, DD_CAN1, DD_CAN_NUM } CanList;
 
 // CAN

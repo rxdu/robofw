@@ -23,7 +23,7 @@ void GetUartSbusConfig(struct uart_config* cfg) {
 
 bool ConfigureUart(UartDescriptor* dd, struct uart_config config) {
   if (!dd->active) {
-    printk("[xUART]: device inactive\n");
+    printk("[xUART] Device inactive\n");
     return false;
   }
 
@@ -34,7 +34,7 @@ bool ConfigureUart(UartDescriptor* dd, struct uart_config config) {
 
 bool SetupUartAsyncMode(UartDescriptor* dd) {
   if (!dd->active) {
-    printk("[xUART]: device inactive\n");
+    printk("[xUART] Device inactive\n");
     return false;
   }
 
@@ -54,7 +54,7 @@ bool SetupUartAsyncMode(UartDescriptor* dd) {
 bool StartUartAsyncSend(UartDescriptor* dd, const uint8_t* buf, size_t len,
                         int32_t timeout) {
   if (!dd->active) {
-    printk("[xUART]: device inactive\n");
+    printk("[xUART] Device inactive\n");
     return false;
   }
   int ret = uart_tx(dd->device, buf, len, timeout);
@@ -63,7 +63,7 @@ bool StartUartAsyncSend(UartDescriptor* dd, const uint8_t* buf, size_t len,
 
 void StartUartAsyncReceive(UartDescriptor* dd) {
   if (!dd->active) {
-    printk("[xUART]: device inactive\n");
+    printk("[xUART] Device inactive\n");
     return;
   }
 
@@ -74,7 +74,7 @@ void StartUartAsyncReceive(UartDescriptor* dd) {
 
 void StopUartAsyncReceive(UartDescriptor* dd) {
   if (!dd->active) {
-    printk("[xUART]: device inactive\n");
+    printk("[xUART] Device inactive\n");
     return;
   }
 

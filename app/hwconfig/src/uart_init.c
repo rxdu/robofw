@@ -19,7 +19,7 @@
     desc.descriptor[x].device =                             \
         device_get_binding(DT_LABEL(DT_ALIAS(node_label))); \
     if (!desc.descriptor[x].device) {                       \
-      printk("UART: Device driver not found.\n");           \
+      printk("[ERROR] UART device driver not found\n");     \
       return false;                                         \
     }                                                       \
     desc.descriptor[x].active = true;                       \
@@ -63,6 +63,9 @@ bool InitUart() {
   initialize_uart(7, xuart7, uart_desc);
 #endif
 
+  printk("[INFO] Initialized UART\n");
+  PrintUartInitResult();
+
   return true;
 }
 
@@ -73,8 +76,8 @@ void PrintUartInitResult() {
   for (int i = 0; i < DD_UART_NUM; ++i) {
     if (uart_desc.descriptor[i].active) {
       count++;
-      printk(" - [xUART%d]: %s \n", i, "active");
+      printk(" - [xUART%d] %s \n", i, "active");
     }
   }
-  printk(" - Number of active instances: %d\n", count);
+  printk(" => Number of active instances: %d\n", count);
 }

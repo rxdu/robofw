@@ -11,7 +11,7 @@
 
 void TurnOnLed(LedDescriptor* dd) {
   if (!dd->active) {
-    printk("[xLED]: device inactive\n");
+    printk("[xLED] Device inactive\n");
     return;
   }
 
@@ -20,7 +20,7 @@ void TurnOnLed(LedDescriptor* dd) {
 
 void TurnOffLed(LedDescriptor* dd) {
   if (!dd->active) {
-    printk("[xLED]: device inactive\n");
+    printk("[xLED] Device inactive\n");
     return;
   }
 
@@ -29,7 +29,7 @@ void TurnOffLed(LedDescriptor* dd) {
 
 void ToggleLed(LedDescriptor* dd) {
   if (!dd->active) {
-    printk("[xLED]: device inactive\n");
+    printk("[xLED] Device inactive\n");
     return;
   }
 

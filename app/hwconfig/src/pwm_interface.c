@@ -11,7 +11,7 @@
 
 void SetPwmDutyCycle(PwmDescriptor* dd, float duty_cycle) {
   if (!dd->active) {
-    printk("[xPWM]: device inactive\n");
+    printk("[xPWM] Device inactive\n");
     return;
   }
 

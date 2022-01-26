@@ -21,7 +21,7 @@
     desc.descriptor[x].pin = DT_GPIO_PIN(DT_ALIAS(node_label), gpios);     \
     desc.descriptor[x].flags = DT_GPIO_FLAGS(DT_ALIAS(node_label), gpios); \
     if (!desc.descriptor[x].device) {                                      \
-      printk("DIO: Device driver not found.\n");                           \
+      printk("[ERROR] DIO device driver not found\n");                     \
       return false;                                                        \
     }                                                                      \
     desc.descriptor[x].active = true;                                      \
@@ -57,6 +57,9 @@ bool InitDio() {
   initialize_dio(5, xdio5, dio_desc);
 #endif
 
+  printk("[INFO] Initialized DIO\n");
+  PrintDioInitResult();
+
   return true;
 }
 
@@ -67,8 +70,8 @@ void PrintDioInitResult() {
   for (int i = 0; i < DD_DIO_NUM; ++i) {
     if (dio_desc.descriptor[i].active) {
       count++;
-      printk(" - [xDIO%d]: %s \n", i, "active");
+      printk(" - [xDIO%d] %s \n", i, "active");
     }
   }
-  printk(" - Number of active instances: %d\n", count);
+  printk(" => Number of active instances: %d\n", count);
 }

@@ -22,7 +22,7 @@
     pwm_desc.descriptor[x].period = DT_PWMS_PERIOD(DT_ALIAS(node_label));   \
     pwm_desc.descriptor[x].flags = DT_PWMS_FLAGS(DT_ALIAS(node_label));     \
     if (!desc.descriptor[x].device) {                                       \
-      printk("PWM: Device driver not found.\n");                            \
+      printk("[ERROR] PWM device driver not found\n");                      \
       return false;                                                         \
     }                                                                       \
     desc.descriptor[x].active = true;                                       \
@@ -58,6 +58,9 @@ bool InitPwm() {
   initialize_pwm(5, xpwm5, pwm_desc);
 #endif
 
+  printk("[INFO] Initialized PWM\n");
+  PrintPwmInitResult();
+
   return true;
 }
 
@@ -68,8 +71,8 @@ void PrintPwmInitResult() {
   for (int i = 0; i < DD_PWM_NUM; ++i) {
     if (pwm_desc.descriptor[i].active) {
       count++;
-      printk(" - [xPWM%d]: %s \n", i, "active");
+      printk(" - [xPWM%d] %s \n", i, "active");
     }
   }
-  printk(" - Number of active instances: %d\n", count);
+  printk(" => Number of active instances: %d\n", count);
 }

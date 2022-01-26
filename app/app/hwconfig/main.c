@@ -18,40 +18,7 @@
 void main(void) {
   printk("Starting board: %s\n", CONFIG_BOARD);
 
-  if (InitLed()) {
-    printk("[INFO]: Initialized LED\n");
-    PrintLedInitResult();
-  } else {
-    printk("[ERROR]: Failed to setup LED\n");
-  }
-
-  if (InitDio()) {
-    printk("[INFO]: Initialized DIO\n");
-    PrintDioInitResult();
-  } else {
-    printk("[ERROR]: Failed to setup DIO\n");
-  }
-
-  if (InitPwm()) {
-    printk("[INFO]: Initialized PWM\n");
-    PrintPwmInitResult();
-  } else {
-    printk("[ERROR]: Failed to setup PWM\n");
-  }
-
-  if (InitUart()) {
-    printk("[INFO]: Initialized UART\n");
-    PrintUartInitResult();
-  } else {
-    printk("[ERROR]: Failed to setup UART\n");
-  }
-
-  if (InitCan()) {
-    printk("[INFO]: Initialized CAN\n");
-    PrintCanInitResult();
-  } else {
-    printk("[ERROR]: Failed to setup CAN\n");
-  }
+  InitHardware();
 
   // LED
   LedDescription* led_desc = GetLedDescription();
@@ -109,7 +76,7 @@ void main(void) {
   can_filter.rtr = CAN_DATAFRAME;
   can_filter.rtr_mask = 1;
   can_filter.id_mask = 0;
-  ConfigureCan(&can_desc->descriptor[0], CAN_NORMAL_MODE, 1000000, can_filter);
+  ConfigureCan(&can_desc->descriptor[0], CAN_NORMAL_MODE, 500000, can_filter);
   ConfigureCan(&can_desc->descriptor[1], CAN_NORMAL_MODE, 1000000, can_filter);
 
   printk("--------------------------------------------\n");
@@ -136,34 +103,36 @@ void main(void) {
     //   printk("%s failed to send\n",
     // uart_desc->descriptor[1].device->name);
     // }
-
-    if (k_sem_take(&uart_desc->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
-      uint8_t ch;
-      while (ring_buf_get(&uart_desc->descriptor[0].ring_buffer, &ch, 1) != 0) {
-        printk("%02x ", ch);
-      }
-    }
+    // if (k_sem_take(&uart_desc->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
+    //   uint8_t ch;
+    //   while (ring_buf_get(&uart_desc->descriptor[0].ring_buffer, &ch, 1) !=
+    //   0) {
+    //     printk("%02x ", ch);
+    //   }
+    // }
 
     if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0) {
       printk("CAN1 %02x: ", rx_frame.id);
       for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
       printk("\n");
     }
+    // printk("%s sending\n", can_desc->descriptor[0].device->name);
     int ret = SendCanFrame(&can_desc->descriptor[0], 0x121, true, candata, 4);
     if (ret != CAN_TX_OK) {
-      printk("%s send: %d\n", can_desc->descriptor[0].device->name, ret);
+      printk("%s send failed: %d\n", can_desc->descriptor[0].device->name, ret);
     } else {
-      printk("%s sent\n", can_desc->descriptor[0].device->name);
+      //   printk("%s sent\n", can_desc->descriptor[0].device->name);
     }
 
-    if (k_msgq_get(can_desc->descriptor[1].msgq, &rx_frame, K_MSEC(50)) == 0) {
-      printk("CAN2 %02x: ", rx_frame.id);
-      for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
-      printk("\n");
-    }
-    if (SendCanFrame(&can_desc->descriptor[1], 0x121, true, candata, 4) !=
-        CAN_TX_OK) {
-    }
+    // if (k_msgq_get(can_desc->descriptor[1].msgq, &rx_frame, K_MSEC(50)) == 0)
+    // {
+    //   printk("CAN2 %02x: ", rx_frame.id);
+    //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
+    //   rx_frame.data[i]); printk("\n");
+    // }
+    // if (SendCanFrame(&can_desc->descriptor[1], 0x121, true, candata, 4) !=
+    //     CAN_TX_OK) {
+    // }
 
     ++count;
     k_msleep(SLEEP_TIME_MS);
