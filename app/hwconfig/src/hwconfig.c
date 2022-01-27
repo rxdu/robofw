@@ -10,31 +10,11 @@
 #include "hwconfig/hwconfig.h"
 
 bool InitHardware() {
-  bool led_ret = true;
-  bool dio_ret = true;
-  bool pwm_ret = true;
-  bool uart_ret = true;
-  bool can_ret = true;
-
-#ifdef HWCONFIG_ENABLE_DIO
-  dio_ret = InitDio();
-#endif
-
-#ifdef HWCONFIG_ENABLE_LED
-  led_ret = InitLed();
-#endif
-
-#ifdef HWCONFIG_ENABLE_PWM
-  pwm_ret = InitPwm();
-#endif
-
-#ifdef HWCONFIG_ENABLE_UART
-  uart_ret = InitUart();
-#endif
-
-#ifdef HWCONFIG_ENABLE_CAN
-  can_ret = InitCan();
-#endif
+  bool dio_ret = InitDio();
+  bool led_ret = InitLed();
+  bool pwm_ret = InitPwm();
+  bool uart_ret = InitUart();
+  bool can_ret = InitCan();
 
   return (led_ret && dio_ret && pwm_ret && uart_ret && can_ret);
 }

@@ -107,18 +107,20 @@ void main(void) {
     //   }
     // }
 
-    if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0) {
-      printk("CAN1 %02x: ", rx_frame.id);
-      for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
-      printk("\n");
-    }
-    // printk("%s sending\n", can_desc->descriptor[0].device->name);
-    int ret = SendCanFrame(DD_CAN0, 0x121, true, candata, 4);
-    if (ret != CAN_TX_OK) {
-      printk("%s send failed: %d\n", can_desc->descriptor[0].device->name, ret);
-    } else {
-      //   printk("%s sent\n", can_desc->descriptor[0].device->name);
-    }
+    // if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0)
+    // {
+    //   printk("CAN1 %02x: ", rx_frame.id);
+    //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
+    //   rx_frame.data[i]); printk("\n");
+    // }
+    // // printk("%s sending\n", can_desc->descriptor[0].device->name);
+    // int ret = SendCanFrame(DD_CAN0, 0x121, true, candata, 4);
+    // if (ret != CAN_TX_OK) {
+    //   printk("%s send failed: %d\n", can_desc->descriptor[0].device->name,
+    //   ret);
+    // } else {
+    //   //   printk("%s sent\n", can_desc->descriptor[0].device->name);
+    // }
 
     // if (k_msgq_get(can_desc->descriptor[1].msgq, &rx_frame, K_MSEC(50)) == 0)
     // {
