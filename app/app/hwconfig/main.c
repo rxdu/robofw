@@ -77,12 +77,12 @@ void main(void) {
 
   uint8_t count = 0;
   uint8_t data[] = "hello";
-  uint8_t candata[] = {0x11, 0x22, 0x55, 0x66};
-  struct zcan_frame rx_frame;
+  //   uint8_t candata[] = {0x11, 0x22, 0x55, 0x66};
+  //   struct zcan_frame rx_frame;
 
   (void)data;
 
-  CanDescription* can_desc = GetCanDescription();
+  //   CanDescription* can_desc = GetCanDescription();
 
   while (1) {
     // ToggleGpio(EN1);

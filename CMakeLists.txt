@@ -11,6 +11,7 @@ if(BUILD_NATIVE_POSIX)
     add_definitions("-DTARGET_NATIVE_POSIX")
 else()
     set(BOARD "tbotctrl_f405")
+    set(ROBOT "tbot")
     add_definitions("-DTARGET_CORTEX_M4")
 endif()
 
