@@ -4,7 +4,7 @@
  * Created on: Jan 26, 2022 21:35
  * Description:
  *
- * Copyright (c) 2021 Ruixiang Du (rdu)
+ * Copyright (c) 2022 Ruixiang Du (rdu)
  */
 
 #include "hwconfig/hwconfig.h"

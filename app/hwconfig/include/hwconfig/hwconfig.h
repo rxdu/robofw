@@ -4,7 +4,7 @@
  * Created on: Jan 22, 2022 22:22
  * Description:
  *
- * Copyright (c) 2021 Ruixiang Du (rdu)
+ * Copyright (c) 2022 Ruixiang Du (rdu)
  */
 
 #ifndef HWCONFIG_H

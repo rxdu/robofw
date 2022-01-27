@@ -21,39 +21,34 @@ void main(void) {
   InitHardware();
 
   // LED
-  LedDescription* led_desc = GetLedDescription();
-  TurnOnLed(&led_desc->descriptor[0]);
-  TurnOffLed(&led_desc->descriptor[1]);
+  TurnOnLed(DD_LED0);
+  TurnOffLed(DD_LED1);
 
   // DIO
-  DioDescription* dio_desc = GetDioDescription();
-  ConfigureDio(&dio_desc->descriptor[0], GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(&dio_desc->descriptor[1], GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(&dio_desc->descriptor[2], GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(&dio_desc->descriptor[3], GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(&dio_desc->descriptor[4], GPIO_OUTPUT | GPIO_PULL_UP);
-  SetDio(&dio_desc->descriptor[0], 1);
-  SetDio(&dio_desc->descriptor[1], 1);
-  SetDio(&dio_desc->descriptor[2], 1);
-  SetDio(&dio_desc->descriptor[3], 1);
-  SetDio(&dio_desc->descriptor[4], 1);
+  ConfigureDio(DD_DIO0, GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(DD_DIO1, GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(DD_DIO2, GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(DD_DIO3, GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(DD_DIO4, GPIO_OUTPUT | GPIO_PULL_UP);
+  SetDio(DD_DIO0, 1);
+  SetDio(DD_DIO1, 1);
+  SetDio(DD_DIO2, 1);
+  SetDio(DD_DIO3, 1);
+  SetDio(DD_DIO4, 1);
 
   // PWM
-  PwmDescription* pwm_desc = GetPwmDescription();
-  SetPwmDutyCycle(&pwm_desc->descriptor[0], 0.5);
-  SetPwmDutyCycle(&pwm_desc->descriptor[1], 0.5);
-  SetPwmDutyCycle(&pwm_desc->descriptor[2], 0.5);
-  SetPwmDutyCycle(&pwm_desc->descriptor[3], 0.5);
+  SetPwmDutyCycle(DD_PWM0, 0.5);
+  SetPwmDutyCycle(DD_PWM1, 0.5);
+  SetPwmDutyCycle(DD_PWM2, 0.5);
+  SetPwmDutyCycle(DD_PWM3, 0.5);
 
   // UART
-  UartDescription* uart_desc = GetUartDescription();
-
   struct uart_config sbus_cfg;
   GetUartSbusConfig(&sbus_cfg);
 
-  ConfigureUart(&uart_desc->descriptor[0], sbus_cfg);
-  SetupUartAsyncMode(&uart_desc->descriptor[0]);
-  StartUartAsyncReceive(&uart_desc->descriptor[0]);
+  ConfigureUart(DD_UART0, sbus_cfg);
+  SetupUartAsyncMode(DD_UART0);
+  StartUartAsyncReceive(DD_UART0);
 
   struct uart_config uart_test_cfg;
   uart_test_cfg.baudrate = 115200;
@@ -62,22 +57,21 @@ void main(void) {
   uart_test_cfg.data_bits = UART_CFG_DATA_BITS_8;
   uart_test_cfg.flow_ctrl = UART_CFG_FLOW_CTRL_NONE;
 
-  ConfigureUart(&uart_desc->descriptor[1], uart_test_cfg);
-  SetupUartAsyncMode(&uart_desc->descriptor[1]);
+  ConfigureUart(DD_UART1, uart_test_cfg);
+  SetupUartAsyncMode(DD_UART1);
 
-  ConfigureUart(&uart_desc->descriptor[2], uart_test_cfg);
-  SetupUartAsyncMode(&uart_desc->descriptor[2]);
-  StartUartAsyncReceive(&uart_desc->descriptor[2]);
+  ConfigureUart(DD_UART2, uart_test_cfg);
+  SetupUartAsyncMode(DD_UART2);
+  StartUartAsyncReceive(DD_UART2);
 
   // CAN
-  CanDescription* can_desc = GetCanDescription();
   struct zcan_filter can_filter;
   can_filter.id_type = CAN_STANDARD_IDENTIFIER;
   can_filter.rtr = CAN_DATAFRAME;
   can_filter.rtr_mask = 1;
   can_filter.id_mask = 0;
-  ConfigureCan(&can_desc->descriptor[0], CAN_NORMAL_MODE, 500000, can_filter);
-  ConfigureCan(&can_desc->descriptor[1], CAN_NORMAL_MODE, 1000000, can_filter);
+  ConfigureCan(DD_CAN0, CAN_NORMAL_MODE, 500000, can_filter);
+  ConfigureCan(DD_CAN1, CAN_NORMAL_MODE, 1000000, can_filter);
 
   printk("--------------------------------------------\n");
 
@@ -88,24 +82,26 @@ void main(void) {
 
   (void)data;
 
+  CanDescription* can_desc = GetCanDescription();
+
   while (1) {
     // ToggleGpio(EN1);
-    ToggleLed(&led_desc->descriptor[0]);
-    ToggleLed(&led_desc->descriptor[1]);
-    ToggleLed(&led_desc->descriptor[2]);
+    ToggleLed(DD_LED0);
+    ToggleLed(DD_LED1);
+    ToggleLed(DD_LED2);
 
-    // if (!StartUartAsyncSend(&uart_desc->descriptor[0], data, sizeof(data),
+    // if (!StartUartAsyncSend(DD_UART0, data, sizeof(data),
     //                         200)) {
     //   printk("%s failed to send\n", uart_desc->descriptor[0].device->name);
     // }
-    // if (!StartUartAsyncSend(&uart_desc->descriptor[1], data, sizeof(data),
+    // if (!StartUartAsyncSend(DD_UART1, data, sizeof(data),
     //                         200)) {
     //   printk("%s failed to send\n",
     // uart_desc->descriptor[1].device->name);
     // }
-    // if (k_sem_take(&uart_desc->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
+    // if (k_sem_take(DD_UART0.rx_sem, K_MSEC(50)) == 0) {
     //   uint8_t ch;
-    //   while (ring_buf_get(&uart_desc->descriptor[0].ring_buffer, &ch, 1) !=
+    //   while (ring_buf_get(DD_UART0.ring_buffer, &ch, 1) !=
     //   0) {
     //     printk("%02x ", ch);
     //   }
@@ -117,7 +113,7 @@ void main(void) {
       printk("\n");
     }
     // printk("%s sending\n", can_desc->descriptor[0].device->name);
-    int ret = SendCanFrame(&can_desc->descriptor[0], 0x121, true, candata, 4);
+    int ret = SendCanFrame(DD_CAN0, 0x121, true, candata, 4);
     if (ret != CAN_TX_OK) {
       printk("%s send failed: %d\n", can_desc->descriptor[0].device->name, ret);
     } else {
@@ -130,7 +126,7 @@ void main(void) {
     //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
     //   rx_frame.data[i]); printk("\n");
     // }
-    // if (SendCanFrame(&can_desc->descriptor[1], 0x121, true, candata, 4) !=
+    // if (SendCanFrame(DD_CAN1, 0x121, true, candata, 4) !=
     //     CAN_TX_OK) {
     // }
 

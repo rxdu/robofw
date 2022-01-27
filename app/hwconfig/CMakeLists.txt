@@ -6,11 +6,6 @@ if (BUILD_POSIX_NATIVE)
 else()
     set(DRIVER_SRC 
         src/hwconfig.c
-        src/dio_init.c
-        src/led_init.c
-        src/pwm_init.c
-        src/uart_init.c
-        src/can_init.c
         src/dio_interface.c
         src/led_interface.c
         src/pwm_interface.c
