@@ -1,6 +1,8 @@
 # Temporary
 .vscode
 
+mcuboot.conf
+
 # Zephyr
 **build
 

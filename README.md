@@ -1,13 +1,9 @@
-# robofw
-Robot Firmware based on Zephyr
+# Robot Firmware (Zephyr)
 
-# Firmware (Zephyr)
+## Target setup
 
-## Target configuration
-
-* MCU: STM32F427VI
-* Zephyr: v2.5-branch (temporarily v2.4 now)
-* SDK: zephyr-sdk-0.12.3
+* MCU: STM32F405RG/STM32F427VI
+* Zephyr: v2.7 
 
 ## Setup workspace
 
