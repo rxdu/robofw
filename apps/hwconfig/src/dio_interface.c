@@ -84,8 +84,7 @@ void ConfigureDio(DioList dev_id, gpio_flags_t flags) {
     return;
   }
   gpio_pin_configure(dio_desc.descriptor[dev_id].device,
-                     dio_desc.descriptor[dev_id].pin,
-                     dio_desc.descriptor[dev_id].flags);
+                     dio_desc.descriptor[dev_id].pin, flags);
 }
 
 void SetDio(DioList dev_id, uint8_t value) {

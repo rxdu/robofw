@@ -15,8 +15,10 @@ else()
     add_definitions("-DTARGET_CORTEX_M4")
 endif()
 
+message(STATUS "Building firmware for ${ROBOT} with board ${BOARD}")
+
 if(BUILD_TESTING)
-set(BUILD_TESTS ON)
+    set(BUILD_TESTS ON)
 endif()
 
 ## Check whether ccache exists for faster compile

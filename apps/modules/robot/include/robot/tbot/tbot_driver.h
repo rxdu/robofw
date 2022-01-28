@@ -13,8 +13,8 @@
 #include "hwconfig/hwconfig.h"
 
 #define TBOT_LED_STATUS DD_LED0
-#define TBOT_LED1 DD_LED1
-#define TBOT_LED2 DD_LED2
+#define TBOT_LED_USER1 DD_LED1
+#define TBOT_LED_USER2 DD_LED2
 
 // left motor
 #define TBOT_DIO_EN1 DD_DIO0

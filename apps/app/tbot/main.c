@@ -7,8 +7,7 @@
 #include <zephyr.h>
 #include <device.h>
 #include <sys/printk.h>
-#include <drivers/gpio.h>
-#include <drivers/spi.h>
+
 #include <drivers/sensor.h>
 
 #include "robot/tbot/tbot_interface.h"
@@ -18,7 +17,16 @@
 void main(void) {
   printk("Starting board: %s\n", CONFIG_BOARD);
 
-  InitRobot();
+  if (!InitRobot()) {
+    printk("[ERROR] Failed to initialize robot\n");
+    while (true) {
+      TurnOnLed(TBOT_LED_STATUS);
+      TurnOnLed(TBOT_LED_USER1);
+      TurnOnLed(TBOT_LED_USER2);
+    }
+  }
+
+  SetMotorCmd(-0.5, -0.5);
 
   uint8_t count = 0;
   uint8_t data[] = "hello";

@@ -16,24 +16,24 @@ bool InitRobot() {
   // configure drivers required by robot
   // LED for debugging
   TurnOffLed(TBOT_LED_STATUS);
-  TurnOffLed(TBOT_LED1);
-  TurnOffLed(TBOT_LED2);
+  TurnOffLed(TBOT_LED_USER1);
+  TurnOffLed(TBOT_LED_USER2);
 
   // motor control
-  ConfigureDio(TBOT_DIO_EN1, GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(TBOT_DIO_DIR1, GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(TBOT_DIO_EN2, GPIO_OUTPUT | GPIO_PULL_UP);
-  ConfigureDio(TBOT_DIO_DIR2, GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(TBOT_DIO_EN1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  ConfigureDio(TBOT_DIO_DIR1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  ConfigureDio(TBOT_DIO_EN2, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  ConfigureDio(TBOT_DIO_DIR2, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
   SetDio(TBOT_DIO_EN1, 0);
-  SetDio(TBOT_DIO_DIR1, 1);
+  SetDio(TBOT_DIO_DIR1, 0);
   SetDio(TBOT_DIO_EN2, 0);
-  SetDio(TBOT_DIO_DIR2, 1);
+  SetDio(TBOT_DIO_DIR2, 0);
 
   SetPwmDutyCycle(TBOT_PWM1, 0.0);
   SetPwmDutyCycle(TBOT_PWM2, 0.0);
 
   // light control
-  ConfigureDio(TBOT_DIO_LIGHT_CTRL, GPIO_OUTPUT | GPIO_PULL_UP);
+  ConfigureDio(TBOT_DIO_LIGHT_CTRL, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
   SetDio(TBOT_DIO_LIGHT_CTRL, 0);
 
   // rc input
@@ -70,6 +70,8 @@ bool InitRobot() {
   ConfigureCan(TBOT_CAN_UPLINK, CAN_NORMAL_MODE, 500000, can_filter);
   ConfigureCan(TBOT_CAN_DOWNLINK, CAN_NORMAL_MODE, 500000, can_filter);
 
+  printk("----------------------------------------\n");
+
   return true;
 }
 
@@ -78,6 +80,9 @@ void TurnOnLight() { SetDio(TBOT_DIO_LIGHT_CTRL, 1); }
 void TurnOffLight() { SetDio(TBOT_DIO_LIGHT_CTRL, 0); }
 
 void SetMotorCmd(float left, float right) {
+  printk("set cmd (left/right): %d, %d\n", (int)(left * 100),
+         (int)(right * 100));
+
   // valid cmd: (+-)(1-99)%
   if (left > 0.99) left = 0.99;
   if (left < -0.99) left = -0.99;
