@@ -9,6 +9,8 @@
 
 #include "mcal/interface/dio_interface.h"
 
+#include <assert.h>
+
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
@@ -65,7 +67,12 @@ bool InitDio() {
   return true;
 }
 
-DioDescription* GetDioDescription() { return &dio_desc; }
+DioDescription *GetDioDescription() { return &dio_desc; }
+
+DioDescriptor *GetDioDescriptor(DioList dev_id) {
+  assert(dev_id < DD_DIO_NUM);
+  return &dio_desc.descriptor[dev_id];
+}
 
 void PrintDioInitResult() {
   uint32_t count = 0;
@@ -78,29 +85,26 @@ void PrintDioInitResult() {
   printk(" => Number of active instances: %d\n", count);
 }
 
-void ConfigureDio(DioList dev_id, gpio_flags_t flags) {
-  if (!dio_desc.descriptor[dev_id].active) {
+void ConfigureDio(DioDescriptor *dd, gpio_flags_t flags) {
+  if (!dd->active) {
     printk("[xDIO] Device inactive\n");
     return;
   }
-  gpio_pin_configure(dio_desc.descriptor[dev_id].device,
-                     dio_desc.descriptor[dev_id].pin, flags);
+  gpio_pin_configure(dd->device, dd->pin, flags);
 }
 
-void SetDio(DioList dev_id, uint8_t value) {
-  if (!dio_desc.descriptor[dev_id].active) {
+void SetDio(DioDescriptor *dd, uint8_t value) {
+  if (!dd->active) {
     printk("[xDIO] Device inactive\n");
     return;
   }
-  gpio_pin_set(dio_desc.descriptor[dev_id].device,
-               dio_desc.descriptor[dev_id].pin, value);
+  gpio_pin_set(dd->device, dd->pin, value);
 }
 
-void ToggleDio(DioList dev_id) {
-  if (!dio_desc.descriptor[dev_id].active) {
+void ToggleDio(DioDescriptor *dd) {
+  if (!dd->active) {
     printk("[xDIO] Device inactive\n");
     return;
   }
-  gpio_pin_toggle(dio_desc.descriptor[dev_id].device,
-                  dio_desc.descriptor[dev_id].pin);
+  gpio_pin_toggle(dd->device, dd->pin);
 }

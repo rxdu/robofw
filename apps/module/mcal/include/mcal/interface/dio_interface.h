@@ -35,11 +35,12 @@ typedef struct {
 } DioDescription;
 
 bool InitDio();
-DioDescription* GetDioDescription();
+DioDescription *GetDioDescription();
+DioDescriptor *GetDioDescriptor(DioList dev_id);
 void PrintDioInitResult();
 
-void ConfigureDio(DioList dev_id, gpio_flags_t flags);
-void SetDio(DioList dev_id, uint8_t value);
-void ToggleDio(DioList dev_id);
+void ConfigureDio(DioDescriptor *dd, gpio_flags_t flags);
+void SetDio(DioDescriptor *dd, uint8_t value);
+void ToggleDio(DioDescriptor *dd);
 
 #endif /* DIO_INTERFACE_H */

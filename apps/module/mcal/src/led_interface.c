@@ -9,6 +9,8 @@
 
 #include "mcal/interface/led_interface.h"
 
+#include <assert.h>
+
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/gpio.h>
@@ -70,7 +72,12 @@ bool InitLed() {
   return true;
 }
 
-LedDescription* GetLedDescription() { return &led_desc; }
+LedDescription *GetLedDescription() { return &led_desc; }
+
+LedDescriptor *GetLedDescriptor(LedList dev_id) {
+  assert(dev_id < DD_LED_NUM);
+  return &led_desc.descriptor[dev_id];
+}
 
 void PrintLedInitResult() {
   uint32_t count = 0;
@@ -83,32 +90,29 @@ void PrintLedInitResult() {
   printk(" => Number of active instances: %d\n", count);
 }
 
-void TurnOnLed(LedList dev_id) {
-  if (!led_desc.descriptor[dev_id].active) {
+void TurnOnLed(LedDescriptor *dd) {
+  if (!dd->active) {
     printk("[xLED] Device inactive\n");
     return;
   }
 
-  gpio_pin_set(led_desc.descriptor[dev_id].device,
-               led_desc.descriptor[dev_id].pin, 1);
+  gpio_pin_set(dd->device, dd->pin, 1);
 }
 
-void TurnOffLed(LedList dev_id) {
-  if (!led_desc.descriptor[dev_id].active) {
+void TurnOffLed(LedDescriptor *dd) {
+  if (!dd->active) {
     printk("[xLED] Device inactive\n");
     return;
   }
 
-  gpio_pin_set(led_desc.descriptor[dev_id].device,
-               led_desc.descriptor[dev_id].pin, 0);
+  gpio_pin_set(dd->device, dd->pin, 0);
 }
 
-void ToggleLed(LedList dev_id) {
-  if (!led_desc.descriptor[dev_id].active) {
+void ToggleLed(LedDescriptor *dd) {
+  if (!dd->active) {
     printk("[xLED] Device inactive\n");
     return;
   }
 
-  gpio_pin_toggle(led_desc.descriptor[dev_id].device,
-                  led_desc.descriptor[dev_id].pin);
+  gpio_pin_toggle(dd->device, dd->pin);
 }

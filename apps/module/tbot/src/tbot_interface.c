@@ -15,19 +15,25 @@ bool InitRobot() {
 
   // configure drivers required by robot
   // LED for debugging
-  TurnOffLed(TBOT_LED_STATUS);
-  TurnOffLed(TBOT_LED_USER1);
-  TurnOffLed(TBOT_LED_USER2);
+  LedDescription* leds = GetLedDescription();
+  TurnOffLed(leds.descriptors[TBOT_LED_STATUS]);
+  TurnOffLed(leds.descriptors[TBOT_LED_USER1]);
+  TurnOffLed(leds.descriptors[TBOT_LED_USER2]);
 
   // motor control
-  ConfigureDio(TBOT_DIO_EN1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
-  ConfigureDio(TBOT_DIO_DIR1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
-  ConfigureDio(TBOT_DIO_EN2, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
-  ConfigureDio(TBOT_DIO_DIR2, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
-  SetDio(TBOT_DIO_EN1, 0);
-  SetDio(TBOT_DIO_DIR1, 0);
-  SetDio(TBOT_DIO_EN2, 0);
-  SetDio(TBOT_DIO_DIR2, 0);
+  DioDescription* dios = GetDioDescription();
+  ConfigureDio(dios.descriptors[TBOT_DIO_EN1],
+               GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  ConfigureDio(dios.descriptors[TBOT_DIO_DIR1],
+               GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  ConfigureDio(dios.descriptors[TBOT_DIO_EN2],
+               GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  ConfigureDio(dios.descriptors[TBOT_DIO_DIR2],
+               GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
+  SetDio(dios.descriptors[TBOT_DIO_EN1], 0);
+  SetDio(dios.descriptors[TBOT_DIO_DIR1], 0);
+  SetDio(dios.descriptors[TBOT_DIO_EN2], 0);
+  SetDio(dios.descriptors[TBOT_DIO_DIR2], 0);
 
   SetPwmDutyCycle(TBOT_PWM1, 0.0);
   SetPwmDutyCycle(TBOT_PWM2, 0.0);
@@ -115,6 +121,4 @@ void SetMotorCmd(float left, float right) {
   SetPwmDutyCycle(TBOT_PWM2, right);
 }
 
-void StartTasks() {
-    
-}
+void StartTasks() {}

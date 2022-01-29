@@ -9,6 +9,8 @@
 
 #include "mcal/interface/can_interface.h"
 
+#include <assert.h>
+
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/can.h>
@@ -56,6 +58,11 @@ bool InitCan() {
 
 CanDescription* GetCanDescription() { return &can_desc; }
 
+CanDescriptor* GetCanDescriptor(CanList dev_id) {
+  assert(dev_id < DD_CAN_NUM);
+  return &can_desc.descriptor[dev_id];
+}
+
 void PrintCanInitResult() {
   uint32_t count = 0;
   for (int i = 0; i < DD_CAN_NUM; ++i) {
@@ -67,34 +74,32 @@ void PrintCanInitResult() {
   printk(" => Number of active instances: %d\n", count);
 }
 
-bool ConfigureCan(CanList dev_id, enum can_mode mode, uint32_t bitrate,
+bool ConfigureCan(CanDescriptor* dd, enum can_mode mode, uint32_t bitrate,
                   struct zcan_filter zfilter) {
-  if (!can_desc.descriptor[dev_id].active) {
+  if (!dd->active) {
     printk("[xCAN] Device inactive\n");
     return false;
   }
 
   struct can_timing timing;
   int ret = 0;
-  ret = can_calc_timing(can_desc.descriptor[dev_id].device, &timing, bitrate,
-                        CAN_SAMPLING_POINT);
+  ret = can_calc_timing(dd->device, &timing, bitrate, CAN_SAMPLING_POINT);
   if (ret < 0) {
     printk("[xCAN] Failed to calc a valid timing!\n");
     return false;
   }
-  ret = can_set_timing(can_desc.descriptor[dev_id].device, &timing, NULL);
+  ret = can_set_timing(dd->device, &timing, NULL);
   if (ret != 0) {
     printk("[xCAN] Failed to set timing!\n");
     return false;
   }
 
-  if (can_configure(can_desc.descriptor[dev_id].device, mode, bitrate)) {
+  if (can_configure(dd->device, mode, bitrate)) {
     printk("[xCAN] Failed to configure mode or bitrate!\n");
     return false;
   }
 
-  ret = can_attach_msgq(can_desc.descriptor[dev_id].device,
-                        can_desc.descriptor[dev_id].msgq, &zfilter);
+  ret = can_attach_msgq(dd->device, dd->msgq, &zfilter);
   if (ret == CAN_NO_FREE_FILTER) {
     printk("[xCAN] No filter available!\n");
     return false;
@@ -103,9 +108,9 @@ bool ConfigureCan(CanList dev_id, enum can_mode mode, uint32_t bitrate,
   return true;
 }
 
-int SendCanFrame(CanList dev_id, uint32_t id, bool is_std_id, uint8_t data[],
+int SendCanFrame(CanDescriptor* dd, uint32_t id, bool is_std_id, uint8_t data[],
                  uint32_t dlc) {
-  if (!can_desc.descriptor[dev_id].active) {
+  if (!dd->active) {
     printk("[xCAN] Device inactive\n");
     return false;
   }
@@ -121,6 +126,5 @@ int SendCanFrame(CanList dev_id, uint32_t id, bool is_std_id, uint8_t data[],
   frame.dlc = dlc;
   memcpy(frame.data, data, dlc);
 
-  return can_send(can_desc.descriptor[dev_id].device, &frame,
-                  K_MSEC(CAN_TX_TIMEOUT), NULL, NULL);
+  return can_send(dd->device, &frame, K_MSEC(CAN_TX_TIMEOUT), NULL, NULL);
 }

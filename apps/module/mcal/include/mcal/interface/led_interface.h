@@ -27,10 +27,11 @@ typedef struct {
 
 bool InitLed();
 LedDescription* GetLedDescription();
+LedDescriptor *GetLedDescriptor(LedList dev_id);
 void PrintLedInitResult();
 
-void TurnOnLed(LedList dev_id);
-void TurnOffLed(LedList dev_id);
-void ToggleLed(LedList dev_id);
+void TurnOnLed(LedDescriptor *dd);
+void TurnOffLed(LedDescriptor *dd);
+void ToggleLed(LedDescriptor *dd);
 
 #endif /* LED_INTERFACE_H */

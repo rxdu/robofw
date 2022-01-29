@@ -39,12 +39,13 @@ typedef struct {
 
 bool InitCan();
 CanDescription *GetCanDescription();
+CanDescriptor *GetCanDescriptor(CanList dev_id);
 void PrintCanInitResult();
 
-bool ConfigureCan(CanList dev_id, enum can_mode mode, uint32_t bitrate,
+bool ConfigureCan(CanDescriptor *dd, enum can_mode mode, uint32_t bitrate,
                   struct zcan_filter zfilter);
 
-int SendCanFrame(CanList dev_id, uint32_t id, bool is_std_id, uint8_t data[],
+int SendCanFrame(CanDescriptor *dd, uint32_t id, bool is_std_id, uint8_t data[],
                  uint32_t dlc);
 
 #endif /* CAN_INTERFACE_H */

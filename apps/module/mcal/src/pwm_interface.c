@@ -9,6 +9,8 @@
 
 #include "mcal/interface/pwm_interface.h"
 
+#include <assert.h>
+
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/pwm.h>
@@ -66,6 +68,11 @@ bool InitPwm() {
 
 PwmDescription* GetPwmDescription() { return &pwm_desc; }
 
+PwmDescriptor* GetPwmDescriptor(PwmList dev_id) {
+  assert(dev_id < DD_PWM_NUM);
+  return &pwm_desc.descriptor[dev_id];
+}
+
 void PrintPwmInitResult() {
   uint32_t count = 0;
   for (int i = 0; i < DD_PWM_NUM; ++i) {
@@ -77,8 +84,8 @@ void PrintPwmInitResult() {
   printk(" => Number of active instances: %d\n", count);
 }
 
-void SetPwmDutyCycle(PwmList dev_id, float duty_cycle) {
-  if (!pwm_desc.descriptor[dev_id].active) {
+void SetPwmDutyCycle(PwmDescriptor* dd, float duty_cycle) {
+  if (!dd->active) {
     printk("[xPWM] Device inactive\n");
     return;
   }
@@ -86,9 +93,6 @@ void SetPwmDutyCycle(PwmList dev_id, float duty_cycle) {
   if (duty_cycle < 0) duty_cycle = 0;
   if (duty_cycle > 1) duty_cycle = 1;
 
-  pwm_pin_set_usec(pwm_desc.descriptor[dev_id].device,
-                   pwm_desc.descriptor[dev_id].channel,
-                   pwm_desc.descriptor[dev_id].period,
-                   pwm_desc.descriptor[dev_id].period * duty_cycle,
-                   pwm_desc.descriptor[dev_id].flags);
+  pwm_pin_set_usec(dd->device, dd->channel, dd->period, dd->period * duty_cycle,
+                   dd->flags);
 }

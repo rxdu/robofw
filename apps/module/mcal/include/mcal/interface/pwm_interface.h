@@ -38,8 +38,9 @@ typedef struct {
 
 bool InitPwm();
 PwmDescription* GetPwmDescription();
+PwmDescriptor *GetPwmDescriptor(PwmList dev_id);
 void PrintPwmInitResult();
 
-void SetPwmDutyCycle(PwmList dev_id, float duty_cycle);
+void SetPwmDutyCycle(PwmDescriptor *dd, float duty_cycle);
 
 #endif /* PWM_INTERFACE_H */
