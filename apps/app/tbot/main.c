@@ -10,7 +10,7 @@
 
 #include <drivers/sensor.h>
 
-#include "robot/tbot/tbot_interface.h"
+#include "tbot/tbot_interface.h"
 
 #define SLEEP_TIME_MS 500
 

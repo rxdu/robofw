@@ -11,7 +11,7 @@
 #include <drivers/spi.h>
 #include <drivers/sensor.h>
 
-#include "hwconfig/hwconfig.h"
+#include "mcal/mcal.h"
 
 #define SLEEP_TIME_MS 500
 

@@ -12,5 +12,6 @@ set(GCC_FLAG "-lgcc")
 
 # Main application 
 add_subdirectory(app)
-add_subdirectory(hwconfig)
-add_subdirectory(modules)
+add_subdirectory(mcal)
+add_subdirectory(module)
+add_subdirectory(service)
