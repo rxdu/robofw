@@ -9,6 +9,8 @@
 
 #include "mcal/interface/uart_interface.h"
 
+#include <assert.h>
+
 #include <device.h>
 #include <devicetree.h>
 #include <drivers/uart.h>
@@ -70,6 +72,11 @@ bool InitUart() {
 }
 
 UartDescription* GetUartDescription() { return &uart_desc; }
+
+UartDescriptor* GetUartDescriptor(UartList dev_id) {
+  assert(dev_id < DD_UART_NUM);
+  return &uart_desc.descriptor[dev_id];
+}
 
 void PrintUartInitResult() {
   uint32_t count = 0;

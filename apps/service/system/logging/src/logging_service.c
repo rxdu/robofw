@@ -7,6 +7,6 @@
  * Copyright (c) 2021 Weston Robot Pte. Ltd.
  */
 
-#include "receiver/receiver_service.h"
+#include "sysinit/sysinit_service.h"
 
-bool InitReceiverService() { return true; }
+bool InitServices() { return true; }

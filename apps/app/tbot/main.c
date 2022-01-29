@@ -11,8 +11,18 @@
 #include <drivers/sensor.h>
 
 #include "tbot/tbot_interface.h"
+#include "receiver/receiver_service.h"
 
 #define SLEEP_TIME_MS 500
+
+#define TASK_PRIORITY_VIP -1  // Negative prio threads will not be pre-empted
+#define TASK_PRIORITY_HIGHEST 1
+#define TASK_PRIORITY_HIGH 2
+#define TASK_PRIORITY_MID 3
+#define TASK_PRIORITY_LOW 4
+
+struct k_thread receiver_thread;
+K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
 
 void main(void) {
   printk("Starting board: %s\n", CONFIG_BOARD);
@@ -35,7 +45,37 @@ void main(void) {
 
   (void)data;
 
-  CanDescription* can_desc = GetCanDescription();
+  CanDescription *can_desc = GetCanDescription();
+
+  typedef struct {
+    ReceiverType type;
+    int8_t priority;
+    struct k_thread *thread;
+    k_thread_stack_t *stack;
+    size_t stack_size;
+    k_timeout_t delay;
+
+    void *rcvr_cfg;
+    struct k_msgq *msgq;
+  } ReceiverServiceConf;
+
+  ReceiverServiceConf rcvr_srv;
+  rcvr_srv.type = RCVR_SBUS;
+  rcvr_srv.priority = TASK_PRIORITY_HIGH;
+  rcvr_srv.thread = &receiver_thread;
+  rcvr_srv.stack = receiver_service_stack;
+  rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
+  rcvr_srv.delay = K_NO_WAIT;
+
+  SbusConf sbus_cfg;
+  sbus_cfg.dev_id = TBOT_UART_SBUS;
+
+  rcvr_srv.rcvr_cfg = &sbus_cfg;
+
+  bool ret = StartReceiverService(&rcvr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start receiver service\n");
+  }
 
   while (1) {
     ToggleLed(TBOT_LED_STATUS);

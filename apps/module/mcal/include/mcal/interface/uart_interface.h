@@ -54,6 +54,7 @@ typedef struct {
 
 bool InitUart();
 UartDescription* GetUartDescription();
+UartDescriptor* GetUartDescriptor(UartList dev_id);
 void PrintUartInitResult();
 
 void GetUartSbusConfig(struct uart_config* cfg);
