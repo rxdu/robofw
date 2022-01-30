@@ -15,7 +15,7 @@
 typedef void (*printer_t)(int);
 
 typedef struct {
-  UartList dev_id;
+  UartDescriptor* dd;
 } SbusConf;
 
 bool InitSbus(SbusConf* cfg);

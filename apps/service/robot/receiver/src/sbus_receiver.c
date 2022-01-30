@@ -15,29 +15,29 @@ bool InitSbus(SbusConf* cfg) {
   GetUartSbusConfig(&sbus_cfg);
 
   bool ret = false;
-  ret = ConfigureUart(cfg->dev_id, sbus_cfg);
+  ret = ConfigureUart(cfg->dd, sbus_cfg);
   if (!ret) {
     printk("[ERROR] Failed to configure UART for SBUS\n");
   }
 
-  ret = SetupUartAsyncMode(cfg->dev_id);
+  ret = SetupUartAsyncMode(cfg->dd);
   if (!ret) {
     printk("[ERROR] Failed to setup async mode for UART of SBUS\n");
   }
 
-  StartUartAsyncReceive(cfg->dev_id);
+  StartUartAsyncReceive(cfg->dd);
 
   return true;
 }
 
 void UpdateSbus(void* p1) {
-  ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
-  UartDescriptor* dd = GetUartDescriptor(((SbusConf*)(cfg->rcvr_cfg))->dev_id);
-  if (k_sem_take(&dd->rx_sem, K_FOREVER) == 0) {
-    uint8_t ch;
-    // while (ring_buf_get(DD_UART0.ring_buffer, &ch, 1) != 0) {
-    //   printk("%02x ", ch);
-    // }
-    printk("UART msg received\n");
-  }
+//   ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
+//   SbusConf* sbus_cfg = (SbusConf*)(cfg->rcvr_cfg);
+//   if (k_sem_take(&(sbus_cfg->dd->rx_sem), K_FOREVER) == 0) {
+//     uint8_t ch;
+//     // while (ring_buf_get(DD_UART0.ring_buffer, &ch, 1) != 0) {
+//     //   printk("%02x ", ch);
+//     // }
+//     printk("UART msg received\n");
+//   }
 }

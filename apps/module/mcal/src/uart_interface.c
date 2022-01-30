@@ -90,7 +90,7 @@ void PrintUartInitResult() {
 }
 
 static void GenericUartCallback(const struct device* uart_dev,
-                                struct uart_event* evt, void* device_id);
+                                struct uart_event* evt, void* pdev);
 
 void GetUartSbusConfig(struct uart_config* cfg) {
   cfg->baudrate = 100000;
@@ -100,90 +100,80 @@ void GetUartSbusConfig(struct uart_config* cfg) {
   cfg->flow_ctrl = UART_CFG_FLOW_CTRL_NONE;
 }
 
-bool ConfigureUart(UartList dev_id, struct uart_config config) {
-  if (!uart_desc.descriptor[dev_id].active) {
+bool ConfigureUart(UartDescriptor* dd, struct uart_config config) {
+  if (!dd->active) {
     printk("[xUART] Device inactive\n");
     return false;
   }
 
-  uart_desc.descriptor[dev_id].config = config;
-  int ret = uart_configure(uart_desc.descriptor[dev_id].device,
-                           &uart_desc.descriptor[dev_id].config);
+  dd->config = config;
+  int ret = uart_configure(dd->device, &dd->config);
   return (ret == 0);
 }
 
-bool SetupUartAsyncMode(UartList dev_id) {
-  if (!uart_desc.descriptor[dev_id].active) {
+bool SetupUartAsyncMode(UartDescriptor* dd) {
+  if (!dd->active) {
     printk("[xUART] Device inactive\n");
     return false;
   }
 
-  if (k_sem_init(&uart_desc.descriptor[dev_id].rx_sem, 0, 1) != 0 ||
-      k_sem_init(&uart_desc.descriptor[dev_id].tx_sem, 0, 1) != 0) {
+  if (k_sem_init(&dd->rx_sem, 0, 1) != 0 ||
+      k_sem_init(&dd->tx_sem, 0, 1) != 0) {
     return false;
   }
 
-  uart_callback_set(uart_desc.descriptor[dev_id].device, GenericUartCallback,
-                    (void*)dev_id);
+  uart_callback_set(dd->device, GenericUartCallback, (void*)dd);
 
-  ring_buf_init(&uart_desc.descriptor[dev_id].ring_buffer,
-                sizeof(uart_desc.descriptor[dev_id].ring_buffer_mem),
-                uart_desc.descriptor[dev_id].ring_buffer_mem);
+  ring_buf_init(&dd->ring_buffer, sizeof(dd->ring_buffer_mem),
+                dd->ring_buffer_mem);
 
   return true;
 }
 
-bool StartUartAsyncSend(UartList dev_id, const uint8_t* buf, size_t len,
+bool StartUartAsyncSend(UartDescriptor* dd, const uint8_t* buf, size_t len,
                         int32_t timeout) {
-  if (!uart_desc.descriptor[dev_id].active) {
+  if (!dd->active) {
     printk("[xUART] Device inactive\n");
     return false;
   }
-  int ret = uart_tx(uart_desc.descriptor[dev_id].device, buf, len, timeout);
+  int ret = uart_tx(dd->device, buf, len, timeout);
   return (ret == 0);
 }
 
-void StartUartAsyncReceive(UartList dev_id) {
-  if (!uart_desc.descriptor[dev_id].active) {
+void StartUartAsyncReceive(UartDescriptor* dd) {
+  if (!dd->active) {
     printk("[xUART] Device inactive\n");
     return;
   }
 
-  uart_desc.descriptor[dev_id].double_buffer_index = 0;
-  uart_rx_enable(
-      uart_desc.descriptor[dev_id].device,
-      uart_desc.descriptor[dev_id]
-          .rx_double_buffer[uart_desc.descriptor[dev_id].double_buffer_index],
-      UART_RX_BUF_SIZE, UART_RX_TIMEOUT);
+  dd->double_buffer_index = 0;
+  uart_rx_enable(dd->device, dd->rx_double_buffer[dd->double_buffer_index],
+                 UART_RX_BUF_SIZE, UART_RX_TIMEOUT);
 }
 
-void StopUartAsyncReceive(UartList dev_id) {
-  if (!uart_desc.descriptor[dev_id].active) {
+void StopUartAsyncReceive(UartDescriptor* dd) {
+  if (!dd->active) {
     printk("[xUART] Device inactive\n");
     return;
   }
 
-  uart_rx_disable(uart_desc.descriptor[dev_id].device);
+  uart_rx_disable(dd->device);
 }
 
 void GenericUartCallback(const struct device* uart_dev, struct uart_event* evt,
-                         void* device_id) {
-  UartList dev_id = (UartList)device_id;
-
+                         void* pdev) {
+  UartDescriptor* dd = (UartDescriptor*)dd;
   switch (evt->type) {
     // Received data is ready for processing.
     case UART_RX_RDY:
-      ring_buf_put(&uart_desc.descriptor[dev_id].ring_buffer,
-                   evt->data.rx.buf + evt->data.rx.offset, evt->data.rx.len);
-      k_sem_give(&uart_desc.descriptor[dev_id].rx_sem);
+      ring_buf_put(&dd->ring_buffer, evt->data.rx.buf + evt->data.rx.offset,
+                   evt->data.rx.len);
+      k_sem_give(&dd->rx_sem);
       break;
     // Driver requests next buffer for continuous reception.
     case UART_RX_BUF_REQUEST:
-      uart_desc.descriptor[dev_id].double_buffer_index =
-          (uart_desc.descriptor[dev_id].double_buffer_index + 1) % 2;
-      uart_rx_buf_rsp(uart_desc.descriptor[dev_id].device,
-                      uart_desc.descriptor[dev_id].rx_double_buffer
-                          [uart_desc.descriptor[dev_id].double_buffer_index],
+      dd->double_buffer_index = (dd->double_buffer_index + 1) % 2;
+      uart_rx_buf_rsp(dd->device, dd->rx_double_buffer[dd->double_buffer_index],
                       UART_RX_BUF_SIZE);
       break;
     // Buffer is no longer used by UART driver.
@@ -191,15 +181,15 @@ void GenericUartCallback(const struct device* uart_dev, struct uart_event* evt,
       break;
     // RX has been disabled and can be reenabled.
     case UART_RX_DISABLED:
-      uart_desc.descriptor[dev_id].double_buffer_index = 0;
-      StartUartAsyncReceive(dev_id);
+      dd->double_buffer_index = 0;
+      StartUartAsyncReceive(dd);
       break;
     // RX has stopped due to external event.
     case UART_RX_STOPPED:
       break;
     // Whole TX buffer was transmitted.
     case UART_TX_DONE:
-      k_sem_give(&uart_desc.descriptor[dev_id].tx_sem);
+      k_sem_give(&dd->tx_sem);
       break;
     // Transmitting aborted due to timeout or uart_tx_abort call
     case UART_TX_ABORTED:

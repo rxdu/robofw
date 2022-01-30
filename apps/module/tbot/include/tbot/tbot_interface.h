@@ -42,7 +42,17 @@
 #define TBOT_CAN_UPLINK DD_CAN0
 #define TBOT_CAN_DOWNLINK DD_CAN1
 
+typedef struct {
+  LedDescription* leds;
+  DioDescription* dios;
+  PwmDescription* pwms;
+  UartDescription* uarts;
+  CanDescription* cans;
+} RobotHardware;
+
 bool InitRobot();
+
+RobotHardware* GetHardware();
 
 void TurnOnLight();
 void TurnOffLight();

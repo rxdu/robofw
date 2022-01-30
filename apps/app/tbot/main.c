@@ -27,12 +27,14 @@ K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
 void main(void) {
   printk("Starting board: %s\n", CONFIG_BOARD);
 
+  RobotHardware *hw = GetHardware();
+
   if (!InitRobot()) {
     printk("[ERROR] Failed to initialize robot\n");
     while (true) {
-      TurnOnLed(TBOT_LED_STATUS);
-      TurnOnLed(TBOT_LED_USER1);
-      TurnOnLed(TBOT_LED_USER2);
+      TurnOnLed(&hw->leds->descriptor[TBOT_LED_STATUS]);
+      TurnOnLed(&hw->leds->descriptor[TBOT_LED_USER1]);
+      TurnOnLed(&hw->leds->descriptor[TBOT_LED_USER2]);
     }
   }
 
@@ -45,40 +47,30 @@ void main(void) {
 
   (void)data;
 
-  CanDescription *can_desc = GetCanDescription();
+  //   CanDescription *can_desc = GetCanDescription();
 
-  typedef struct {
-    ReceiverType type;
-    int8_t priority;
-    struct k_thread *thread;
-    k_thread_stack_t *stack;
-    size_t stack_size;
-    k_timeout_t delay;
+  //   ReceiverServiceConf rcvr_srv;
+  //   rcvr_srv.type = RCVR_SBUS;
+  //   rcvr_srv.priority = TASK_PRIORITY_HIGH;
+  //   rcvr_srv.thread = &receiver_thread;
+  //   rcvr_srv.stack = receiver_service_stack;
+  //   rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
+  //   rcvr_srv.delay = K_NO_WAIT;
 
-    void *rcvr_cfg;
-    struct k_msgq *msgq;
-  } ReceiverServiceConf;
+  //   SbusConf sbus_cfg;
+  //   sbus_cfg.dd = GetUartDescriptor(TBOT_UART_SBUS);
 
-  ReceiverServiceConf rcvr_srv;
-  rcvr_srv.type = RCVR_SBUS;
-  rcvr_srv.priority = TASK_PRIORITY_HIGH;
-  rcvr_srv.thread = &receiver_thread;
-  rcvr_srv.stack = receiver_service_stack;
-  rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
-  rcvr_srv.delay = K_NO_WAIT;
+  //   rcvr_srv.rcvr_cfg = &sbus_cfg;
 
-  SbusConf sbus_cfg;
-  sbus_cfg.dev_id = TBOT_UART_SBUS;
+  //   bool ret = StartReceiverService(&rcvr_srv);
+  //   if (!ret) {
+  //     printk("[ERROR] Failed to start receiver service\n");
+  //   }
 
-  rcvr_srv.rcvr_cfg = &sbus_cfg;
-
-  bool ret = StartReceiverService(&rcvr_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start receiver service\n");
-  }
+  printk("--------------------------------\n");
 
   while (1) {
-    ToggleLed(TBOT_LED_STATUS);
+    ToggleLed(&hw->leds->descriptor[TBOT_LED_STATUS]);
     // ToggleLed(DD_LED1);
     // ToggleLed(DD_LED2);
 
@@ -99,11 +91,12 @@ void main(void) {
     //   }
     // }
 
-    if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0) {
-      printk("CAN1 %02x: ", rx_frame.id);
-      for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
-      printk("\n");
-    }
+    // if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0)
+    // {
+    //   printk("CAN1 %02x: ", rx_frame.id);
+    //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
+    //   rx_frame.data[i]); printk("\n");
+    // }
     // printk("%s sending\n", can_desc->descriptor[0].device->name);
     // int ret = SendCanFrame(DD_CAN0, 0x121, true, candata, 4);
     // if (ret != CAN_TX_OK) {

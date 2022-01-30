@@ -58,14 +58,14 @@ UartDescriptor* GetUartDescriptor(UartList dev_id);
 void PrintUartInitResult();
 
 void GetUartSbusConfig(struct uart_config* cfg);
-bool ConfigureUart(UartList dev_id, struct uart_config config);
+bool ConfigureUart(UartDescriptor* dd, struct uart_config config);
 
-bool SetupUartAsyncMode(UartList dev_id);
+bool SetupUartAsyncMode(UartDescriptor* dd);
 
-void StartUartAsyncReceive(UartList dev_id);
-void StopUartAsyncReceive(UartList dev_id);
+void StartUartAsyncReceive(UartDescriptor* dd);
+void StopUartAsyncReceive(UartDescriptor* dd);
 
-bool StartUartAsyncSend(UartList dev_id, const uint8_t* buf, size_t len,
+bool StartUartAsyncSend(UartDescriptor* dd, const uint8_t* buf, size_t len,
                         int32_t timeout);
 
 #endif /* UART_INTERFACE_H */

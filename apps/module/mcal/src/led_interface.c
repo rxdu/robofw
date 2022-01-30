@@ -29,7 +29,7 @@
     }                                                                         \
     ret =                                                                     \
         gpio_pin_configure(desc.descriptor[x].device, desc.descriptor[x].pin, \
-                           flags | GPIO_OUTPUT_ACTIVE);                       \
+                           flags | GPIO_OUTPUT_INACTIVE);                     \
     if (ret != 0) {                                                           \
       printk("[ERROR] Failed to set LED pin to GPIO_OUTPUT_ACTIVE mode\n");   \
       return false;                                                           \
