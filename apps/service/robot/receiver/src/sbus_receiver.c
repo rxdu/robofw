@@ -10,7 +10,18 @@
 #include "receiver/sbus_receiver.h"
 #include "receiver/receiver_service.h"
 
+#include "sbus/sbus.h"
+
+static SbusInstance sbus_inst;
+static ReceiverData receiver_data;
+
+#define SBUS_CHN_MAX 1850
+#define SBUS_CHN_MID 1023
+#define SBUS_CHN_MIN 240
+
 bool InitSbus(SbusConf* cfg) {
+  SbusInit(&sbus_inst);
+
   struct uart_config sbus_cfg;
   GetUartSbusConfig(&sbus_cfg);
 
@@ -30,14 +41,41 @@ bool InitSbus(SbusConf* cfg) {
   return true;
 }
 
-void UpdateSbus(void* p1) {
-  //   ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
-  //   SbusConf* sbus_cfg = (SbusConf*)(cfg->rcvr_cfg);
-  //   if (k_sem_take(&(sbus_cfg->dd->rx_sem), K_FOREVER) == 0) {
-  //     uint8_t ch;
-  //     // while (ring_buf_get(DD_UART0.ring_buffer, &ch, 1) != 0) {
-  //     //   printk("%02x ", ch);
-  //     // }
-  printk("UART msg received\n");
+void ScaleRCCommand(uint16_t analogue_chn, int8_t* scaled_analogue_chn) {
+  //   if (analogue_chn >= RECEIVER_CHANNEL_NUMBER) {
+  //     *scaled_analogue_chn = (analogue_chn - ANALOGUE_CHANNEL_MID) * 100 /
+  //                            (ANALOGUE_CHANNEL_MAX - ANALOGUE_CHANNEL_MID);
+  //   } else {
+  //     *scaled_analogue_chn = -(ANALOGUE_CHANNEL_MID - analogue_chn) * 100 /
+  //                            (ANALOGUE_CHANNEL_MID - ANALOGUE_CHANNEL_MIN);
   //   }
+}
+
+void UpdateSbus(void* p1) {
+  static SbusMessage sbus_msg;
+
+  ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
+  SbusConf* sbus_cfg = (SbusConf*)(cfg->rcvr_cfg);
+
+  if (k_sem_take(&(sbus_cfg->dd->rx_sem), K_FOREVER) == 0) {
+    uint8_t ch;
+    while (ring_buf_get(&sbus_cfg->dd->ring_buffer, &ch, 1) != 0) {
+      //   printk("%02x ", ch);
+      if (SbusDecodeMessage(&sbus_inst, ch, &sbus_msg)) {
+        for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
+          receiver_data.channels[i] = (sbus_msg.channels[i] - SBUS_CHN_MID) *
+                                      1.0f / (SBUS_CHN_MAX - SBUS_CHN_MID);
+        }
+        // printk("%04d %04d %04d %04d, %04d %04d %04d %04d\n",
+        //        sbus_msg.channels[0], sbus_msg.channels[1],
+        //        sbus_msg.channels[2], sbus_msg.channels[3],
+        //        sbus_msg.channels[4], sbus_msg.channels[5],
+        //        sbus_msg.channels[6], sbus_msg.channels[7]);
+        while (k_msgq_put(cfg->msgq, &receiver_data, K_NO_WAIT) != 0) {
+          k_msgq_purge(cfg->msgq);
+        }
+      }
+    }
+    // printk("UART msg received\n");
+  }
 }

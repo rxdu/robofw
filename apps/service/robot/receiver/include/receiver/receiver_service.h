@@ -32,7 +32,7 @@ typedef struct {
   struct k_msgq *msgq;
 } ReceiverServiceConf;
 
-#define RECEIVER_CHANNEL_NUMBER 16
+#define RECEIVER_CHANNEL_NUMBER 8
 typedef struct {
   bool signal_lost;
   float channels[RECEIVER_CHANNEL_NUMBER];  // scaled to [-1, 1]
