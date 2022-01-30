@@ -4,12 +4,10 @@
  * Created on: Jan 24, 2022 22:13
  * Description:
  *
- * Copyright (c) 2022 Ruixiang Du (rdu)
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
 #include "mcal/interface/uart_interface.h"
-
-#include <assert.h>
 
 #include <device.h>
 #include <devicetree.h>
@@ -74,7 +72,6 @@ bool InitUart() {
 UartDescription* GetUartDescription() { return &uart_desc; }
 
 UartDescriptor* GetUartDescriptor(UartList dev_id) {
-  assert(dev_id < DD_UART_NUM);
   return &uart_desc.descriptor[dev_id];
 }
 
@@ -90,7 +87,8 @@ void PrintUartInitResult() {
 }
 
 static void GenericUartCallback(const struct device* uart_dev,
-                                struct uart_event* evt, void* pdev);
+                                struct uart_event* evt,
+                                void* device_descriptor);
 
 void GetUartSbusConfig(struct uart_config* cfg) {
   cfg->baudrate = 100000;
@@ -161,8 +159,9 @@ void StopUartAsyncReceive(UartDescriptor* dd) {
 }
 
 void GenericUartCallback(const struct device* uart_dev, struct uart_event* evt,
-                         void* pdev) {
-  UartDescriptor* dd = (UartDescriptor*)dd;
+                         void* device_descriptor) {
+  UartDescriptor* dd = (UartDescriptor*)device_descriptor;
+
   switch (evt->type) {
     // Received data is ready for processing.
     case UART_RX_RDY:

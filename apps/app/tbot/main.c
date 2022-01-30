@@ -49,23 +49,23 @@ void main(void) {
 
   //   CanDescription *can_desc = GetCanDescription();
 
-  //   ReceiverServiceConf rcvr_srv;
-  //   rcvr_srv.type = RCVR_SBUS;
-  //   rcvr_srv.priority = TASK_PRIORITY_HIGH;
-  //   rcvr_srv.thread = &receiver_thread;
-  //   rcvr_srv.stack = receiver_service_stack;
-  //   rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
-  //   rcvr_srv.delay = K_NO_WAIT;
+  ReceiverServiceConf rcvr_srv;
+  rcvr_srv.type = RCVR_SBUS;
+  rcvr_srv.priority = TASK_PRIORITY_HIGH;
+  rcvr_srv.thread = &receiver_thread;
+  rcvr_srv.stack = receiver_service_stack;
+  rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
+  rcvr_srv.delay = K_NO_WAIT;
 
-  //   SbusConf sbus_cfg;
-  //   sbus_cfg.dd = GetUartDescriptor(TBOT_UART_SBUS);
+  SbusConf sbus_cfg;
+  sbus_cfg.dd = GetUartDescriptor(TBOT_UART_SBUS);
 
-  //   rcvr_srv.rcvr_cfg = &sbus_cfg;
+  rcvr_srv.rcvr_cfg = &sbus_cfg;
 
-  //   bool ret = StartReceiverService(&rcvr_srv);
-  //   if (!ret) {
-  //     printk("[ERROR] Failed to start receiver service\n");
-  //   }
+  bool ret = StartReceiverService(&rcvr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start receiver service\n");
+  }
 
   printk("--------------------------------\n");
 

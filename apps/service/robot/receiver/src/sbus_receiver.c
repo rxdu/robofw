@@ -31,13 +31,13 @@ bool InitSbus(SbusConf* cfg) {
 }
 
 void UpdateSbus(void* p1) {
-//   ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
-//   SbusConf* sbus_cfg = (SbusConf*)(cfg->rcvr_cfg);
-//   if (k_sem_take(&(sbus_cfg->dd->rx_sem), K_FOREVER) == 0) {
-//     uint8_t ch;
-//     // while (ring_buf_get(DD_UART0.ring_buffer, &ch, 1) != 0) {
-//     //   printk("%02x ", ch);
-//     // }
-//     printk("UART msg received\n");
-//   }
+  //   ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
+  //   SbusConf* sbus_cfg = (SbusConf*)(cfg->rcvr_cfg);
+  //   if (k_sem_take(&(sbus_cfg->dd->rx_sem), K_FOREVER) == 0) {
+  //     uint8_t ch;
+  //     // while (ring_buf_get(DD_UART0.ring_buffer, &ch, 1) != 0) {
+  //     //   printk("%02x ", ch);
+  //     // }
+  printk("UART msg received\n");
+  //   }
 }

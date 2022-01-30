@@ -50,12 +50,13 @@ bool InitRobot() {
   SetDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0);
 
   // rc input
-  struct uart_config sbus_cfg;
-  GetUartSbusConfig(&sbus_cfg);
+  //   struct uart_config sbus_cfg;
+  //   GetUartSbusConfig(&sbus_cfg);
 
-  ConfigureUart(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS], sbus_cfg);
-  SetupUartAsyncMode(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS]);
-//   StartUartAsyncReceive(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS]);
+  //   ConfigureUart(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS],
+  //   sbus_cfg);
+  //   SetupUartAsyncMode(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS]);
+  //   StartUartAsyncReceive(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS]);
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;
