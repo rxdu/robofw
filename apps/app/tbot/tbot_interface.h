@@ -11,6 +11,7 @@
 #define TBOT_INTERFACE_H
 
 #include "mcal/hwconfig.h"
+#include "receiver/receiver_service.h"
 
 #define TBOT_LED_STATUS DD_LED0
 #define TBOT_LED_USER1 DD_LED1
@@ -50,9 +51,14 @@ typedef struct {
   CanDescription* cans;
 } RobotHardware;
 
+typedef struct {
+  ReceiverServiceConf rcvr_srv;
+} RobotService;
+
 bool InitRobot();
 
 RobotHardware* GetHardware();
+RobotService* GetService();
 
 void TurnOnLight();
 void TurnOffLight();

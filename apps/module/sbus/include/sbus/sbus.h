@@ -44,7 +44,7 @@ typedef struct {
   SbusDecodeBuffer decode_buffer;
 } SbusInstance;
 
-void SbusInit(SbusInstance *inst);
+void SbusDecoderInit(SbusInstance *inst);
 bool SbusDecodeMessage(SbusInstance *inst, uint8_t ch, SbusMessage *sbus_msg);
 bool ValidateSbusMessage(const SbusMessage *sbus_msg);
 

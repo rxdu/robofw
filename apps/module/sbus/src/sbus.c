@@ -28,7 +28,7 @@ typedef enum {
 
 static void SbusBuildMessage(uint8_t *sframe_buf, SbusMessage *sbus_msg);
 
-void SbusInit(SbusInstance *inst) {
+void SbusDecoderInit(SbusInstance *inst) {
   inst->decode_buffer.decode_state = WAIT_FOR_SOF;
 }
 

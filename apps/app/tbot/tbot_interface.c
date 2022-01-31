@@ -7,9 +7,22 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
-#include "tbot/tbot_interface.h"
+#include "tbot_interface.h"
+
+#include <zephyr.h>
+
+// Negative prio threads will not be pre-empted
+#define TASK_PRIORITY_VIP -1
+#define TASK_PRIORITY_HIGHEST 1
+#define TASK_PRIORITY_HIGH 2
+#define TASK_PRIORITY_MID 3
+#define TASK_PRIORITY_LOW 4
 
 static RobotHardware robot_hardware;
+static RobotService robot_service;
+
+struct k_thread receiver_thread;
+K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -49,14 +62,24 @@ bool InitRobot() {
                GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
   SetDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0);
 
-  // rc input
-  //   struct uart_config sbus_cfg;
-  //   GetUartSbusConfig(&sbus_cfg);
+  // rc input service
+  robot_service.rcvr_srv.type = RCVR_SBUS;
+  robot_service.rcvr_srv.priority = TASK_PRIORITY_HIGH;
+  robot_service.rcvr_srv.thread = &receiver_thread;
+  robot_service.rcvr_srv.stack = receiver_service_stack;
+  robot_service.rcvr_srv.stack_size =
+      K_THREAD_STACK_SIZEOF(receiver_service_stack);
+  robot_service.rcvr_srv.delay = K_NO_WAIT;
 
-  //   ConfigureUart(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS],
-  //   sbus_cfg);
-  //   SetupUartAsyncMode(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS]);
-  //   StartUartAsyncReceive(&robot_hardware.uarts->descriptor[TBOT_UART_SBUS]);
+  SbusConf sbus_cfg;
+  sbus_cfg.dd = GetUartDescriptor(TBOT_UART_SBUS);
+
+  robot_service.rcvr_srv.rcvr_cfg = &sbus_cfg;
+
+  bool ret = StartReceiverService(&robot_service.rcvr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start receiver service\n");
+  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;
@@ -95,6 +118,8 @@ bool InitRobot() {
 }
 
 RobotHardware* GetHardware() { return &robot_hardware; }
+
+RobotService* GetService() { return &robot_service; }
 
 void TurnOnLight() {
   SetDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 1);

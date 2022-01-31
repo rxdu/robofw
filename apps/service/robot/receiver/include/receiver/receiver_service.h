@@ -18,17 +18,21 @@
 
 #include "sbus_receiver.h"
 
-typedef enum { RCVR_SBUS = 0 } ReceiverType;
+typedef enum { RCVR_SBUS = 0, RCVR_PPM } ReceiverType;
 
 typedef struct {
-  ReceiverType type;
+  // thread config
   int8_t priority;
   struct k_thread *thread;
   k_thread_stack_t *stack;
   size_t stack_size;
   k_timeout_t delay;
-  
+
+  // receiver config
+  ReceiverType type;
   void *rcvr_cfg;
+
+  // message queue for output
   struct k_msgq *msgq;
 } ReceiverServiceConf;
 

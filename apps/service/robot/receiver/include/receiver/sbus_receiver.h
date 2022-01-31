@@ -12,8 +12,6 @@
 
 #include "mcal/interface/uart_interface.h"
 
-typedef void (*printer_t)(int);
-
 typedef struct {
   UartDescriptor* dd;
 } SbusConf;

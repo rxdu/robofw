@@ -20,7 +20,7 @@ static ReceiverData receiver_data;
 #define SBUS_CHN_MIN 240
 
 bool InitSbus(SbusConf* cfg) {
-  SbusInit(&sbus_inst);
+  SbusDecoderInit(&sbus_inst);
 
   struct uart_config sbus_cfg;
   GetUartSbusConfig(&sbus_cfg);
@@ -41,16 +41,6 @@ bool InitSbus(SbusConf* cfg) {
   return true;
 }
 
-void ScaleRCCommand(uint16_t analogue_chn, int8_t* scaled_analogue_chn) {
-  //   if (analogue_chn >= RECEIVER_CHANNEL_NUMBER) {
-  //     *scaled_analogue_chn = (analogue_chn - ANALOGUE_CHANNEL_MID) * 100 /
-  //                            (ANALOGUE_CHANNEL_MAX - ANALOGUE_CHANNEL_MID);
-  //   } else {
-  //     *scaled_analogue_chn = -(ANALOGUE_CHANNEL_MID - analogue_chn) * 100 /
-  //                            (ANALOGUE_CHANNEL_MID - ANALOGUE_CHANNEL_MIN);
-  //   }
-}
-
 void UpdateSbus(void* p1) {
   static SbusMessage sbus_msg;
 
@@ -60,7 +50,6 @@ void UpdateSbus(void* p1) {
   if (k_sem_take(&(sbus_cfg->dd->rx_sem), K_FOREVER) == 0) {
     uint8_t ch;
     while (ring_buf_get(&sbus_cfg->dd->ring_buffer, &ch, 1) != 0) {
-      //   printk("%02x ", ch);
       if (SbusDecodeMessage(&sbus_inst, ch, &sbus_msg)) {
         for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
           receiver_data.channels[i] = (sbus_msg.channels[i] - SBUS_CHN_MID) *
@@ -76,6 +65,5 @@ void UpdateSbus(void* p1) {
         }
       }
     }
-    // printk("UART msg received\n");
   }
 }
