@@ -24,9 +24,9 @@ typedef struct {
 
   PwmDescriptor* dd_pwm1;
   PwmDescriptor* dd_pwm2;
-} TbotActuatorsConf;
+} TbotActuatorConf;
 
-bool InitTbotActuators(TbotActuatorsConf* cfg);
+bool InitTbotActuators(TbotActuatorConf* cfg);
 void UpdateTbotActuators(void* p1);
 
 #endif /* TBOT_ACTUATORS_H */

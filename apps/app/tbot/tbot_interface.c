@@ -25,7 +25,7 @@ static SbusConf sbus_cfg;
 struct k_thread receiver_thread;
 K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
 
-static TbotActuatorsConf tbot_motor_cfg;
+static TbotActuatorConf tbot_motor_cfg;
 struct k_thread actuator_thread;
 K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
 
@@ -49,11 +49,12 @@ bool InitRobot() {
   TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
   // actuator service
-  srv.actr_srv.priority = TASK_PRIORITY_MID;
+  srv.actr_srv.priority = TASK_PRIORITY_HIGH;
   srv.actr_srv.thread = &actuator_thread;
   srv.actr_srv.stack = actuator_service_stack;
   srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
   srv.actr_srv.delay = K_NO_WAIT;
+  srv.actr_srv.period_ms = 20;
 
   srv.actr_srv.type = ACTR_TBOT;
   srv.actr_srv.active_motor_num = 2;
@@ -78,6 +79,7 @@ bool InitRobot() {
   srv.rcvr_srv.stack = receiver_service_stack;
   srv.rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
   srv.rcvr_srv.delay = K_NO_WAIT;
+  srv.rcvr_srv.period_ms = 0;
 
   srv.rcvr_srv.type = RCVR_SBUS;
   sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);

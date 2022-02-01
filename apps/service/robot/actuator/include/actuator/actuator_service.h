@@ -37,6 +37,7 @@ typedef struct {
   k_thread_stack_t *stack;
   size_t stack_size;
   k_timeout_t delay;
+  uint32_t period_ms;
 
   // receiver config
   ActuatorType type;
