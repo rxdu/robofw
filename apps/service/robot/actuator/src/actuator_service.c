@@ -16,8 +16,8 @@ static void ActuatorServiceLoop(void *p1, void *p2, void *p3);
 bool StartActuatorService(ActuatorServiceConf *cfg) {
   // init hardware
   if (cfg->type == ACTR_TBOT) {
-    TbotBrushedMotorConf *motor_cfg =
-        (TbotBrushedMotorConf *)(cfg->actuator_cfg);
+    TbotActuatorsConf *motor_cfg =
+        (TbotActuatorsConf *)(cfg->actuator_cfg);
     if (!InitTbotActuators(motor_cfg)) {
       printk("[ERROR] Failed to initialize Tbot brushed motor\n");
       return false;

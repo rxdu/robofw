@@ -18,12 +18,14 @@
 #define TASK_PRIORITY_MID 3
 #define TASK_PRIORITY_LOW 4
 
-static RobotHardware robot_hardware;
-static RobotService robot_service;
+static RobotHardware hw;
+static RobotService srv;
 
+static SbusConf sbus_cfg;
 struct k_thread receiver_thread;
 K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
 
+static TbotActuatorsConf tbot_motor_cfg;
 struct k_thread actuator_thread;
 K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
 
@@ -31,61 +33,57 @@ bool InitRobot() {
   // load all drivers from device tree
   if (!InitHardware()) return false;
 
-  robot_hardware.leds = GetLedDescription();
-  robot_hardware.dios = GetDioDescription();
-  robot_hardware.pwms = GetPwmDescription();
-  robot_hardware.uarts = GetUartDescription();
-  robot_hardware.cans = GetCanDescription();
+  hw.leds = GetLedDescription();
+  hw.dios = GetDioDescription();
+  hw.pwms = GetPwmDescription();
+  hw.uarts = GetUartDescription();
+  hw.cans = GetCanDescription();
 
   bool ret = false;
   (void)ret;
 
   // configure drivers required by robot
   // LED for debugging
-  TurnOffLed(&robot_hardware.leds->descriptor[TBOT_LED_STATUS]);
-  TurnOffLed(&robot_hardware.leds->descriptor[TBOT_LED_USER1]);
-  TurnOffLed(&robot_hardware.leds->descriptor[TBOT_LED_USER2]);
+  TurnOffLed(&hw.leds->descriptor[TBOT_LED_STATUS]);
+  TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER1]);
+  TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
-  // motor control service
-  //   robot_service.actr_srv.priority = TASK_PRIORITY_MID;
-  //   robot_service.actr_srv.thread = &actuator_thread;
-  //   robot_service.actr_srv.stack = actuator_service_stack;
-  //   robot_service.actr_srv.stack_size =
-  //       K_THREAD_STACK_SIZEOF(actuator_service_stack);
-  //   robot_service.actr_srv.delay = K_NO_WAIT;
+  // actuator service
+  srv.actr_srv.priority = TASK_PRIORITY_MID;
+  srv.actr_srv.thread = &actuator_thread;
+  srv.actr_srv.stack = actuator_service_stack;
+  srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
+  srv.actr_srv.delay = K_NO_WAIT;
 
-  //   robot_service.actr_srv.type = ACTR_TBOT;
-  //   robot_service.actr_srv.active_motor_num = 2;
-  //   TbotBrushedMotorConf tbot_motor_cfg;
-  //   tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-  //   tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-  //   tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-  //   tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-  //   tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-  //   tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-  //   robot_service.actr_srv.actuator_cfg = &tbot_motor_cfg;
+  srv.actr_srv.type = ACTR_TBOT;
+  srv.actr_srv.active_motor_num = 2;
+  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
+  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
+  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
+  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
+  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
+  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
+  srv.actr_srv.actuator_cfg = &tbot_motor_cfg;
 
-  //   ret = StartActuatorService(&robot_service.actr_srv);
-  //   if (!ret) {
-  //     printk("[ERROR] Failed to start actuator service\n");
-  //   } else {
-  //     printk("[INFO] Started actuator service\n");
-  //   }
+  ret = StartActuatorService(&srv.actr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start actuator service\n");
+  } else {
+    printk("[INFO] Started actuator service\n");
+  }
 
   // rc input service
-  robot_service.rcvr_srv.priority = TASK_PRIORITY_HIGH;
-  robot_service.rcvr_srv.thread = &receiver_thread;
-  robot_service.rcvr_srv.stack = receiver_service_stack;
-  robot_service.rcvr_srv.stack_size =
-      K_THREAD_STACK_SIZEOF(receiver_service_stack);
-  robot_service.rcvr_srv.delay = K_NO_WAIT;
+  srv.rcvr_srv.priority = TASK_PRIORITY_HIGH;
+  srv.rcvr_srv.thread = &receiver_thread;
+  srv.rcvr_srv.stack = receiver_service_stack;
+  srv.rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
+  srv.rcvr_srv.delay = K_NO_WAIT;
 
-  robot_service.rcvr_srv.type = RCVR_SBUS;
-  SbusConf sbus_cfg;
+  srv.rcvr_srv.type = RCVR_SBUS;
   sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
-  robot_service.rcvr_srv.rcvr_cfg = &sbus_cfg;
+  srv.rcvr_srv.rcvr_cfg = &sbus_cfg;
 
-  ret = StartReceiverService(&robot_service.rcvr_srv);
+  ret = StartReceiverService(&srv.rcvr_srv);
   if (!ret) {
     printk("[ERROR] Failed to start receiver service\n");
   } else {
@@ -93,9 +91,9 @@ bool InitRobot() {
   }
 
   // light control
-  ConfigureDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL],
+  ConfigureDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL],
                GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
-  SetDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0);
+  SetDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0);
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;
@@ -105,17 +103,17 @@ bool InitRobot() {
   //   uart_test_cfg.data_bits = UART_CFG_DATA_BITS_8;
   //   uart_test_cfg.flow_ctrl = UART_CFG_FLOW_CTRL_NONE;
 
-  //   ConfigureUart(&robot_hardware.uarts->descriptor[TBOT_UART_GPS],
+  //   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_GPS],
   //                 uart_test_cfg);
-  //   SetupUartAsyncMode(&robot_hardware.uarts->descriptor[TBOT_UART_GPS]);
-  //   StartUartAsyncReceive(&robot_hardware.uarts->descriptor[TBOT_UART_GPS]);
+  //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_GPS]);
+  //   StartUartAsyncReceive(&hw.uarts->descriptor[TBOT_UART_GPS]);
 
   //   // ultrasonic sensor
-  //   ConfigureUart(&robot_hardware.uarts->descriptor[TBOT_UART_ULTRASONIC],
+  //   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC],
   //                 uart_test_cfg);
-  //   SetupUartAsyncMode(&robot_hardware.uarts->descriptor[TBOT_UART_ULTRASONIC]);
+  //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
   //   StartUartAsyncReceive(
-  //       &robot_hardware.uarts->descriptor[TBOT_UART_ULTRASONIC]);
+  //       &hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
 
   //   // uplink CAN to onboard computer
   //   struct zcan_filter can_filter;
@@ -123,9 +121,9 @@ bool InitRobot() {
   //   can_filter.rtr = CAN_DATAFRAME;
   //   can_filter.rtr_mask = 1;
   //   can_filter.id_mask = 0;
-  //   ConfigureCan(&robot_hardware.cans->descriptor[TBOT_CAN_UPLINK],
+  //   ConfigureCan(&hw.cans->descriptor[TBOT_CAN_UPLINK],
   //                CAN_NORMAL_MODE, 500000, can_filter);
-  //   ConfigureCan(&robot_hardware.cans->descriptor[TBOT_CAN_DOWNLINK],
+  //   ConfigureCan(&hw.cans->descriptor[TBOT_CAN_DOWNLINK],
   //                CAN_NORMAL_MODE, 500000, can_filter);
 
   printk("-----------------------------------------------------\n");
@@ -133,14 +131,10 @@ bool InitRobot() {
   return true;
 }
 
-RobotHardware* GetHardware() { return &robot_hardware; }
+RobotHardware* GetHardware() { return &hw; }
 
-RobotService* GetService() { return &robot_service; }
+RobotService* GetService() { return &srv; }
 
-void TurnOnLight() {
-  SetDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 1);
-}
+void TurnOnLight() { SetDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 1); }
 
-void TurnOffLight() {
-  SetDio(&robot_hardware.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0);
-}
+void TurnOffLight() { SetDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0); }

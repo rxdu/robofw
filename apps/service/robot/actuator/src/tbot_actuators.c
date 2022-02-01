@@ -11,12 +11,12 @@
 
 #include "actuator/actuator_service.h"
 
-TbotBrushedMotorConf* tbot_actr_cfg;
+TbotActuatorsConf* tbot_actr_cfg;
 
 static void LimitCommand(float in, float* out);
 static void SetMotorCmd(float left, float right);
 
-bool InitTbotActuators(TbotBrushedMotorConf* cfg) {
+bool InitTbotActuators(TbotActuatorsConf* cfg) {
   tbot_actr_cfg = cfg;
 
   ConfigureDio(cfg->dd_dio_en1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
