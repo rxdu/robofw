@@ -4,6 +4,11 @@
  * Created on: Jan 29, 2022 15:28
  * Description:
  *
+ * Service:
+ *  - Config: hardware for radio receiver (e.g. UART for SBUS)
+ *  - Input: N/A
+ *  - Output: ReceiverData (msgq_out)
+ *
  * Copyright (c) 2021 Weston Robot Pte. Ltd.
  */
 
@@ -20,6 +25,12 @@
 
 typedef enum { RCVR_SBUS = 0, RCVR_PPM } ReceiverType;
 
+#define RECEIVER_CHANNEL_NUMBER 8
+typedef struct {
+  bool signal_lost;
+  float channels[RECEIVER_CHANNEL_NUMBER];  // scaled to [-1, 1]
+} ReceiverData;
+
 typedef struct {
   // thread config
   int8_t priority;
@@ -33,14 +44,9 @@ typedef struct {
   void *rcvr_cfg;
 
   // message queue for output
-  struct k_msgq *msgq;
+  struct k_msgq *msgq_out;
+  ReceiverData receiver_data;
 } ReceiverServiceConf;
-
-#define RECEIVER_CHANNEL_NUMBER 8
-typedef struct {
-  bool signal_lost;
-  float channels[RECEIVER_CHANNEL_NUMBER];  // scaled to [-1, 1]
-} ReceiverData;
 
 bool StartReceiverService(ReceiverServiceConf *cfg);
 

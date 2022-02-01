@@ -4,6 +4,11 @@
  * Created on: Jan 31, 2022 12:54
  * Description:
  *
+ * Service:
+ *  - Config: hardware for actuator (e.g. DIO & PWM)
+ *  - Input: ActuatorCmd (msgq_in)
+ *  - Output: N/A
+ *
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
@@ -16,9 +21,14 @@
 #include <zephyr.h>
 #include <device.h>
 
-#include "actuator/tbot_brushed_motor.h"
+#include "actuator/tbot_actuators.h"
 
-typedef enum { ACT_TBOT_BRUSHED = 0, ACT_BRUSHLESS } ActuatorType;
+typedef enum { ACTR_TBOT = 0, ACTR_TA07PRO } ActuatorType;
+
+#define ACTUATOR_CHANNEL_NUMBER 8
+typedef struct {
+  float motors[ACTUATOR_CHANNEL_NUMBER];  // scaled to [-1, 1]
+} ActuatorCmd;
 
 typedef struct {
   // thread config
@@ -35,12 +45,8 @@ typedef struct {
 
   // message queue for input
   struct k_msgq *msgq_in;
+  ActuatorCmd actuator_cmd;
 } ActuatorServiceConf;
-
-#define ACTUATOR_CHANNEL_NUMBER 8
-typedef struct {
-  float motors[ACTUATOR_CHANNEL_NUMBER];  // scaled to [-1, 1]
-} ActuatorCmd;
 
 bool StartActuatorService(ActuatorServiceConf *cfg);
 

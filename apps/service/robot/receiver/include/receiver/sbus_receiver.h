@@ -10,10 +10,12 @@
 #ifndef SBUS_RECEIVER_H
 #define SBUS_RECEIVER_H
 
+#include "mcal/interface/dio_interface.h"
 #include "mcal/interface/uart_interface.h"
 
 typedef struct {
-  UartDescriptor* dd;
+  UartDescriptor* dd_uart;
+  DioDescriptor* dd_dio_inv;
 } SbusConf;
 
 bool InitSbus(SbusConf* cfg);
