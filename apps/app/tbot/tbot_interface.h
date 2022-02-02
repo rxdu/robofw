@@ -13,6 +13,7 @@
 #include "mcal/hwconfig.h"
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
+#include "light/light_service.h"
 
 #define TBOT_LED_STATUS DD_LED0
 #define TBOT_LED_USER1 DD_LED1
@@ -55,6 +56,7 @@ typedef struct {
 typedef struct {
   ReceiverServiceConf rcvr_srv;
   ActuatorServiceConf actr_srv;
+  LightServiceConf light_srv;
 } RobotService;
 
 bool InitRobot();

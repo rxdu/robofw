@@ -29,6 +29,10 @@ static TbotActuatorConf tbot_motor_cfg;
 struct k_thread actuator_thread;
 K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
 
+static LightConf light_cfg;
+struct k_thread light_thread;
+K_THREAD_STACK_DEFINE(light_service_stack, 512);
+
 bool InitRobot() {
   // load all drivers from device tree
   if (!InitHardware()) return false;
@@ -73,7 +77,7 @@ bool InitRobot() {
     printk("[INFO] Started actuator service\n");
   }
 
-  // rc input service
+  // receiver service
   srv.rcvr_srv.priority = TASK_PRIORITY_HIGH;
   srv.rcvr_srv.thread = &receiver_thread;
   srv.rcvr_srv.stack = receiver_service_stack;
@@ -93,9 +97,22 @@ bool InitRobot() {
   }
 
   // light control
-  ConfigureDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL],
-               GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
-  SetDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0);
+  srv.light_srv.priority = TASK_PRIORITY_MID;
+  srv.light_srv.thread = &light_thread;
+  srv.light_srv.stack = light_service_stack;
+  srv.light_srv.stack_size = K_THREAD_STACK_SIZEOF(light_service_stack);
+  srv.light_srv.delay = K_NO_WAIT;
+  srv.light_srv.period_ms = 50;
+
+  light_cfg.dd_dio_front = GetDioDescriptor(TBOT_DIO_LIGHT_CTRL);
+  srv.light_srv.light_cfg = &light_cfg;
+
+  ret = StartLightService(&srv.light_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start light service\n");
+  } else {
+    printk("[INFO] Started light service\n");
+  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;

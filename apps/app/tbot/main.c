@@ -29,12 +29,42 @@ void main(void) {
     }
   }
 
+  //   srv->light_srv.light_cmd.lights[0] = true;
+  //   while (k_msgq_put(srv->light_srv.msgq_in, &srv->light_srv.light_cmd,
+  //                     K_NO_WAIT) != 0) {
+  //     k_msgq_purge(srv->light_srv.msgq_in);
+  //   }
+
+  //   k_msleep(100);
+
+  //   srv->light_srv.light_cmd.lights[0] = false;
+  //   while (k_msgq_put(srv->light_srv.msgq_in, &srv->light_srv.light_cmd,
+  //                     K_NO_WAIT) != 0) {
+  //     k_msgq_purge(srv->light_srv.msgq_in);
+  //   }
+
+  //   k_msleep(100);
+
+  //   srv->light_srv.light_cmd.lights[0] = true;
+  //   while (k_msgq_put(srv->light_srv.msgq_in, &srv->light_srv.light_cmd,
+  //                     K_NO_WAIT) != 0) {
+  //     k_msgq_purge(srv->light_srv.msgq_in);
+  //   }
+
   uint8_t count = 0;
+  bool light_state = false;
 
   while (1) {
     if (count % 10 == 0) {
       ToggleLed(&hw->leds->descriptor[TBOT_LED_STATUS]);
     }
+
+    // if (count % 100 == 0) {
+    //   light_state = !light_state;
+    //   srv->light_srv.light_cmd.lights[0] = light_state;
+    //   k_msgq_put(srv->light_srv.msgq_in, &srv->light_srv.light_cmd,
+    //   K_NO_WAIT);
+    // }
 
     while (k_msgq_get(srv->rcvr_srv.msgq_out, &srv->rcvr_srv.receiver_data,
                       K_NO_WAIT) == 0) {
