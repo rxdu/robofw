@@ -42,10 +42,10 @@ typedef struct {
   k_timeout_t delay;
   uint32_t period_ms;
 
-  // light config
+  // task-related config
   LightConf *light_cfg;
 
-  // message queue for output
+  // message queue for input/output
   struct k_msgq *msgq_in;
   LightCmd light_cmd;
 } LightServiceConf;

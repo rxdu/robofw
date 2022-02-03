@@ -41,11 +41,11 @@ typedef struct {
   k_timeout_t delay;
   uint32_t period_ms;
 
-  // receiver config
+  // task-related config
   ReceiverType type;
   void *rcvr_cfg;
 
-  // message queue for output
+  // message queue for input/output
   struct k_msgq *msgq_out;
   ReceiverData receiver_data;
 } ReceiverServiceConf;

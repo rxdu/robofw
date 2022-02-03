@@ -16,6 +16,7 @@
 #include "light/light_service.h"
 
 #include "coordinator/coordinator_service.h"
+#include "motion/motion_service.h"
 
 #define TBOT_LED_STATUS DD_LED0
 #define TBOT_LED_USER1 DD_LED1
@@ -60,6 +61,7 @@ typedef struct {
   ActuatorServiceConf actr_srv;
   LightServiceConf light_srv;
   CoordinatorServiceConf coord_srv;
+  MotionServiceConf motion_srv;
 } RobotService;
 
 // Negative prio threads will not be pre-empted
@@ -87,6 +89,12 @@ K_THREAD_STACK_DEFINE(light_service_stack, 512);
 static LedConf led_cfg;
 struct k_thread system_thread;
 K_THREAD_STACK_DEFINE(system_service_stack, 512);
+
+struct k_thread coord_thread;
+K_THREAD_STACK_DEFINE(coord_service_stack, 512);
+
+struct k_thread motion_thread;
+K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -174,17 +182,14 @@ bool InitRobot() {
 
   // coordinator
   srv.coord_srv.priority = TASK_PRIORITY_HIGH;
-  srv.coord_srv.thread = &system_thread;
-  srv.coord_srv.stack = system_service_stack;
-  srv.coord_srv.stack_size = K_THREAD_STACK_SIZEOF(system_service_stack);
-  srv.coord_srv.delay = K_NO_WAIT;
+  srv.coord_srv.thread = &coord_thread;
+  srv.coord_srv.stack = coord_service_stack;
+  srv.coord_srv.stack_size = K_THREAD_STACK_SIZEOF(coord_service_stack);
+  srv.coord_srv.delay = Z_TIMEOUT_MS(20);
   srv.coord_srv.period_ms = 20;
 
-  led_cfg.dd_led0 = GetLedDescriptor(TBOT_LED_STATUS);
-  led_cfg.dd_led1 = GetLedDescriptor(TBOT_LED_USER1);
-  led_cfg.dd_led2 = GetLedDescriptor(TBOT_LED_USER2);
+  led_cfg.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
   srv.coord_srv.led_cfg = &led_cfg;
-
   srv.coord_srv.rcvr_srv = &srv.rcvr_srv;
 
   ret = StartCoordinatorService(&srv.coord_srv);
@@ -193,6 +198,25 @@ bool InitRobot() {
     return false;
   } else {
     printk("[INFO] Started coordinator service\n");
+  }
+
+  // motion control
+  srv.motion_srv.priority = TASK_PRIORITY_HIGH;
+  srv.motion_srv.thread = &motion_thread;
+  srv.motion_srv.stack = motion_service_stack;
+  srv.motion_srv.stack_size = K_THREAD_STACK_SIZEOF(motion_service_stack);
+  srv.motion_srv.delay = Z_TIMEOUT_MS(40);
+  srv.motion_srv.period_ms = 20;
+
+  srv.motion_srv.coord_srv = &srv.coord_srv;
+  srv.motion_srv.actr_srv = &srv.actr_srv;
+
+  ret = StartMotionService(&srv.motion_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start motion service\n");
+    return false;
+  } else {
+    printk("[INFO] Started motion service\n");
   }
 
   //   // gps receiver
@@ -240,6 +264,7 @@ void ShowRobotPanic() {
   k_thread_abort(srv.actr_srv.tid);
   k_thread_abort(srv.light_srv.tid);
   k_thread_abort(srv.coord_srv.tid);
+  //   k_thread_abort(srv.motion_srv.tid);
 
   TurnOnLed(led0);
   TurnOnLed(led1);

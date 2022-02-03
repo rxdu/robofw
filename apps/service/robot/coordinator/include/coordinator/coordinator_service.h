@@ -20,9 +20,7 @@
 #include "mcal/interface/led_interface.h"
 
 typedef struct {
-  LedDescriptor *dd_led0;
-  LedDescriptor *dd_led1;
-  LedDescriptor *dd_led2;
+  LedDescriptor *dd_led_status;
 } LedConf;
 
 typedef struct {
@@ -46,10 +44,11 @@ typedef struct {
   k_timeout_t delay;
   uint32_t period_ms;
 
+  // task-related config
   LedConf *led_cfg;
   ReceiverServiceConf *rcvr_srv;
 
-  // message queue for output
+  // message queue for input/output
   struct k_msgq *msgq_out;
   DesiredMotion desired_motion;
 } CoordinatorServiceConf;
