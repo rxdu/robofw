@@ -31,23 +31,33 @@ bool StartMotionService(MotionServiceConf *cfg) {
 void MotionServiceLoop(void *p1, void *p2, void *p3) {
   MotionServiceConf *cfg = (MotionServiceConf *)p1;
   while (1) {
-    while (k_msgq_get(cfg->coord_srv->msgq_out, &cfg->coord_srv->desired_motion,
-                      K_NO_WAIT) == 0) {
+    DesiredMotion desired_motion;
+    while (k_msgq_get(cfg->coord_srv->msgq_out, &desired_motion, K_NO_WAIT) ==
+           0) {
       printk("desired motion: %3d %3d %3d, %3d %3d %3d\n",
-             (int)(cfg->coord_srv->desired_motion.linear.x * 100),
-             (int)(cfg->coord_srv->desired_motion.linear.y * 100),
-             (int)(cfg->coord_srv->desired_motion.linear.z * 100),
-             (int)(cfg->coord_srv->desired_motion.angular.x * 100),
-             (int)(cfg->coord_srv->desired_motion.angular.y * 100),
-             (int)(cfg->coord_srv->desired_motion.angular.z * 100));
+             (int)(desired_motion.linear.x * 100),
+             (int)(desired_motion.linear.y * 100),
+             (int)(desired_motion.linear.z * 100),
+             (int)(desired_motion.angular.x * 100),
+             (int)(desired_motion.angular.y * 100),
+             (int)(desired_motion.angular.z * 100));
 
-      //   if (linear_x > 0) {
-      //     linear_x = 1.0f - linear_x;
-      //   } else {
-      //     linear_x = -(1.0f + linear_x);
-      //   }
-      //   // add deadzone
-      //   if (linear_x > -0.05 && linear_x < 0.05) linear_x = 0.0;
+      float linear_x = desired_motion.linear.x;
+      if (linear_x > 0) {
+        linear_x = 1.0f - linear_x;
+      } else {
+        linear_x = -(1.0f + linear_x);
+      }
+      // add deadzone
+      if (linear_x > -0.05 && linear_x < 0.05) linear_x = 0.0;
+
+      ActuatorCmd actuator_cmd;
+      actuator_cmd.motors[0] = linear_x;
+
+      while (k_msgq_put(cfg->actr_srv->msgq_in, &actuator_cmd, K_NO_WAIT) !=
+             0) {
+        k_msgq_purge(cfg->actr_srv->msgq_in);
+      }
     }
 
     if (cfg->period_ms > 0) k_msleep(cfg->period_ms);
