@@ -1,7 +1,7 @@
 # add library
 add_library(actuator 
     src/actuator_service.c
-    src/tbot_brushed_motor.c)
+    src/tbot_actuators.c)
 target_link_libraries(actuator PUBLIC zephyr mcal ${GCC_FLAG})
 set_target_properties(actuator PROPERTIES COMPILE_FLAGS ${ARCH_FLAGS})
 target_include_directories(actuator PUBLIC 

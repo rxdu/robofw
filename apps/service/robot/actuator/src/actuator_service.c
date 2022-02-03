@@ -9,16 +9,18 @@
 
 #include "actuator/actuator_service.h"
 
+static ActuatorServiceConf *srv_cfg;
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
 
 static void ActuatorServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartActuatorService(ActuatorServiceConf *cfg) {
+  srv_cfg = cfg;
+
   // init hardware
-  if (cfg->type == ACT_TBOT_BRUSHED) {
-    TbotBrushedMotorConf *motor_cfg =
-        (TbotBrushedMotorConf *)(cfg->actuator_cfg);
-    if (!InitTbotBrushedMotor(motor_cfg)) {
+  if (cfg->type == ACTR_TBOT) {
+    TbotActuatorConf *motor_cfg = (TbotActuatorConf *)(cfg->actuator_cfg);
+    if (!InitTbotActuators(motor_cfg)) {
       printk("[ERROR] Failed to initialize Tbot brushed motor\n");
       return false;
     }
@@ -37,10 +39,11 @@ void ActuatorServiceLoop(void *p1, void *p2, void *p3) {
   ActuatorServiceConf *cfg = (ActuatorServiceConf *)p1;
   ActuatorType type = cfg->type;
   while (1) {
-    if (type == ACT_TBOT_BRUSHED) {
-      UpdateTbotBrushedMotor(p1);
-    } else if (type == ACT_BRUSHLESS) {
+    if (type == ACTR_TBOT) {
+      UpdateTbotActuators(p1);
+    } else if (type == ACTR_TA07PRO) {
       // process PPM
     }
+    if (srv_cfg->period_ms > 0) k_msleep(srv_cfg->period_ms);
   }
 }
