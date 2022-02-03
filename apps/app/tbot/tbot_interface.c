@@ -9,7 +9,58 @@
 
 #include "tbot_interface.h"
 
-#include <zephyr.h>
+#include "mcal/hwconfig.h"
+
+#include "receiver/receiver_service.h"
+#include "actuator/actuator_service.h"
+#include "light/light_service.h"
+
+#include "coordinator/coordinator_service.h"
+
+#define TBOT_LED_STATUS DD_LED0
+#define TBOT_LED_USER1 DD_LED1
+#define TBOT_LED_USER2 DD_LED2
+
+// left motor
+#define TBOT_DIO_EN1 DD_DIO0
+#define TBOT_DIO_DIR1 DD_DIO1
+#define TBOT_PWM1 DD_PWM0
+
+// right motor
+#define TBOT_DIO_EN2 DD_DIO2
+#define TBOT_DIO_DIR2 DD_DIO3
+#define TBOT_PWM2 DD_PWM1
+
+// front light
+#define TBOT_DIO_LIGHT_CTRL DD_DIO4
+
+// rc input
+#define TBOT_UART_SBUS DD_UART0
+
+// gps receiver
+#define TBOT_UART_GPS DD_UART1
+
+// ultrasonic sensor
+#define TBOT_UART_ULTRASONIC DD_UART2
+
+// CAN uplink/downlink
+#define TBOT_CAN_UPLINK DD_CAN0
+#define TBOT_CAN_DOWNLINK DD_CAN1
+
+typedef struct {
+  LedDescription* leds;
+  DioDescription* dios;
+  PwmDescription* pwms;
+  UartDescription* uarts;
+  CanDescription* cans;
+} RobotHardware;
+
+typedef struct {
+  ReceiverServiceConf rcvr_srv;
+  ActuatorServiceConf actr_srv;
+  LightServiceConf light_srv;
+  CoordinatorServiceConf coord_srv;
+} RobotService;
 
 // Negative prio threads will not be pre-empted
 #define TASK_PRIORITY_VIP -1
@@ -23,7 +74,7 @@ static RobotService srv;
 
 static SbusConf sbus_cfg;
 struct k_thread receiver_thread;
-K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
+K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
 
 static TbotActuatorConf tbot_motor_cfg;
 struct k_thread actuator_thread;
@@ -32,6 +83,10 @@ K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
 static LightConf light_cfg;
 struct k_thread light_thread;
 K_THREAD_STACK_DEFINE(light_service_stack, 512);
+
+static LedConf led_cfg;
+struct k_thread system_thread;
+K_THREAD_STACK_DEFINE(system_service_stack, 512);
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -53,7 +108,7 @@ bool InitRobot() {
   TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
   // actuator service
-  srv.actr_srv.priority = TASK_PRIORITY_HIGH;
+  srv.actr_srv.priority = TASK_PRIORITY_HIGHEST;
   srv.actr_srv.thread = &actuator_thread;
   srv.actr_srv.stack = actuator_service_stack;
   srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
@@ -73,12 +128,13 @@ bool InitRobot() {
   ret = StartActuatorService(&srv.actr_srv);
   if (!ret) {
     printk("[ERROR] Failed to start actuator service\n");
+    return false;
   } else {
     printk("[INFO] Started actuator service\n");
   }
 
   // receiver service
-  srv.rcvr_srv.priority = TASK_PRIORITY_HIGH;
+  srv.rcvr_srv.priority = TASK_PRIORITY_HIGHEST;
   srv.rcvr_srv.thread = &receiver_thread;
   srv.rcvr_srv.stack = receiver_service_stack;
   srv.rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
@@ -92,6 +148,7 @@ bool InitRobot() {
   ret = StartReceiverService(&srv.rcvr_srv);
   if (!ret) {
     printk("[ERROR] Failed to start receiver service\n");
+    return false;
   } else {
     printk("[INFO] Started receiver service\n");
   }
@@ -110,8 +167,32 @@ bool InitRobot() {
   ret = StartLightService(&srv.light_srv);
   if (!ret) {
     printk("[ERROR] Failed to start light service\n");
+    return false;
   } else {
     printk("[INFO] Started light service\n");
+  }
+
+  // coordinator
+  srv.coord_srv.priority = TASK_PRIORITY_HIGH;
+  srv.coord_srv.thread = &system_thread;
+  srv.coord_srv.stack = system_service_stack;
+  srv.coord_srv.stack_size = K_THREAD_STACK_SIZEOF(system_service_stack);
+  srv.coord_srv.delay = K_NO_WAIT;
+  srv.coord_srv.period_ms = 20;
+
+  led_cfg.dd_led0 = GetLedDescriptor(TBOT_LED_STATUS);
+  led_cfg.dd_led1 = GetLedDescriptor(TBOT_LED_USER1);
+  led_cfg.dd_led2 = GetLedDescriptor(TBOT_LED_USER2);
+  srv.coord_srv.led_cfg = &led_cfg;
+
+  srv.coord_srv.rcvr_srv = &srv.rcvr_srv;
+
+  ret = StartCoordinatorService(&srv.coord_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start coordinator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started coordinator service\n");
   }
 
   //   // gps receiver
@@ -150,10 +231,25 @@ bool InitRobot() {
   return true;
 }
 
-RobotHardware* GetHardware() { return &hw; }
+void ShowRobotPanic() {
+  LedDescriptor* led0 = GetLedDescriptor(TBOT_LED_STATUS);
+  LedDescriptor* led1 = GetLedDescriptor(TBOT_LED_USER1);
+  LedDescriptor* led2 = GetLedDescriptor(TBOT_LED_USER2);
 
-RobotService* GetService() { return &srv; }
+  k_thread_abort(srv.rcvr_srv.tid);
+  k_thread_abort(srv.actr_srv.tid);
+  k_thread_abort(srv.light_srv.tid);
+  k_thread_abort(srv.coord_srv.tid);
 
-void TurnOnLight() { SetDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 1); }
+  TurnOnLed(led0);
+  TurnOnLed(led1);
+  TurnOnLed(led2);
 
-void TurnOffLight() { SetDio(&hw.dios->descriptor[TBOT_DIO_LIGHT_CTRL], 0); }
+  while (1) {
+    ToggleLed(led0);
+    ToggleLed(led1);
+    ToggleLed(led2);
+
+    k_msleep(1000);
+  }
+}

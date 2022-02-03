@@ -21,8 +21,9 @@ bool StartLightService(LightServiceConf *cfg) {
   cfg->msgq_in = &light_cmd_queue;
 
   // create and start thread
-  k_thread_create(cfg->thread, cfg->stack, cfg->stack_size, LightServiceLoop,
-                  cfg, NULL, NULL, cfg->priority, 0, cfg->delay);
+  cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
+                             LightServiceLoop, cfg, NULL, NULL, cfg->priority,
+                             0, cfg->delay);
 
   return true;
 }

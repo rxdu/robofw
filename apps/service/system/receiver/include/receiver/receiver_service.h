@@ -33,6 +33,7 @@ typedef struct {
 
 typedef struct {
   // thread config
+  k_tid_t tid;
   int8_t priority;
   struct k_thread *thread;
   k_thread_stack_t *stack;

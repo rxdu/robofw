@@ -32,8 +32,9 @@ bool StartReceiverService(ReceiverServiceConf *cfg) {
   cfg->msgq_out = &receiver_data_queue;
 
   // create and start thread
-  k_thread_create(cfg->thread, cfg->stack, cfg->stack_size, ReceiverServiceLoop,
-                  cfg, NULL, NULL, cfg->priority, 0, cfg->delay);
+  cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
+                             ReceiverServiceLoop, cfg, NULL, NULL,
+                             cfg->priority, 0, cfg->delay);
 
   return true;
 }
