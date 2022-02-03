@@ -43,7 +43,7 @@ void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
       //          (int)(cfg->rcvr_srv->receiver_data.channels[6] * 100),
       //          (int)(cfg->rcvr_srv->receiver_data.channels[7] * 100));
       cfg->desired_motion.linear.x = cfg->rcvr_srv->receiver_data.channels[2];
-      cfg->desired_motion.angular.z = cfg->rcvr_srv->receiver_data.channels[3];
+      cfg->desired_motion.angular.z = cfg->rcvr_srv->receiver_data.channels[0];
       while (k_msgq_put(cfg->msgq_out, &cfg->desired_motion, K_NO_WAIT) != 0) {
         k_msgq_purge(cfg->msgq_out);
       }

@@ -11,6 +11,9 @@
 
 // K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
+#define GEAR_RATIO 30
+#define MAX_RPM 550
+
 static void MotionServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartMotionService(MotionServiceConf *cfg) {
@@ -43,9 +46,22 @@ void MotionServiceLoop(void *p1, void *p2, void *p3) {
              (int)(desired_motion.angular.z * 100));
 
       float linear_x = desired_motion.linear.x;
+      float angular_z = desired_motion.angular.z;
+
+      float wheel_radius = 0.02;
+      float wheelbase = 0.5;
+
+      // from linear_x, angular_z to motors[0], motors[1]
+      float vel_left = (linear_x - angular_z * wheelbase) / wheel_radius * 0.02;
+      float vel_right =
+          (linear_x + angular_z * wheelbase) / wheel_radius * 0.01;
+
+      printk("---> calc: %03d %03d\n", (int)(vel_left * 100),
+             (int)(vel_right * 100));
 
       ActuatorCmd actuator_cmd;
-      actuator_cmd.motors[0] = linear_x;
+      actuator_cmd.motors[0] = vel_left;
+      actuator_cmd.motors[1] = vel_right;
 
       while (k_msgq_put(cfg->actr_srv->msgq_in, &actuator_cmd, K_NO_WAIT) !=
              0) {
