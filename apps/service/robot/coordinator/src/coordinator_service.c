@@ -42,23 +42,8 @@ void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
       //          (int)(cfg->rcvr_srv->receiver_data.channels[5] * 100),
       //          (int)(cfg->rcvr_srv->receiver_data.channels[6] * 100),
       //          (int)(cfg->rcvr_srv->receiver_data.channels[7] * 100));
-      // reverse cmd
-      float linear_x = cfg->rcvr_srv->receiver_data.channels[2];
-      //   if (linear_x > 0) {
-      //     linear_x = 1.0f - linear_x;
-      //   } else {
-      //     linear_x = -(1.0f + linear_x);
-      //   }
-      //   // add deadzone
-      //   if (linear_x > -0.05 && linear_x < 0.05) linear_x = 0.0;
-      cfg->desired_motion.linear.x = linear_x;
-      //   SetMotorCmd(cmd, -cmd);
-      //   srv->actr_srv.actuator_cmd.motors[0] =
-      //       srv->rcvr_srv->receiver_data.channels[2];
-      //   srv->actr_srv.actuator_cmd.motors[1] =
-      //       srv->rcvr_srv->receiver_data.channels[2];
-      //   printk("Setting command from main loop: %d\n",
-      //          (int)(srv->rcvr_srv->receiver_data.channels[2] * 100));
+      cfg->desired_motion.linear.x = cfg->rcvr_srv->receiver_data.channels[2];
+      cfg->desired_motion.angular.z = cfg->rcvr_srv->receiver_data.channels[3];
       while (k_msgq_put(cfg->msgq_out, &cfg->desired_motion, K_NO_WAIT) != 0) {
         k_msgq_purge(cfg->msgq_out);
       }

@@ -43,13 +43,6 @@ void MotionServiceLoop(void *p1, void *p2, void *p3) {
              (int)(desired_motion.angular.z * 100));
 
       float linear_x = desired_motion.linear.x;
-      if (linear_x > 0) {
-        linear_x = 1.0f - linear_x;
-      } else {
-        linear_x = -(1.0f + linear_x);
-      }
-      // add deadzone
-      if (linear_x > -0.05 && linear_x < 0.05) linear_x = 0.0;
 
       ActuatorCmd actuator_cmd;
       actuator_cmd.motors[0] = linear_x;
