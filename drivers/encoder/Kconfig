@@ -1,0 +1,32 @@
+# ENCODER configuration options
+
+# Copyright (c) 2015 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig ENCODER
+	bool "ENCODER (Pulse Width Modulation) Drivers"
+	help
+	  Enable config options for ENCODER drivers.
+
+if ENCODER
+
+module = ENCODER
+module-str = encoder
+source "subsys/logging/Kconfig.template.log_config"
+
+# config PWM_SHELL
+# 	bool "Enable ENCODER shell"
+# 	default y
+# 	depends on SHELL
+# 	help
+# 	  Enable the ENCODER related shell commands.
+
+# config PWM_CAPTURE
+# 	bool "Provide API for ENCODER capture"
+# 	help
+# 	  This option extends the Zephyr ENCODER API with the ability to capture ENCODER
+# 	  period/pulse widths.
+
+rsource "Kconfig.stm32"
+
+endif # ENCODER
