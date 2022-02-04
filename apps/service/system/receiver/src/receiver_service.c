@@ -9,14 +9,11 @@
 
 #include "receiver/receiver_service.h"
 
-static ReceiverServiceConf *srv_cfg;
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
 static void ReceiverServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartReceiverService(ReceiverServiceConf *cfg) {
-  srv_cfg = cfg;
-
   // init hardware
   if (cfg->type == RCVR_SBUS) {
     SbusConf *sbus_cfg = (SbusConf *)(cfg->rcvr_cfg);
@@ -35,8 +32,9 @@ bool StartReceiverService(ReceiverServiceConf *cfg) {
   cfg->msgq_out = &receiver_data_queue;
 
   // create and start thread
-  k_thread_create(cfg->thread, cfg->stack, cfg->stack_size, ReceiverServiceLoop,
-                  cfg, NULL, NULL, cfg->priority, 0, cfg->delay);
+  cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
+                             ReceiverServiceLoop, cfg, NULL, NULL,
+                             cfg->priority, 0, cfg->delay);
 
   return true;
 }
@@ -50,6 +48,6 @@ void ReceiverServiceLoop(void *p1, void *p2, void *p3) {
     } else if (type == RCVR_PPM) {
       // process PPM
     }
-    if (srv_cfg->period_ms > 0) k_msleep(srv_cfg->period_ms);
+    if (cfg->period_ms > 0) k_msleep(cfg->period_ms);
   }
 }

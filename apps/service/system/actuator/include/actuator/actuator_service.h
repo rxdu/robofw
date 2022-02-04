@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
   // thread config
+  k_tid_t tid;
   int8_t priority;
   struct k_thread *thread;
   k_thread_stack_t *stack;
@@ -39,12 +40,12 @@ typedef struct {
   k_timeout_t delay;
   uint32_t period_ms;
 
-  // receiver config
+  // task-related config
   ActuatorType type;
   uint8_t active_motor_num;
   void *actuator_cfg;
 
-  // message queue for input
+  // message queue for input/output
   struct k_msgq *msgq_in;
   ActuatorCmd actuator_cmd;
 } ActuatorServiceConf;

@@ -9,14 +9,11 @@
 
 #include "actuator/actuator_service.h"
 
-static ActuatorServiceConf *srv_cfg;
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
 
 static void ActuatorServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartActuatorService(ActuatorServiceConf *cfg) {
-  srv_cfg = cfg;
-
   // init hardware
   if (cfg->type == ACTR_TBOT) {
     TbotActuatorConf *motor_cfg = (TbotActuatorConf *)(cfg->actuator_cfg);
@@ -29,8 +26,9 @@ bool StartActuatorService(ActuatorServiceConf *cfg) {
   cfg->msgq_in = &actuator_data_queue;
 
   // create and start thread
-  k_thread_create(cfg->thread, cfg->stack, cfg->stack_size, ActuatorServiceLoop,
-                  cfg, NULL, NULL, cfg->priority, 0, cfg->delay);
+  cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
+                             ActuatorServiceLoop, cfg, NULL, NULL,
+                             cfg->priority, 0, cfg->delay);
 
   return true;
 }
@@ -44,6 +42,6 @@ void ActuatorServiceLoop(void *p1, void *p2, void *p3) {
     } else if (type == ACTR_TA07PRO) {
       // process PPM
     }
-    if (srv_cfg->period_ms > 0) k_msleep(srv_cfg->period_ms);
+    if (cfg->period_ms > 0) k_msleep(cfg->period_ms);
   }
 }
