@@ -15,6 +15,7 @@ bool InitHardware() {
   bool pwm_ret = InitPwm();
   bool uart_ret = InitUart();
   bool can_ret = InitCan();
+  bool encoder_ret = InitEncoder();
 
-  return (led_ret && dio_ret && pwm_ret && uart_ret && can_ret);
+  return (led_ret && dio_ret && pwm_ret && uart_ret && can_ret && encoder_ret);
 }

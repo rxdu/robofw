@@ -17,6 +17,7 @@
 #include "mcal/interface/pwm_interface.h"
 #include "mcal/interface/uart_interface.h"
 #include "mcal/interface/can_interface.h"
+#include "mcal/interface/encoder_interface.h"
 
 bool InitHardware();
 

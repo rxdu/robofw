@@ -117,6 +117,8 @@
         xuart2 = &usart3;
         xcan0 = &can1;
         xcan1 = &can2;
+        xencoder0 = &encoder1;
+        xencoder1 = &encoder3;
     };
 };
 

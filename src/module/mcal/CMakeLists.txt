@@ -10,7 +10,8 @@ else()
         src/led_interface.c
         src/pwm_interface.c
         src/uart_interface.c
-        src/can_interface.c)
+        src/can_interface.c
+        src/encoder_interface.c)
 endif()
 
 add_library(mcal ${DRIVER_SRC})
