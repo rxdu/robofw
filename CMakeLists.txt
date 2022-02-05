@@ -15,6 +15,8 @@ else()
     add_definitions("-DTARGET_CORTEX_M4")
 endif()
 
+list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
 message(STATUS "Building firmware for ${ROBOT} with board ${BOARD}")
 
 if(BUILD_TESTING)

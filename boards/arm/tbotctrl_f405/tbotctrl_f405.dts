@@ -7,6 +7,7 @@
 /dts-v1/;
 #include <st/f4/stm32f405Xg.dtsi>
 #include <st/f4/stm32f405rgtx-pinctrl.dtsi>
+#include <dt-bindings/encoder/encoder.h>
 
 / {
     model = "TBot Control Board";
@@ -73,14 +74,14 @@
         status = "okay";
     };
 
-    tim_enc1: tim_encoder1 {
-        label = "TIM1_ENCODER";
-        compatible = "st,stm32-encoder";
-        st,prescaler = <200>;
-        pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
-        #encoder-cells = <3>;
-        status = "okay";
-    };
+    // tim_enc1: tim_encoder1 {
+    //     label = "TIM1_ENCODER";
+    //     compatible = "st,stm32-encoder";
+    //     st,prescaler = <200>;
+    //     pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
+    //     #encoder-cells = <3>;
+    //     status = "okay";
+    // };
 
     pwm_outputs {
         compatible = "pwm-leds";
@@ -201,12 +202,38 @@
     status = "okay";
 };
 
+&timers1 {
+    status = "okay";
+
+    encoder1: encoder {
+        label = "TIM1_ENCODER";
+        compatible = "st,stm32-encoder";
+        st,encoder-mode = <ENCODER_MODE_X4_TI12>;
+        st,prescaler = <0>;
+        pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
+        status = "okay";
+    };
+};
+
 &timers2 {
     status = "okay";
 
     pwm2: pwm {
         status = "okay";
         pinctrl-0 = <&tim2_ch3_pb10 &tim2_ch4_pb11>;
+    };
+};
+
+&timers3 {
+    status = "okay";
+
+    encoder3: encoder {
+        label = "TIM3_ENCODER";
+        compatible = "st,stm32-encoder";
+        st,encoder-mode = <ENCODER_MODE_X4_TI12>;
+        st,prescaler = <0>;
+        pinctrl-0 = <&tim3_ch1_pc6 &tim3_ch2_pc7>;
+        status = "okay";
     };
 };
 

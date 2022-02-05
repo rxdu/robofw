@@ -2,11 +2,16 @@ description: STM32 ENCODER
 
 compatible: "st,stm32-encoder"
 
-include: [encoder-controller.yaml, base.yaml]
+include: [base.yaml]
 
 properties:
     label:
       required: true
+
+    st,encoder-mode:
+      type: int
+      required: true
+      description: Encoder mode
 
     st,prescaler:
       type: int
@@ -21,12 +26,3 @@ properties:
         will reference pinctrl nodes, e.g.
 
            pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;
-
-    "#encoder-cells":
-      const: 3
-
-encoder-cells:
-  - channel
-# period in terms of nanoseconds
-  - period
-  - flags
