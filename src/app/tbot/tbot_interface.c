@@ -13,6 +13,7 @@
 
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
+#include "speed_control/speed_control_service.h"
 #include "light/light_service.h"
 
 #include "coordinator/coordinator_service.h"
@@ -34,6 +35,10 @@
 
 // front light
 #define TBOT_DIO_LIGHT_CTRL DD_DIO4
+
+// encoder
+#define TBOT_ENCODER1 DD_ENCODER1
+#define TBOT_ENCODER2 DD_ENCODER0
 
 // rc input
 #define TBOT_UART_SBUS DD_UART0
@@ -62,6 +67,7 @@ typedef struct {
   LightServiceConf light_srv;
   CoordinatorServiceConf coord_srv;
   MotionServiceConf motion_srv;
+  SpeedControlServiceConf spdctrl_srv;
 } RobotService;
 
 // Negative prio threads will not be pre-empted
@@ -95,6 +101,10 @@ K_THREAD_STACK_DEFINE(coord_service_stack, 512);
 
 struct k_thread motion_thread;
 K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
+
+static EncoderConfig encoder_cfg;
+struct k_thread spdctrl_thread;
+K_THREAD_STACK_DEFINE(spdctrl_service_stack, 1024);
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -178,6 +188,26 @@ bool InitRobot() {
     return false;
   } else {
     printk("[INFO] Started light service\n");
+  }
+
+  // speed control
+  srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
+  srv.spdctrl_srv.thread = &spdctrl_thread;
+  srv.spdctrl_srv.stack = spdctrl_service_stack;
+  srv.spdctrl_srv.stack_size = K_THREAD_STACK_SIZEOF(spdctrl_service_stack);
+  srv.spdctrl_srv.delay = K_NO_WAIT;
+  srv.spdctrl_srv.period_ms = 20;
+
+  encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
+  encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
+  srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
+
+  ret = StartSpeedControlService(&srv.spdctrl_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start speed control service\n");
+    return false;
+  } else {
+    printk("[INFO] Started speed control service\n");
   }
 
   // coordinator
@@ -264,7 +294,8 @@ void ShowRobotPanic() {
   k_thread_abort(srv.actr_srv.tid);
   k_thread_abort(srv.light_srv.tid);
   k_thread_abort(srv.coord_srv.tid);
-  //   k_thread_abort(srv.motion_srv.tid);
+  k_thread_abort(srv.spdctrl_srv.tid);
+  k_thread_abort(srv.motion_srv.tid);
 
   TurnOnLed(led0);
   TurnOnLed(led1);

@@ -2,3 +2,4 @@
 add_subdirectory(receiver)
 add_subdirectory(actuator)
 add_subdirectory(light)
+add_subdirectory(speed_control)

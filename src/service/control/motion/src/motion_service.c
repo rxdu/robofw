@@ -37,13 +37,13 @@ void MotionServiceLoop(void *p1, void *p2, void *p3) {
     DesiredMotion desired_motion;
     while (k_msgq_get(cfg->coord_srv->msgq_out, &desired_motion, K_NO_WAIT) ==
            0) {
-      printk("desired motion: %3d %3d %3d, %3d %3d %3d\n",
-             (int)(desired_motion.linear.x * 100),
-             (int)(desired_motion.linear.y * 100),
-             (int)(desired_motion.linear.z * 100),
-             (int)(desired_motion.angular.x * 100),
-             (int)(desired_motion.angular.y * 100),
-             (int)(desired_motion.angular.z * 100));
+      //   printk("desired motion: %3d %3d %3d, %3d %3d %3d\n",
+      //          (int)(desired_motion.linear.x * 100),
+      //          (int)(desired_motion.linear.y * 100),
+      //          (int)(desired_motion.linear.z * 100),
+      //          (int)(desired_motion.angular.x * 100),
+      //          (int)(desired_motion.angular.y * 100),
+      //          (int)(desired_motion.angular.z * 100));
 
       float linear_x = desired_motion.linear.x;
       float angular_z = desired_motion.angular.z;
@@ -52,12 +52,14 @@ void MotionServiceLoop(void *p1, void *p2, void *p3) {
       float wheelbase = 0.5;
 
       // from linear_x, angular_z to motors[0], motors[1]
-      float vel_left = (linear_x - angular_z * wheelbase) / wheel_radius * 0.02;
-      float vel_right =
-          (linear_x + angular_z * wheelbase) / wheel_radius * 0.01;
+      //   float vel_left = (linear_x - angular_z * wheelbase) / wheel_radius *
+      //   0.02; float vel_right =
+      //       (linear_x + angular_z * wheelbase) / wheel_radius * 0.01;
+      float vel_left = linear_x;
+      float vel_right = linear_x;
 
-      printk("---> calc: %03d %03d\n", (int)(vel_left * 100),
-             (int)(vel_right * 100));
+      //   printk("---> calc: %03d %03d\n", (int)(vel_left * 100),
+      //          (int)(vel_right * 100));
 
       ActuatorCmd actuator_cmd;
       actuator_cmd.motors[0] = vel_left;

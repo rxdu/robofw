@@ -62,8 +62,8 @@ void LimitCommand(float in, float* out) {
 }
 
 void SetMotorCmd(float left, float right) {
-  printk("set cmd (left/right): %d, %d\n", (int)(left * 100),
-         (int)(right * 100));
+  //   printk("set cmd (left/right): %d, %d\n", (int)(left * 100),
+  //          (int)(right * 100));
 
   // valid cmd: (+-)(1-99)%
   if (left > 0.99) left = 0.99;

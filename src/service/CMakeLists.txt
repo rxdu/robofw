@@ -1,2 +1,2 @@
-add_subdirectory(robot)
-add_subdirectory(system)
+add_subdirectory(control)
+add_subdirectory(hardware)
