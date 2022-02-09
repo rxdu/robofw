@@ -71,9 +71,9 @@ void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
       float speed_right =
           error2 / PULSE_PER_ROUND * WHEEL_RADIUS * 2 * M_PI / EST_PERIOD;
 
-      printk("1: count %s: %d, 2: count %s: %d ; left: %f, right: %f\n",
-             is_up1 ? "up" : "down", count1, is_up2 ? "up" : "down", count2,
-             speed_left, speed_right);
+    //   printk("1: count %s: %d, 2: count %s: %d ; left: %f, right: %f\n",
+    //          is_up1 ? "up" : "down", count1, is_up2 ? "up" : "down", count2,
+    //          speed_left, speed_right);
     }
 
     if (cfg->period_ms > 0) k_msleep(cfg->period_ms);

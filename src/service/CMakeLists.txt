@@ -1,2 +1,2 @@
-add_subdirectory(control)
+add_subdirectory(software)
 add_subdirectory(hardware)
