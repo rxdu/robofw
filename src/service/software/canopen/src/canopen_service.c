@@ -220,7 +220,7 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 		LOG_ERR("CAN interface not found");
 		return;
 	}
-	printk("CAN bitrate: %dk\n", cfg->can_cfg->dd_can->bitrate);
+	printk("CAN bitrate: %dk\n", cfg->can_cfg->dd_can->bitrate / 1000);
 
 #ifdef CONFIG_CANOPENNODE_STORAGE
 	ret = settings_subsys_init();
@@ -243,7 +243,7 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 	while (reset != CO_RESET_APP) {
 		elapsed = 0U; /* milliseconds */
 
-		err = CO_init(&can, CONFIG_CANOPEN_NODE_ID, cfg->can_cfg->dd_can->bitrate);
+		err = CO_init(&can, CONFIG_CANOPEN_NODE_ID, cfg->can_cfg->dd_can->bitrate / 1000);
 		if (err != CO_ERROR_NO) {
 			LOG_ERR("CO_init failed (err = %d)", err);
 			return;

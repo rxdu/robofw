@@ -23,7 +23,7 @@
 			printk("[ERROR] CAN device driver not found\n");                           \
 			return false;                                                              \
 		}                                                                                  \
-		desc.descriptor[x].bitrate = (DT_PROP(DT_ALIAS(node_label), bus_speed) / 1000);    \
+		desc.descriptor[x].bitrate = DT_PROP(DT_ALIAS(node_label), bus_speed);             \
 		desc.descriptor[x].msgq = &msgqx;                                                  \
 		desc.descriptor[x].active = true;                                                  \
 	}
