@@ -30,6 +30,7 @@ typedef enum { DD_CAN0 = 0, DD_CAN1, DD_CAN_NUM } CanList;
 typedef struct {
   bool active;
   const struct device *device;
+  uint32_t bitrate;
   struct k_msgq *msgq;
 } CanDescriptor;
 

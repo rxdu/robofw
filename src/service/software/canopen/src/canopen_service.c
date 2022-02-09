@@ -203,6 +203,8 @@ bool StartCanopenService(CanopenServiceConf *cfg)
 // void main(void)
 void CanopenServiceLoop(void *p1, void *p2, void *p3)
 {
+	CanopenServiceConf *cfg = (CanopenServiceConf *)p1;
+
 	CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
 	CO_ReturnError_t err;
 	struct canopen_context can;
@@ -213,11 +215,12 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 	int ret;
 #endif /* CONFIG_CANOPENNODE_STORAGE */
 
-	can.dev = device_get_binding(CAN_INTERFACE);
+	can.dev = cfg->can_cfg->dd_can->device;
 	if (!can.dev) {
 		LOG_ERR("CAN interface not found");
 		return;
 	}
+	printk("CAN bitrate: %dk\n", cfg->can_cfg->dd_can->bitrate);
 
 #ifdef CONFIG_CANOPENNODE_STORAGE
 	ret = settings_subsys_init();
@@ -240,7 +243,7 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 	while (reset != CO_RESET_APP) {
 		elapsed = 0U; /* milliseconds */
 
-		err = CO_init(&can, CONFIG_CANOPEN_NODE_ID, CAN_BITRATE);
+		err = CO_init(&can, CONFIG_CANOPEN_NODE_ID, cfg->can_cfg->dd_can->bitrate);
 		if (err != CO_ERROR_NO) {
 			LOG_ERR("CO_init failed (err = %d)", err);
 			return;

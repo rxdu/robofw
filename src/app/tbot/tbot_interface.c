@@ -108,6 +108,7 @@ static EncoderConfig encoder_cfg;
 struct k_thread spdctrl_thread;
 K_THREAD_STACK_DEFINE(spdctrl_service_stack, 1024);
 
+static CanDeviceConfig candev_cfg;
 struct k_thread canopen_thread;
 K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
 
@@ -263,6 +264,9 @@ bool InitRobot()
 	srv.canopen_srv.stack_size = K_THREAD_STACK_SIZEOF(canopen_service_stack);
 	srv.canopen_srv.delay = Z_TIMEOUT_MS(40);
 	srv.canopen_srv.period_ms = 20;
+
+	candev_cfg.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
+	srv.canopen_srv.can_cfg = &candev_cfg;
 
 	ret = StartCanopenService(&srv.canopen_srv);
 	if (!ret) {

@@ -16,6 +16,12 @@
 #include <zephyr.h>
 #include <device.h>
 
+#include "mcal/interface/can_interface.h"
+
+typedef struct {
+	CanDescriptor *dd_can;
+} CanDeviceConfig;
+
 typedef struct {
 	// thread config
 	k_tid_t tid;
@@ -29,6 +35,7 @@ typedef struct {
 	// task-related config
 	//   LedConf *led_cfg;
 	//   ReceiverServiceConf *rcvr_srv;
+	CanDeviceConfig *can_cfg;
 
 	// message queue for input/output
 	//   struct k_msgq *msgq_out;
