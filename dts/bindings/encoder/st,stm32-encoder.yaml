@@ -1,0 +1,28 @@
+description: STM32 ENCODER
+
+compatible: "st,stm32-encoder"
+
+include: [base.yaml]
+
+properties:
+    label:
+      required: true
+
+    st,encoder-mode:
+      type: int
+      required: true
+      description: Encoder mode
+
+    st,prescaler:
+      type: int
+      required: true
+      description: Clock prescaler at the input of the timer
+
+    pinctrl-0:
+      type: phandles
+      required: false
+      description: |
+        GPIO pin configuration for ENCODER signal/s. We expect that the phandles
+        will reference pinctrl nodes, e.g.
+
+           pinctrl-0 = <&tim1_ch1_pa8 &tim1_ch2_pa9>;

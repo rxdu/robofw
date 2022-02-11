@@ -15,6 +15,8 @@ else()
     add_definitions("-DTARGET_CORTEX_M4")
 endif()
 
+list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
 message(STATUS "Building firmware for ${ROBOT} with board ${BOARD}")
 
 if(BUILD_TESTING)
@@ -37,4 +39,8 @@ find_package(Zephyr 2.7.0)
 project(robofw)
 
 ## Add source code
-add_subdirectory(apps)
+zephyr_include_directories(include)
+zephyr_include_directories(drivers)
+
+add_subdirectory(src)
+add_subdirectory(drivers)

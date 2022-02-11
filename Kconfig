@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+rsource "drivers/Kconfig"
+
 config CANOPEN_NODE_ID
 	int "CANopen node ID"
 	default 10
