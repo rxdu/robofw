@@ -36,19 +36,26 @@ void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
   bool is_up2 = false;
   uint32_t prev_count[2] = {0, 0};
 
+  uint32_t encoder_reading[ACTUATOR_CHANNEL_NUMBER];
+  bool is_counting_up[ACTUATOR_CHANNEL_NUMBER];
+  uint32_t encoder_prev_reading[ACTUATOR_CHANNEL_NUMBER] = {0};
+
+  int64_t reading_error[ACTUATOR_CHANNEL_NUMBER] = {0};
+  int64_t rpm_estimate[ACTUATOR_CHANNEL_NUMBER];
+
   bool first_time = true;
 
   while (1) {
-    count1 = GetEncoderCount(cfg->encoder_cfg->dd_encoders[0]);
-    count2 = GetEncoderCount(cfg->encoder_cfg->dd_encoders[1]);
-
-    is_up1 = IsEncoderCountingUp(cfg->encoder_cfg->dd_encoders[0]);
-    is_up2 = IsEncoderCountingUp(cfg->encoder_cfg->dd_encoders[1]);
+    for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
+      encoder_reading[i] = GetEncoderCount(cfg->encoder_cfg->dd_encoders[i]);
+      is_counting_up[i] = IsEncoderCountingUp(cfg->encoder_cfg->dd_encoders[i]);
+    }
 
     if (first_time) {
+      for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
+        encoder_prev_reading[i] = encoder_reading[i];
+      }
       first_time = false;
-      prev_count[0] = count1;
-      prev_count[1] = count2;
     } else {
       uint32_t error1;
       if (is_up1) {
@@ -63,17 +70,26 @@ void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
         error2 = prev_count[1] - count2;
       }
 
-      prev_count[0] = count1;
-      prev_count[1] = count2;
+      for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
+        if (is_counting_up[i]) {
+          reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
+        } else {
+          reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
+        }
+        rpm_estimate[i] = reading_error[i] * 60 * 60 * 1000 / cfg->period_ms /
+                          cfg->encoder_cfg->pulse_per_round[i];
 
-      float speed_left =
-          error1 / PULSE_PER_ROUND * WHEEL_RADIUS * 2 * M_PI / EST_PERIOD;
-      float speed_right =
-          error2 / PULSE_PER_ROUND * WHEEL_RADIUS * 2 * M_PI / EST_PERIOD;
+        encoder_prev_reading[i] = encoder_reading[i];
+      }
 
-    //   printk("1: count %s: %d, 2: count %s: %d ; left: %f, right: %f\n",
-    //          is_up1 ? "up" : "down", count1, is_up2 ? "up" : "down", count2,
-    //          speed_left, speed_right);
+      //   float speed_left =
+      //       error1 / PULSE_PER_ROUND * WHEEL_RADIUS * 2 * M_PI / EST_PERIOD;
+      //   float speed_right =
+      //       error2 / PULSE_PER_ROUND * WHEEL_RADIUS * 2 * M_PI / EST_PERIOD;
+
+      //   printk("1: count %s: %d, 2: count %s: %d ; left: %f, right: %f\n",
+      //          is_up1 ? "up" : "down", count1, is_up2 ? "up" : "down",
+      //          count2, speed_left, speed_right);
     }
 
     if (cfg->period_ms > 0) k_msleep(cfg->period_ms);

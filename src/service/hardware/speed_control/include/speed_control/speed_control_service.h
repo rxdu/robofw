@@ -20,11 +20,13 @@
 #include "actuator/actuator_service.h"
 
 typedef struct {
+  uint8_t active_encoder_num;
   EncoderDescriptor *dd_encoders[ACTUATOR_CHANNEL_NUMBER];
+  uint32_t pulse_per_round[ACTUATOR_CHANNEL_NUMBER];
 } EncoderConfig;
 
 typedef struct {
-  float speed[ACTUATOR_CHANNEL_NUMBER];  // scaled to [-1, 1]
+  uint32_t rpm[ACTUATOR_CHANNEL_NUMBER];
 } DesiredSpeed;
 
 typedef struct {

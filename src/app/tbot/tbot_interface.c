@@ -55,21 +55,21 @@
 #define TBOT_CAN_DOWNLINK DD_CAN1
 
 typedef struct {
-	LedDescription *leds;
-	DioDescription *dios;
-	PwmDescription *pwms;
-	UartDescription *uarts;
-	CanDescription *cans;
+  LedDescription *leds;
+  DioDescription *dios;
+  PwmDescription *pwms;
+  UartDescription *uarts;
+  CanDescription *cans;
 } RobotHardware;
 
 typedef struct {
-	ReceiverServiceConf rcvr_srv;
-	ActuatorServiceConf actr_srv;
-	LightServiceConf light_srv;
-	CoordinatorServiceConf coord_srv;
-	MotionServiceConf motion_srv;
-	SpeedControlServiceConf spdctrl_srv;
-	CanopenServiceConf canopen_srv;
+  ReceiverServiceConf rcvr_srv;
+  ActuatorServiceConf actr_srv;
+  LightServiceConf light_srv;
+  CoordinatorServiceConf coord_srv;
+  MotionServiceConf motion_srv;
+  SpeedControlServiceConf spdctrl_srv;
+  CanopenServiceConf canopen_srv;
 } RobotService;
 
 // Negative prio threads will not be pre-empted
@@ -112,228 +112,228 @@ static CanDeviceConfig candev_cfg;
 struct k_thread canopen_thread;
 K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
 
-bool InitRobot()
-{
-	// load all drivers from device tree
-	if (!InitHardware())
-		return false;
+bool InitRobot() {
+  // load all drivers from device tree
+  if (!InitHardware()) return false;
 
-	hw.leds = GetLedDescription();
-	hw.dios = GetDioDescription();
-	hw.pwms = GetPwmDescription();
-	hw.uarts = GetUartDescription();
-	hw.cans = GetCanDescription();
+  hw.leds = GetLedDescription();
+  hw.dios = GetDioDescription();
+  hw.pwms = GetPwmDescription();
+  hw.uarts = GetUartDescription();
+  hw.cans = GetCanDescription();
 
-	bool ret = false;
-	(void)ret;
+  bool ret = false;
+  (void)ret;
 
-	// configure drivers required by robot
-	// LED for debugging
-	TurnOffLed(&hw.leds->descriptor[TBOT_LED_STATUS]);
-	TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER1]);
-	TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
+  // configure drivers required by robot
+  // LED for debugging
+  TurnOffLed(&hw.leds->descriptor[TBOT_LED_STATUS]);
+  TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER1]);
+  TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
-	// actuator service
-	srv.actr_srv.priority = TASK_PRIORITY_HIGHEST;
-	srv.actr_srv.thread = &actuator_thread;
-	srv.actr_srv.stack = actuator_service_stack;
-	srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
-	srv.actr_srv.delay = K_NO_WAIT;
-	srv.actr_srv.period_ms = 20;
+  // actuator service
+  srv.actr_srv.priority = TASK_PRIORITY_HIGHEST;
+  srv.actr_srv.thread = &actuator_thread;
+  srv.actr_srv.stack = actuator_service_stack;
+  srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
+  srv.actr_srv.delay = K_NO_WAIT;
+  srv.actr_srv.period_ms = 20;
 
-	srv.actr_srv.type = ACTR_TBOT;
-	srv.actr_srv.active_motor_num = 2;
-	tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-	tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-	tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-	tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-	tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-	tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-	srv.actr_srv.actuator_cfg = &tbot_motor_cfg;
+  srv.actr_srv.type = ACTR_TBOT;
+  srv.actr_srv.active_motor_num = 2;
+  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
+  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
+  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
+  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
+  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
+  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
+  srv.actr_srv.actuator_cfg = &tbot_motor_cfg;
 
-	ret = StartActuatorService(&srv.actr_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start actuator service\n");
-		return false;
-	} else {
-		printk("[INFO] Started actuator service\n");
-	}
+  ret = StartActuatorService(&srv.actr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start actuator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started actuator service\n");
+  }
 
-	// receiver service
-	srv.rcvr_srv.priority = TASK_PRIORITY_HIGHEST;
-	srv.rcvr_srv.thread = &receiver_thread;
-	srv.rcvr_srv.stack = receiver_service_stack;
-	srv.rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
-	srv.rcvr_srv.delay = K_NO_WAIT;
-	srv.rcvr_srv.period_ms = 0;
+  // receiver service
+  srv.rcvr_srv.priority = TASK_PRIORITY_HIGHEST;
+  srv.rcvr_srv.thread = &receiver_thread;
+  srv.rcvr_srv.stack = receiver_service_stack;
+  srv.rcvr_srv.stack_size = K_THREAD_STACK_SIZEOF(receiver_service_stack);
+  srv.rcvr_srv.delay = K_NO_WAIT;
+  srv.rcvr_srv.period_ms = 0;
 
-	srv.rcvr_srv.type = RCVR_SBUS;
-	sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
-	srv.rcvr_srv.rcvr_cfg = &sbus_cfg;
+  srv.rcvr_srv.type = RCVR_SBUS;
+  sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
+  srv.rcvr_srv.rcvr_cfg = &sbus_cfg;
 
-	ret = StartReceiverService(&srv.rcvr_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start receiver service\n");
-		return false;
-	} else {
-		printk("[INFO] Started receiver service\n");
-	}
+  ret = StartReceiverService(&srv.rcvr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start receiver service\n");
+    return false;
+  } else {
+    printk("[INFO] Started receiver service\n");
+  }
 
-	// light control
-	srv.light_srv.priority = TASK_PRIORITY_MID;
-	srv.light_srv.thread = &light_thread;
-	srv.light_srv.stack = light_service_stack;
-	srv.light_srv.stack_size = K_THREAD_STACK_SIZEOF(light_service_stack);
-	srv.light_srv.delay = K_NO_WAIT;
-	srv.light_srv.period_ms = 50;
+  // light control
+  srv.light_srv.priority = TASK_PRIORITY_MID;
+  srv.light_srv.thread = &light_thread;
+  srv.light_srv.stack = light_service_stack;
+  srv.light_srv.stack_size = K_THREAD_STACK_SIZEOF(light_service_stack);
+  srv.light_srv.delay = K_NO_WAIT;
+  srv.light_srv.period_ms = 50;
 
-	light_cfg.dd_dio_front = GetDioDescriptor(TBOT_DIO_LIGHT_CTRL);
-	srv.light_srv.light_cfg = &light_cfg;
+  light_cfg.dd_dio_front = GetDioDescriptor(TBOT_DIO_LIGHT_CTRL);
+  srv.light_srv.light_cfg = &light_cfg;
 
-	ret = StartLightService(&srv.light_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start light service\n");
-		return false;
-	} else {
-		printk("[INFO] Started light service\n");
-	}
+  ret = StartLightService(&srv.light_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start light service\n");
+    return false;
+  } else {
+    printk("[INFO] Started light service\n");
+  }
 
-	// speed control
-	srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
-	srv.spdctrl_srv.thread = &spdctrl_thread;
-	srv.spdctrl_srv.stack = spdctrl_service_stack;
-	srv.spdctrl_srv.stack_size = K_THREAD_STACK_SIZEOF(spdctrl_service_stack);
-	srv.spdctrl_srv.delay = K_NO_WAIT;
-	srv.spdctrl_srv.period_ms = 20;
+  // speed control
+  srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
+  srv.spdctrl_srv.thread = &spdctrl_thread;
+  srv.spdctrl_srv.stack = spdctrl_service_stack;
+  srv.spdctrl_srv.stack_size = K_THREAD_STACK_SIZEOF(spdctrl_service_stack);
+  srv.spdctrl_srv.delay = K_NO_WAIT;
+  srv.spdctrl_srv.period_ms = 20;
 
-	encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
-	encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
-	srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
+  encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
+  encoder_cfg.pulse_per_round[0] = 11;
+  encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
+  encoder_cfg.pulse_per_round[1] = 11;
+  encoder_cfg.active_encoder_num = 2;
+  srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
 
-	ret = StartSpeedControlService(&srv.spdctrl_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start speed control service\n");
-		return false;
-	} else {
-		printk("[INFO] Started speed control service\n");
-	}
+  ret = StartSpeedControlService(&srv.spdctrl_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start speed control service\n");
+    return false;
+  } else {
+    printk("[INFO] Started speed control service\n");
+  }
 
-	// coordinator
-	srv.coord_srv.priority = TASK_PRIORITY_HIGH;
-	srv.coord_srv.thread = &coord_thread;
-	srv.coord_srv.stack = coord_service_stack;
-	srv.coord_srv.stack_size = K_THREAD_STACK_SIZEOF(coord_service_stack);
-	srv.coord_srv.delay = Z_TIMEOUT_MS(20);
-	srv.coord_srv.period_ms = 20;
+  // coordinator
+  srv.coord_srv.priority = TASK_PRIORITY_HIGH;
+  srv.coord_srv.thread = &coord_thread;
+  srv.coord_srv.stack = coord_service_stack;
+  srv.coord_srv.stack_size = K_THREAD_STACK_SIZEOF(coord_service_stack);
+  srv.coord_srv.delay = Z_TIMEOUT_MS(20);
+  srv.coord_srv.period_ms = 20;
 
-	led_cfg.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-	srv.coord_srv.led_cfg = &led_cfg;
-	srv.coord_srv.rcvr_srv = &srv.rcvr_srv;
+  led_cfg.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+  srv.coord_srv.led_cfg = &led_cfg;
+  srv.coord_srv.rcvr_srv = &srv.rcvr_srv;
 
-	ret = StartCoordinatorService(&srv.coord_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start coordinator service\n");
-		return false;
-	} else {
-		printk("[INFO] Started coordinator service\n");
-	}
+  ret = StartCoordinatorService(&srv.coord_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start coordinator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started coordinator service\n");
+  }
 
-	// motion control
-	srv.motion_srv.priority = TASK_PRIORITY_HIGH;
-	srv.motion_srv.thread = &motion_thread;
-	srv.motion_srv.stack = motion_service_stack;
-	srv.motion_srv.stack_size = K_THREAD_STACK_SIZEOF(motion_service_stack);
-	srv.motion_srv.delay = Z_TIMEOUT_MS(40);
-	srv.motion_srv.period_ms = 20;
+  // motion control
+  srv.motion_srv.priority = TASK_PRIORITY_HIGH;
+  srv.motion_srv.thread = &motion_thread;
+  srv.motion_srv.stack = motion_service_stack;
+  srv.motion_srv.stack_size = K_THREAD_STACK_SIZEOF(motion_service_stack);
+  srv.motion_srv.delay = Z_TIMEOUT_MS(40);
+  srv.motion_srv.period_ms = 20;
 
-	srv.motion_srv.coord_srv = &srv.coord_srv;
-	srv.motion_srv.actr_srv = &srv.actr_srv;
+  srv.motion_srv.coord_srv = &srv.coord_srv;
+  srv.motion_srv.actr_srv = &srv.actr_srv;
 
-	ret = StartMotionService(&srv.motion_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start motion service\n");
-		return false;
-	} else {
-		printk("[INFO] Started motion service\n");
-	}
+  ret = StartMotionService(&srv.motion_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start motion service\n");
+    return false;
+  } else {
+    printk("[INFO] Started motion service\n");
+  }
 
-	// canopen
-	srv.canopen_srv.priority = TASK_PRIORITY_HIGH;
-	srv.canopen_srv.thread = &canopen_thread;
-	srv.canopen_srv.stack = canopen_service_stack;
-	srv.canopen_srv.stack_size = K_THREAD_STACK_SIZEOF(canopen_service_stack);
-	srv.canopen_srv.delay = Z_TIMEOUT_MS(40);
-	srv.canopen_srv.period_ms = 20;
+  // canopen
+  srv.canopen_srv.priority = TASK_PRIORITY_HIGH;
+  srv.canopen_srv.thread = &canopen_thread;
+  srv.canopen_srv.stack = canopen_service_stack;
+  srv.canopen_srv.stack_size = K_THREAD_STACK_SIZEOF(canopen_service_stack);
+  srv.canopen_srv.delay = Z_TIMEOUT_MS(40);
+  srv.canopen_srv.period_ms = 20;
 
-	candev_cfg.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
-	srv.canopen_srv.can_cfg = &candev_cfg;
+  candev_cfg.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
+  srv.canopen_srv.can_cfg = &candev_cfg;
 
-	ret = StartCanopenService(&srv.canopen_srv);
-	if (!ret) {
-		printk("[ERROR] Failed to start Canopen service\n");
-		return false;
-	} else {
-		printk("[INFO] Started Canopen service\n");
-	}
+  ret = StartCanopenService(&srv.canopen_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start Canopen service\n");
+    return false;
+  } else {
+    printk("[INFO] Started Canopen service\n");
+  }
 
-	//   // gps receiver
-	//   struct uart_config uart_test_cfg;
-	//   uart_test_cfg.baudrate = 115200;
-	//   uart_test_cfg.parity = UART_CFG_PARITY_NONE;
-	//   uart_test_cfg.stop_bits = UART_CFG_STOP_BITS_1;
-	//   uart_test_cfg.data_bits = UART_CFG_DATA_BITS_8;
-	//   uart_test_cfg.flow_ctrl = UART_CFG_FLOW_CTRL_NONE;
+  //   // gps receiver
+  //   struct uart_config uart_test_cfg;
+  //   uart_test_cfg.baudrate = 115200;
+  //   uart_test_cfg.parity = UART_CFG_PARITY_NONE;
+  //   uart_test_cfg.stop_bits = UART_CFG_STOP_BITS_1;
+  //   uart_test_cfg.data_bits = UART_CFG_DATA_BITS_8;
+  //   uart_test_cfg.flow_ctrl = UART_CFG_FLOW_CTRL_NONE;
 
-	//   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_GPS],
-	//                 uart_test_cfg);
-	//   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_GPS]);
-	//   StartUartAsyncReceive(&hw.uarts->descriptor[TBOT_UART_GPS]);
+  //   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_GPS],
+  //                 uart_test_cfg);
+  //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_GPS]);
+  //   StartUartAsyncReceive(&hw.uarts->descriptor[TBOT_UART_GPS]);
 
-	//   // ultrasonic sensor
-	//   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC],
-	//                 uart_test_cfg);
-	//   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
-	//   StartUartAsyncReceive(
-	//       &hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
+  //   // ultrasonic sensor
+  //   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC],
+  //                 uart_test_cfg);
+  //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
+  //   StartUartAsyncReceive(
+  //       &hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
 
-	//   // uplink CAN to onboard computer
-	//   struct zcan_filter can_filter;
-	//   can_filter.id_type = CAN_STANDARD_IDENTIFIER;
-	//   can_filter.rtr = CAN_DATAFRAME;
-	//   can_filter.rtr_mask = 1;
-	//   can_filter.id_mask = 0;
-	//   ConfigureCan(&hw.cans->descriptor[TBOT_CAN_UPLINK],
-	//                CAN_NORMAL_MODE, 500000, can_filter);
-	//   ConfigureCan(&hw.cans->descriptor[TBOT_CAN_DOWNLINK],
-	//                CAN_NORMAL_MODE, 500000, can_filter);
+  //   // uplink CAN to onboard computer
+  //   struct zcan_filter can_filter;
+  //   can_filter.id_type = CAN_STANDARD_IDENTIFIER;
+  //   can_filter.rtr = CAN_DATAFRAME;
+  //   can_filter.rtr_mask = 1;
+  //   can_filter.id_mask = 0;
+  //   ConfigureCan(&hw.cans->descriptor[TBOT_CAN_UPLINK],
+  //                CAN_NORMAL_MODE, 500000, can_filter);
+  //   ConfigureCan(&hw.cans->descriptor[TBOT_CAN_DOWNLINK],
+  //                CAN_NORMAL_MODE, 500000, can_filter);
 
-	printk("-----------------------------------------------------\n");
+  printk("-----------------------------------------------------\n");
 
-	return true;
+  return true;
 }
 
-void ShowRobotPanic()
-{
-	LedDescriptor *led0 = GetLedDescriptor(TBOT_LED_STATUS);
-	LedDescriptor *led1 = GetLedDescriptor(TBOT_LED_USER1);
-	LedDescriptor *led2 = GetLedDescriptor(TBOT_LED_USER2);
+void ShowRobotPanic() {
+  LedDescriptor *led0 = GetLedDescriptor(TBOT_LED_STATUS);
+  LedDescriptor *led1 = GetLedDescriptor(TBOT_LED_USER1);
+  LedDescriptor *led2 = GetLedDescriptor(TBOT_LED_USER2);
 
-	k_thread_abort(srv.rcvr_srv.tid);
-	k_thread_abort(srv.actr_srv.tid);
-	k_thread_abort(srv.light_srv.tid);
-	k_thread_abort(srv.coord_srv.tid);
-	k_thread_abort(srv.spdctrl_srv.tid);
-	k_thread_abort(srv.motion_srv.tid);
+  k_thread_abort(srv.rcvr_srv.tid);
+  k_thread_abort(srv.actr_srv.tid);
+  k_thread_abort(srv.light_srv.tid);
+  k_thread_abort(srv.coord_srv.tid);
+  k_thread_abort(srv.spdctrl_srv.tid);
+  k_thread_abort(srv.motion_srv.tid);
 
-	TurnOnLed(led0);
-	TurnOnLed(led1);
-	TurnOnLed(led2);
+  TurnOnLed(led0);
+  TurnOnLed(led1);
+  TurnOnLed(led2);
 
-	while (1) {
-		ToggleLed(led0);
-		ToggleLed(led1);
-		ToggleLed(led2);
+  while (1) {
+    ToggleLed(led0);
+    ToggleLed(led1);
+    ToggleLed(led2);
 
-		k_msleep(1000);
-	}
+    k_msleep(1000);
+  }
 }
