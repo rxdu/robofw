@@ -30,12 +30,12 @@ bool StartSpeedControlService(SpeedControlServiceConf *cfg) {
 void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
   SpeedControlServiceConf *cfg = (SpeedControlServiceConf *)p1;
 
-  int64_t encoder_reading[ACTUATOR_CHANNEL_NUMBER];
+  uint16_t encoder_reading[ACTUATOR_CHANNEL_NUMBER];
   bool is_counting_up[ACTUATOR_CHANNEL_NUMBER];
-  int64_t encoder_prev_reading[ACTUATOR_CHANNEL_NUMBER] = {0};
+  uint16_t encoder_prev_reading[ACTUATOR_CHANNEL_NUMBER] = {0};
 
-  int64_t reading_error[ACTUATOR_CHANNEL_NUMBER] = {0};
-  int64_t rpm_estimate[ACTUATOR_CHANNEL_NUMBER] = {0};
+  uint16_t reading_error[ACTUATOR_CHANNEL_NUMBER] = {0};
+  int32_t rpm_estimate[ACTUATOR_CHANNEL_NUMBER] = {0};
 
   bool first_time = true;
 
@@ -52,16 +52,25 @@ void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
       first_time = false;
     } else {
       for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
+        // if (is_counting_up[i])
         reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
-        rpm_estimate[i] = reading_error[i] * 60 * 1000 / cfg->period_ms /
-                          cfg->encoder_cfg->pulse_per_round[i];
+        // else
+        //   reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
+        rpm_estimate[i] = (int32_t)(reading_error[i]) * 60 * 1000 /
+                          cfg->period_ms / cfg->encoder_cfg->pulse_per_round[i];
+
+        if (i == 0)
+          printk("%s, current: %d, prev: %d, error: %d\n",
+                 is_counting_up[i] ? "up" : "dn", encoder_reading[i],
+                 encoder_prev_reading[i], reading_error[i]);
+
         encoder_prev_reading[i] = encoder_reading[i];
       }
 
       //   printk("left error: %lld, right error: %lld\n", reading_error[0],
       //          reading_error[1]);
-      printk("left rpm: %lld, right rpm: %lld\n", rpm_estimate[0],
-             rpm_estimate[1]);
+      //   printk("left rpm: %d, right rpm: %d\n", rpm_estimate[0],
+      //   rpm_estimate[1]);
     }
 
     if (cfg->period_ms > 0) k_msleep(cfg->period_ms);

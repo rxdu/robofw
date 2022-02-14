@@ -4,6 +4,8 @@
  * Created on: Feb 06, 2022 16:33
  * Description:
  *
+ * Assumption: using 16-bit timers
+ * 
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
