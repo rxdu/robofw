@@ -136,56 +136,6 @@ static CO_SDO_abortCode_t odf_2102(CO_ODF_arg_t *odf_arg)
 	return CO_SDO_AB_NONE;
 }
 
-/**
- * @brief Button press interrupt callback.
- *
- * @param port GPIO device struct.
- * @param cb GPIO callback struct.
- * @param pins GPIO pin mask that triggered the interrupt.
- */
-#ifdef BUTTON_PORT
-static void button_isr_callback(const struct device *port, struct gpio_callback *cb, uint32_t pins)
-{
-	counter++;
-}
-#endif
-
-/**
- * @brief Configure button GPIO pin and callback.
- *
- * This routine configures the GPIO for the button (if available).
- */
-static void config_button(void)
-{
-#ifdef BUTTON_PORT
-	const struct device *dev;
-	int err;
-
-	dev = device_get_binding(BUTTON_PORT);
-	if (!dev) {
-		LOG_ERR("failed to get button device");
-		return;
-	}
-
-	err = gpio_pin_configure(dev, BUTTON_PIN, GPIO_INPUT | BUTTON_FLAGS);
-
-	gpio_init_callback(&button_callback, button_isr_callback, BIT(BUTTON_PIN));
-
-	err = gpio_add_callback(dev, &button_callback);
-	if (err) {
-		LOG_ERR("failed to add button callback");
-		return;
-	}
-
-	err = gpio_pin_interrupt_configure(dev, BUTTON_PIN, GPIO_INT_EDGE_TO_ACTIVE);
-	if (err) {
-		LOG_ERR("failed to enable button callback");
-		return;
-	}
-
-#endif
-}
-
 bool StartCanopenService(CanopenServiceConf *cfg)
 {
 	// create and start thread
@@ -237,8 +187,6 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 #endif /* CONFIG_CANOPENNODE_STORAGE */
 
 	OD_powerOnCounter++;
-
-	config_button();
 
 	while (reset != CO_RESET_APP) {
 		elapsed = 0U; /* milliseconds */

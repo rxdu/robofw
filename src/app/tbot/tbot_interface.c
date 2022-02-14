@@ -205,9 +205,9 @@ bool InitRobot() {
   srv.spdctrl_srv.period_ms = 20;
 
   encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
-  encoder_cfg.pulse_per_round[0] = 11;
+  encoder_cfg.pulse_per_round[0] = 11 * 30 * 4;
   encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
-  encoder_cfg.pulse_per_round[1] = 11;
+  encoder_cfg.pulse_per_round[1] = 11 * 30 * 4;
   encoder_cfg.active_encoder_num = 2;
   srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
 
