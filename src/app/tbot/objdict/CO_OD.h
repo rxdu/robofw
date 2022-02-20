@@ -53,7 +53,7 @@
 
 /*******************************************************************************
    FILE INFO:
-      FileName:     robofw.eds
+      FileName:     
       FileVersion:  1
       CreationTime: 2:52PM
       CreationDate: 09-18-2019
@@ -135,12 +135,12 @@
                UNSIGNED8      numberOfMappedObjects;
                UNSIGNED32     mappedObject1;
                UNSIGNED32     mappedObject2;
-               UNSIGNED8      mappedObject3;
-               UNSIGNED8      mappedObject4;
-               UNSIGNED8      mappedObject5;
-               UNSIGNED8      mappedObject6;
-               UNSIGNED8      mappedObject7;
-               UNSIGNED8      mappedObject8;
+               UNSIGNED32     mappedObject3;
+               UNSIGNED32     mappedObject4;
+               UNSIGNED32     mappedObject5;
+               UNSIGNED32     mappedObject6;
+               UNSIGNED32     mappedObject7;
+               UNSIGNED32     mappedObject8;
                }              OD_TPDOMappingParameter_t;
 
 /*******************************************************************************
