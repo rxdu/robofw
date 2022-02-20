@@ -156,6 +156,9 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
                 OD_encoderFeedback[ODA_encoderFeedback_encoder_right] = 650;
 				CO_UNLOCK_OD();
 
+                CO->TPDO[0]->sendRequest = true;
+                CO->TPDO[1]->sendRequest = true;
+
 #ifdef CONFIG_CANOPENNODE_STORAGE
 				ret = canopen_storage_save(CANOPEN_STORAGE_EEPROM);
 				if (ret) {
