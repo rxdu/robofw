@@ -197,27 +197,27 @@ bool InitRobot() {
   }
 
   // speed control
-  srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
-  srv.spdctrl_srv.thread = &spdctrl_thread;
-  srv.spdctrl_srv.stack = spdctrl_service_stack;
-  srv.spdctrl_srv.stack_size = K_THREAD_STACK_SIZEOF(spdctrl_service_stack);
-  srv.spdctrl_srv.delay = K_NO_WAIT;
-  srv.spdctrl_srv.period_ms = 20;
+//   srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
+//   srv.spdctrl_srv.thread = &spdctrl_thread;
+//   srv.spdctrl_srv.stack = spdctrl_service_stack;
+//   srv.spdctrl_srv.stack_size = K_THREAD_STACK_SIZEOF(spdctrl_service_stack);
+//   srv.spdctrl_srv.delay = K_NO_WAIT;
+//   srv.spdctrl_srv.period_ms = 20;
 
-  encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
-  encoder_cfg.pulse_per_round[0] = 11 * 30 * 4;
-  encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
-  encoder_cfg.pulse_per_round[1] = 11 * 30 * 4;
-  encoder_cfg.active_encoder_num = 2;
-  srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
+//   encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
+//   encoder_cfg.pulse_per_round[0] = 11 * 30 * 4;
+//   encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
+//   encoder_cfg.pulse_per_round[1] = 11 * 30 * 4;
+//   encoder_cfg.active_encoder_num = 2;
+//   srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
 
-  ret = StartSpeedControlService(&srv.spdctrl_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start speed control service\n");
-    return false;
-  } else {
-    printk("[INFO] Started speed control service\n");
-  }
+//   ret = StartSpeedControlService(&srv.spdctrl_srv);
+//   if (!ret) {
+//     printk("[ERROR] Failed to start speed control service\n");
+//     return false;
+//   } else {
+//     printk("[INFO] Started speed control service\n");
+//   }
 
   // coordinator
   srv.coord_srv.priority = TASK_PRIORITY_HIGH;

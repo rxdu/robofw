@@ -16,24 +16,6 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(app);
 
-#define CAN_INTERFACE DT_CHOSEN_ZEPHYR_CAN_PRIMARY_LABEL
-#define CAN_BITRATE (DT_PROP(DT_CHOSEN(zephyr_can_primary), bus_speed) / 1000)
-#if !defined(DT_CHOSEN_ZEPHYR_CAN_PRIMARY_LABEL)
-#error CANopen CAN interface not set
-#endif
-
-#if DT_NODE_HAS_PROP(DT_ALIAS(green_led), gpios)
-#define LED_GREEN_PORT DT_GPIO_LABEL(DT_ALIAS(green_led), gpios)
-#define LED_GREEN_PIN DT_GPIO_PIN(DT_ALIAS(green_led), gpios)
-#define LED_GREEN_FLAGS DT_GPIO_FLAGS(DT_ALIAS(green_led), gpios)
-#endif
-
-#if DT_NODE_HAS_PROP(DT_ALIAS(red_led), gpios)
-#define LED_RED_PORT DT_GPIO_LABEL(DT_ALIAS(red_led), gpios)
-#define LED_RED_PIN DT_GPIO_PIN(DT_ALIAS(red_led), gpios)
-#define LED_RED_FLAGS DT_GPIO_FLAGS(DT_ALIAS(red_led), gpios)
-#endif
-
 #if DT_NODE_HAS_PROP(DT_ALIAS(sw0), gpios)
 #define BUTTON_PORT DT_GPIO_LABEL(DT_ALIAS(sw0), gpios)
 #define BUTTON_PIN DT_GPIO_PIN(DT_ALIAS(sw0), gpios)
@@ -43,62 +25,7 @@ static struct gpio_callback button_callback;
 
 static void CanopenServiceLoop(void *p1, void *p2, void *p3);
 
-struct led_indicator {
-	const struct device *dev;
-	gpio_pin_t pin;
-};
-
-static struct led_indicator led_green;
-static struct led_indicator led_red;
 static uint32_t counter;
-
-/**
- * @brief Callback for setting LED indicator state.
- *
- * @param value true if the LED indicator shall be turned on, false otherwise.
- * @param arg argument that was passed when LEDs were initialized.
- */
-static void led_callback(bool value, void *arg)
-{
-	struct led_indicator *led = arg;
-	bool drive = value;
-
-	if (!led || !led->dev) {
-		return;
-	}
-
-	gpio_pin_set(led->dev, led->pin, drive);
-}
-
-/**
- * @brief Configure LED indicators pins and callbacks.
- *
- * This routine configures the GPIOs for the red and green LEDs (if
- * available).
- *
- * @param nmt CANopenNode NMT object.
- */
-static void config_leds(CO_NMT_t *nmt)
-{
-#ifdef LED_GREEN_PORT
-	led_green.dev = device_get_binding(LED_GREEN_PORT);
-	led_green.pin = LED_GREEN_PIN;
-	if (led_green.dev) {
-		gpio_pin_configure(led_green.dev, LED_GREEN_PIN,
-				   GPIO_OUTPUT_INACTIVE | LED_GREEN_FLAGS);
-	}
-#endif /* LED_GREEN_PORT */
-#ifdef LED_RED_PORT
-	led_red.dev = device_get_binding(LED_RED_PORT);
-	led_red.pin = LED_RED_PIN;
-	if (led_red.dev) {
-		gpio_pin_configure(led_red.dev, LED_RED_PIN, GPIO_OUTPUT_INACTIVE | LED_RED_FLAGS);
-	}
-#endif /* LED_RED_PORT */
-
-	canopen_leds_init(nmt, led_green.dev ? led_callback : NULL, &led_green,
-			  led_red.dev ? led_callback : NULL, &led_red);
-}
 
 /**
  * @brief Button press counter object dictionary handler function.
@@ -203,7 +130,6 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 		canopen_storage_attach(CO->SDO[0], CO->em);
 #endif /* CONFIG_CANOPENNODE_STORAGE */
 
-		config_leds(CO->NMT);
 		CO_OD_configure(CO->SDO[0], OD_2102_buttonPressCounter, odf_2102, NULL, 0U, 0U);
 
 		if (IS_ENABLED(CONFIG_CANOPENNODE_PROGRAM_DOWNLOAD)) {
@@ -224,6 +150,10 @@ void CanopenServiceLoop(void *p1, void *p2, void *p3)
 			if (timeout > 0) {
 				CO_LOCK_OD();
 				OD_buttonPressCounter = counter;
+                OD_speedFeedback[ODA_speedFeedback_rpm_left] = 250;
+                OD_speedFeedback[ODA_speedFeedback_rpm_right] = 450;
+                OD_encoderFeedback[ODA_encoderFeedback_encoder_left] = 550;
+                OD_encoderFeedback[ODA_encoderFeedback_encoder_right] = 650;
 				CO_UNLOCK_OD();
 
 #ifdef CONFIG_CANOPENNODE_STORAGE
