@@ -8,7 +8,7 @@ Description=Robot Firmware CANopen Interface
 CreationTime=2:52PM
 CreationDate=09-18-2019
 CreatedBy=rdu
-ModificationTime=11:13PM
+ModificationTime=2:52PM
 ModificationDate=02-20-2022
 ModifiedBy=rdu
 
@@ -295,7 +295,7 @@ ObjectType=0x7
 ;StorageLocation=ROM
 DataType=0x0009
 AccessType=const
-DefaultValue=Zephyr RTOS/CANopenNode
+DefaultValue=TBOTCON
 PDOMapping=0
 
 [1009]
@@ -1099,7 +1099,7 @@ ObjectType=0x7
 ;StorageLocation=RAM
 DataType=0x0006
 AccessType=rw
-DefaultValue=50
+DefaultValue=20
 PDOMapping=0
 
 [1800sub6]

@@ -36,6 +36,9 @@ def print_tpdo1(message):
         print('%s = %d' % (var.name, var.raw))
 
 node.tpdo[1].add_callback(print_tpdo1)
+node.tpdo[2].add_callback(print_tpdo1)
+node.tpdo[3].add_callback(print_tpdo1)
+node.tpdo[4].add_callback(print_tpdo1)
 
 while(True):
     time.sleep(1)

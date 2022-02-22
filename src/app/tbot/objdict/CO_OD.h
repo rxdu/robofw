@@ -491,7 +491,7 @@ struct sCO_OD_ROM{
 /*1005      */ UNSIGNED32      COB_ID_SYNCMessage;
 /*1006      */ UNSIGNED32      communicationCyclePeriod;
 /*1007      */ UNSIGNED32      synchronousWindowLength;
-/*1008      */ VISIBLE_STRING  manufacturerDeviceName[23];
+/*1008      */ VISIBLE_STRING  manufacturerDeviceName[7];
 /*1009      */ VISIBLE_STRING  manufacturerHardwareVersion[4];
 /*100a      */ VISIBLE_STRING  manufacturerSoftwareVersion[4];
 /*1012      */ UNSIGNED32      COB_ID_TIME;
@@ -577,7 +577,7 @@ extern struct sCO_OD_EEPROM CO_OD_EEPROM;
 
 /*1008, Data Type: VISIBLE_STRING */
         #define OD_manufacturerDeviceName                           CO_OD_ROM.manufacturerDeviceName
-        #define ODL_manufacturerDeviceName_stringLength             23
+        #define ODL_manufacturerDeviceName_stringLength             7
 
 /*1009, Data Type: VISIBLE_STRING */
         #define OD_manufacturerHardwareVersion                      CO_OD_ROM.manufacturerHardwareVersion

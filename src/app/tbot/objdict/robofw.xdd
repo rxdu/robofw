@@ -13,7 +13,7 @@
         <ProfileTechnology>CANopen</ProfileTechnology>
       </ISO15745Reference>
     </ProfileHeader>
-    <ProfileBody xsi:type="ProfileBody_Device_CANopen" formatName="CANopen" formatVersion="1.0" fileName="" fileCreator="rdu" fileCreationDate="2019-09-18" fileCreationTime="14:52:00.0000000+08:00" fileModificationDate="2022-02-20" fileModificationTime="14:52:00.0000000+08:00" fileModifiedBy="rdu" fileVersion="1" supportedLanguages="en">
+    <ProfileBody xsi:type="ProfileBody_Device_CANopen" formatName="CANopen" formatVersion="1.0" fileName="robofw.eds" fileCreator="rdu" fileCreationDate="2019-09-18" fileCreationTime="14:52:00.0000000+08:00" fileModificationDate="2022-02-20" fileModificationTime="14:52:00.0000000+08:00" fileModifiedBy="rdu" fileVersion="1" supportedLanguages="en">
       <DeviceIdentity>
         <vendorName readOnly="true">CANopenNode</vendorName>
         <vendorID>0</vendorID>
@@ -173,7 +173,7 @@
             <denotation>
               <label lang="en" />
             </denotation>
-            <defaultValue value="Zephyr RTOS/CANopenNode" />
+            <defaultValue value="TBOTCON" />
           </parameter>
           <parameter uniqueID="UID_PARAM_1009" access="const">
             <label lang="en">Manufacturer hardware version</label>
@@ -1704,7 +1704,7 @@
         <ProfileTechnology>CANopen</ProfileTechnology>
       </ISO15745Reference>
     </ProfileHeader>
-    <ProfileBody xsi:type="ProfileBody_CommunicationNetwork_CANopen" formatName="CANopen" formatVersion="1.0" fileName="" fileCreator="rdu" fileCreationDate="2019-09-18" fileCreationTime="14:52:00.0000000+08:00" fileModificationDate="2022-02-20" fileVersion="1" supportedLanguages="en">
+    <ProfileBody xsi:type="ProfileBody_CommunicationNetwork_CANopen" formatName="CANopen" formatVersion="1.0" fileName="robofw.eds" fileCreator="rdu" fileCreationDate="2019-09-18" fileCreationTime="14:52:00.0000000+08:00" fileModificationDate="2022-02-20" fileVersion="1" supportedLanguages="en">
       <ApplicationLayers>
         <CANopenObjectList>
           <CANopenObject index="1000" name="Device type" objectType="7" dataType="0007" lowLimit="" highLimit="" accessType="ro" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1000" />
@@ -1724,7 +1724,7 @@
           <CANopenObject index="1005" name="COB-ID SYNC message" objectType="7" dataType="0007" lowLimit="" highLimit="" accessType="rw" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1005" />
           <CANopenObject index="1006" name="Communication cycle period" objectType="7" dataType="0007" lowLimit="" highLimit="" accessType="rw" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1006" />
           <CANopenObject index="1007" name="Synchronous window length" objectType="7" dataType="0007" lowLimit="" highLimit="" accessType="rw" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1007" />
-          <CANopenObject index="1008" name="Manufacturer device name" objectType="7" dataType="0009" lowLimit="" highLimit="" accessType="const" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1008" />
+          <CANopenObject index="1008" name="Manufacturer device name" objectType="7" dataType="0009" lowLimit="" highLimit="" accessType="const" actualValue="" denotation="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1008" />
           <CANopenObject index="1009" name="Manufacturer hardware version" objectType="7" dataType="0009" lowLimit="" highLimit="" accessType="const" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1009" />
           <CANopenObject index="100A" name="Manufacturer software version" objectType="7" dataType="0009" lowLimit="" highLimit="" accessType="const" actualValue="" edseditor_extenstion_storagelocation="ROM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_100a" />
           <CANopenObject index="1010" name="Store parameters" objectType="8" dataType="0007" lowLimit="" highLimit="" accessType="rw" actualValue="" edseditor_extenstion_storagelocation="RAM" edseditor_extension_notifyonchange="false" PDOmapping="no" uniqueIDRef="UID_PARAM_1010" subNumber="2">
