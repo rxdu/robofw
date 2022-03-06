@@ -15,7 +15,7 @@
 
 typedef struct {
   k_tid_t tid;
-  struct k_thread *thread;
+  struct k_thread thread;
   k_thread_stack_t *stack;
   int8_t priority;
   k_timeout_t delay;

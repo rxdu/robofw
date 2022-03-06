@@ -13,9 +13,12 @@
 #include "mcal/interface/dio_interface.h"
 #include "mcal/interface/uart_interface.h"
 
+#include "sbus/sbus.h"
+
 typedef struct {
   UartDescriptor* dd_uart;
   DioDescriptor* dd_dio_inv;
+  SbusMessage sbus_msg_buffer;
 } SbusConf;
 
 bool InitSbus(SbusConf* cfg);
