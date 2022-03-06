@@ -34,7 +34,7 @@ typedef struct {
 
 	// task-related config
 	//   LedConf *led_cfg;
-	//   ReceiverServiceConf *rcvr_srv;
+	//   ReceiverServiceDef *rcvr_srv;
 	CanDeviceConfig *can_cfg;
 
 	// message queue for input/output

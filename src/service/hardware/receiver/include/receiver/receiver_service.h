@@ -21,6 +21,7 @@
 #include <zephyr.h>
 #include <device.h>
 
+#include "interface/service.h"
 #include "sbus_receiver.h"
 
 typedef enum { RCVR_SBUS = 0, RCVR_PPM } ReceiverType;
@@ -31,25 +32,33 @@ typedef struct {
   float channels[RECEIVER_CHANNEL_NUMBER];  // scaled to [-1, 1]
 } ReceiverData;
 
+// service related config
 typedef struct {
-  // thread config
-  k_tid_t tid;
-  int8_t priority;
-  struct k_thread *thread;
-  k_thread_stack_t *stack;
-  size_t stack_size;
-  k_timeout_t delay;
-  uint32_t period_ms;
-
-  // task-related config
   ReceiverType type;
   void *rcvr_cfg;
+} ReceiverSrvConf;
 
-  // message queue for input/output
-  struct k_msgq *msgq_out;
+typedef struct {
+  struct k_msgq *rc_data_msgq;
   ReceiverData receiver_data;
-} ReceiverServiceConf;
+} ReceiverSrvData;
 
-bool StartReceiverService(ReceiverServiceConf *cfg);
+typedef struct {
+  struct k_msgq *rc_data_msgq_out;
+} ReceiverInterface;
+
+typedef struct {
+  // thread config
+  ThreadConfig tconf;
+
+  // service config/data
+  ReceiverSrvConf sconf;
+  ReceiverSrvData sdata;
+
+  // interface
+  ReceiverInterface interface;
+} ReceiverServiceDef;
+
+bool StartReceiverService(ReceiverServiceDef *def);
 
 #endif /* RECEIVER_SERVICE_H */

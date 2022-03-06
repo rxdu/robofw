@@ -46,7 +46,7 @@ typedef struct {
 
   // task-related config
   LedConf *led_cfg;
-  ReceiverServiceConf *rcvr_srv;
+  ReceiverServiceDef *rcvr_srv;
 
   // message queue for input/output
   struct k_msgq *msgq_out;

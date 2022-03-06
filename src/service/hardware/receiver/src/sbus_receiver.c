@@ -43,26 +43,26 @@ bool InitSbus(SbusConf* cfg) {
 void UpdateSbus(void* p1) {
   static SbusMessage sbus_msg;
 
-  ReceiverServiceConf* cfg = (ReceiverServiceConf*)p1;
-  SbusConf* sbus_cfg = (SbusConf*)(cfg->rcvr_cfg);
+  ReceiverServiceDef* cfg = (ReceiverServiceDef*)p1;
+  SbusConf* sbus_cfg = (SbusConf*)(cfg->sconf.rcvr_cfg);
 
   if (k_sem_take(&(sbus_cfg->dd_uart->rx_sem), K_FOREVER) == 0) {
     uint8_t ch;
     while (ring_buf_get(&sbus_cfg->dd_uart->ring_buffer, &ch, 1) != 0) {
-      //   printk("here received a sbus msg\n");
+      printk("here received a sbus msg\n");
       if (SbusDecodeMessage(&sbus_decoder, ch, &sbus_msg)) {
         for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
-          cfg->receiver_data.channels[i] =
+          cfg->sdata.receiver_data.channels[i] =
               (sbus_msg.channels[i] - SBUS_CHN_MID) * 1.0f /
               (SBUS_CHN_MAX - SBUS_CHN_MID);
         }
-        // printk("%04d %04d %04d %04d, %04d %04d %04d %04d\n",
-        //        sbus_msg.channels[0], sbus_msg.channels[1],
-        //        sbus_msg.channels[2], sbus_msg.channels[3],
-        //        sbus_msg.channels[4], sbus_msg.channels[5],
-        //        sbus_msg.channels[6], sbus_msg.channels[7]);
-        while (k_msgq_put(cfg->msgq_out, &cfg->receiver_data, K_NO_WAIT) != 0) {
-          k_msgq_purge(cfg->msgq_out);
+        printk("%04d %04d %04d %04d, %04d %04d %04d %04d\n",
+               sbus_msg.channels[0], sbus_msg.channels[1], sbus_msg.channels[2],
+               sbus_msg.channels[3], sbus_msg.channels[4], sbus_msg.channels[5],
+               sbus_msg.channels[6], sbus_msg.channels[7]);
+        while (k_msgq_put(cfg->interface.rc_data_msgq_out,
+                          &cfg->sdata.receiver_data, K_NO_WAIT) != 0) {
+          k_msgq_purge(cfg->interface.rc_data_msgq_out);
         }
       }
     }
