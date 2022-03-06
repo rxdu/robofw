@@ -16,7 +16,7 @@
 // #include "speed_control/speed_control_service.h"
 // #include "light/light_service.h"
 
-// #include "coordinator/coordinator_service.h"
+#include "coordinator/coordinator_service.h"
 // #include "motion/motion_service.h"
 // #include "canopen/canopen_service.h"
 
@@ -64,8 +64,8 @@ typedef struct {
 
 typedef struct {
   ReceiverServiceDef rcvr_srv;
+  CoordinatorServiceDef coord_srv;
   ActuatorServiceConf actr_srv;
-  //   CoordinatorServiceConf coord_srv;
   //   MotionServiceConf motion_srv;
   //   SpeedControlServiceConf spdctrl_srv;
   //   CanopenServiceConf canopen_srv;
@@ -81,19 +81,19 @@ typedef struct {
 static RobotHardware hw;
 static RobotService srv;
 
+static SbusConf sbus_cfg;
 K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
-static TbotActuatorConf tbot_motor_cfg;
-struct k_thread actuator_thread;
-K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
+// static TbotActuatorConf tbot_motor_cfg;
+// K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
 
 // static LedConf led_cfg;
 // struct k_thread system_thread;
 // K_THREAD_STACK_DEFINE(system_service_stack, 512);
 
-// struct k_thread coord_thread;
-// K_THREAD_STACK_DEFINE(coord_service_stack, 512);
+K_THREAD_STACK_DEFINE(coord_service_stack, 512);
+K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 // struct k_thread motion_thread;
 // K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
@@ -126,30 +126,30 @@ bool InitRobot() {
   TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
   // actuator service
-//   srv.actr_srv.priority = TASK_PRIORITY_HIGHEST;
-//   srv.actr_srv.thread = &actuator_thread;
-//   srv.actr_srv.stack = actuator_service_stack;
-//   srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
-//   srv.actr_srv.delay = K_NO_WAIT;
-//   srv.actr_srv.period_ms = 20;
+  //   srv.actr_srv.priority = TASK_PRIORITY_HIGHEST;
+  //   srv.actr_srv.thread = &actuator_thread;
+  //   srv.actr_srv.stack = actuator_service_stack;
+  //   srv.actr_srv.stack_size = K_THREAD_STACK_SIZEOF(actuator_service_stack);
+  //   srv.actr_srv.delay = K_NO_WAIT;
+  //   srv.actr_srv.period_ms = 20;
 
-//   srv.actr_srv.type = ACTR_TBOT;
-//   srv.actr_srv.active_motor_num = 2;
-//   tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-//   tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-//   tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-//   tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-//   tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-//   tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-//   srv.actr_srv.actuator_cfg = &tbot_motor_cfg;
+  //   srv.actr_srv.type = ACTR_TBOT;
+  //   srv.actr_srv.active_motor_num = 2;
+  //   tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
+  //   tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
+  //   tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
+  //   tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
+  //   tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
+  //   tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
+  //   srv.actr_srv.actuator_cfg = &tbot_motor_cfg;
 
-//   ret = StartActuatorService(&srv.actr_srv);
-//   if (!ret) {
-//     printk("[ERROR] Failed to start actuator service\n");
-//     return false;
-//   } else {
-//     printk("[INFO] Started actuator service\n");
-//   }
+  //   ret = StartActuatorService(&srv.actr_srv);
+  //   if (!ret) {
+  //     printk("[ERROR] Failed to start actuator service\n");
+  //     return false;
+  //   } else {
+  //     printk("[INFO] Started actuator service\n");
+  //   }
 
   // receiver service
   srv.rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
@@ -158,7 +158,6 @@ bool InitRobot() {
   srv.rcvr_srv.tconf.period_ms = 0;
 
   srv.rcvr_srv.sconf.type = RCVR_SBUS;
-  static SbusConf sbus_cfg;
   sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
   srv.rcvr_srv.sconf.rcvr_cfg = &sbus_cfg;
 
@@ -195,17 +194,14 @@ bool InitRobot() {
   //     printk("[INFO] Started speed control service\n");
   //   }
 
-  //   // coordinator
-  //   srv.coord_srv.priority = TASK_PRIORITY_HIGH;
-  //   srv.coord_srv.thread = &coord_thread;
-  //   srv.coord_srv.stack = coord_service_stack;
-  //   srv.coord_srv.stack_size = K_THREAD_STACK_SIZEOF(coord_service_stack);
-  //   srv.coord_srv.delay = Z_TIMEOUT_MS(20);
-  //   srv.coord_srv.period_ms = 20;
+  // coordinator
+  //   srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  //   srv.coord_srv.tconf.stack = coord_service_stack;
+  //   srv.coord_srv.tconf.delay = Z_TIMEOUT_MS(20);
+  //   srv.coord_srv.tconf.period_ms = 20;
 
-  //   led_cfg.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-  //   srv.coord_srv.led_cfg = &led_cfg;
-  //   srv.coord_srv.rcvr_srv = &srv.rcvr_srv;
+  //   srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+  //   srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
 
   //   ret = StartCoordinatorService(&srv.coord_srv);
   //   if (!ret) {

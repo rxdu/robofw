@@ -1,3 +1,3 @@
-add_subdirectory(motion)
+# add_subdirectory(motion)
 add_subdirectory(coordinator)
-add_subdirectory(canopen)
+# add_subdirectory(canopen)

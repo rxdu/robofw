@@ -43,9 +43,9 @@ typedef struct {
   ReceiverData receiver_data;
 } ReceiverSrvData;
 
-typedef struct {
+struct ReceiverInterface {
   struct k_msgq *rc_data_msgq_out;
-} ReceiverInterface;
+};
 
 typedef struct {
   // thread config
@@ -56,7 +56,7 @@ typedef struct {
   ReceiverSrvData sdata;
 
   // interface
-  ReceiverInterface interface;
+  struct ReceiverInterface interface;
 } ReceiverServiceDef;
 
 bool StartReceiverService(ReceiverServiceDef *def);

@@ -33,7 +33,7 @@ typedef struct {
 
   // task-related config
   MotionType type;
-  CoordinatorServiceConf *coord_srv;
+  CoordinatorServiceDef *coord_srv;
   ActuatorServiceConf *actr_srv;
 
   // message queue for input/output

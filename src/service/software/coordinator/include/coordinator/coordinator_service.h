@@ -16,12 +16,10 @@
 #include <zephyr.h>
 #include <device.h>
 
+#include "interface/service.h"
+
 #include "receiver/receiver_service.h"
 #include "mcal/interface/led_interface.h"
-
-typedef struct {
-  LedDescriptor *dd_led_status;
-} LedConf;
 
 typedef struct {
   float x;
@@ -35,24 +33,38 @@ typedef struct {
 } DesiredMotion;
 
 typedef struct {
-  // thread config
-  k_tid_t tid;
-  int8_t priority;
-  struct k_thread *thread;
-  k_thread_stack_t *stack;
-  size_t stack_size;
-  k_timeout_t delay;
-  uint32_t period_ms;
+  LedDescriptor *dd_led_status;
+} CoordinatorSrvConf;
 
-  // task-related config
-  LedConf *led_cfg;
-  ReceiverServiceDef *rcvr_srv;
-
-  // message queue for input/output
-  struct k_msgq *msgq_out;
+typedef struct {
+  ReceiverData receiver_data;
+  struct k_msgq *desired_motion_msgq;
   DesiredMotion desired_motion;
-} CoordinatorServiceConf;
+} CoordinatorSrvData;
 
-bool StartCoordinatorService(CoordinatorServiceConf *cfg);
+struct ReceiverInterface;
+
+typedef struct {
+  struct k_msgq *desired_motion_msgq_out;
+} CoordinatorInterface;
+
+typedef struct {
+  // thread config
+  ThreadConfig tconf;
+
+  // service config
+  CoordinatorSrvConf sconf;
+  CoordinatorSrvData sdata;
+
+  // dependent interfaces
+  struct {
+    struct ReceiverInterface *receiver_interface;
+  } dependencies;
+
+  // interface
+  CoordinatorInterface interface;
+} CoordinatorServiceDef;
+
+bool StartCoordinatorService(CoordinatorServiceDef *cfg);
 
 #endif /* SYSTEM_SERVICE_H */
