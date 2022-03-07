@@ -195,21 +195,21 @@ bool InitRobot() {
   //   }
 
   // coordinator
-  //   srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  //   srv.coord_srv.tconf.stack = coord_service_stack;
-  //   srv.coord_srv.tconf.delay = Z_TIMEOUT_MS(20);
-  //   srv.coord_srv.tconf.period_ms = 20;
+  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  srv.coord_srv.tconf.stack = coord_service_stack;
+  srv.coord_srv.tconf.delay = Z_TIMEOUT_MS(20);
+  srv.coord_srv.tconf.period_ms = 20;
 
-  //   srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-  //   srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
+  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+  srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
 
-  //   ret = StartCoordinatorService(&srv.coord_srv);
-  //   if (!ret) {
-  //     printk("[ERROR] Failed to start coordinator service\n");
-  //     return false;
-  //   } else {
-  //     printk("[INFO] Started coordinator service\n");
-  //   }
+  ret = StartCoordinatorService(&srv.coord_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start coordinator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started coordinator service\n");
+  }
 
   //   // motion control
   //   srv.motion_srv.priority = TASK_PRIORITY_HIGH;
