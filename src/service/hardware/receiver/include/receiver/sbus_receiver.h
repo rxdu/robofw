@@ -18,6 +18,7 @@
 typedef struct {
   UartDescriptor* dd_uart;
   DioDescriptor* dd_dio_inv;
+  SbusDecoderInstance sbus_decoder;
   SbusMessage sbus_msg_buffer;
 } SbusConf;
 

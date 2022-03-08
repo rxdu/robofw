@@ -10,15 +10,12 @@
 #include "receiver/sbus_receiver.h"
 #include "receiver/receiver_service.h"
 
-static SbusDecoderInstance sbus_decoder;
-static ReceiverData receiver_data;
-
 #define SBUS_CHN_MAX 1807
 #define SBUS_CHN_MID 1023
 #define SBUS_CHN_MIN 240
 
 bool InitSbus(SbusConf *cfg) {
-  SbusDecoderInit(&sbus_decoder);
+  SbusDecoderInit(&cfg->sbus_decoder);
 
   struct uart_config sbus_cfg;
   GetUartSbusConfig(&sbus_cfg);
@@ -49,17 +46,17 @@ void UpdateSbus(void *p1, void *p2, void *p3) {
       while (ring_buf_get(&sbus_cfg->dd_uart->ring_buffer, &ch, 1) != 0) {
         //   printk("here received a sbus msg\n");
         //   printk("processing: %x\n", (int)ch);
-        if (SbusDecodeMessage(&sbus_decoder, ch, &sbus_cfg->sbus_msg_buffer)) {
+        if (SbusDecodeMessage(&sbus_cfg->sbus_decoder, ch, &sbus_cfg->sbus_msg_buffer)) {
           for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
-            if (receiver_data.channels[i] > SBUS_CHN_MID) {
-              receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
+            if (cfg->sdata.receiver_data.channels[i] > SBUS_CHN_MID) {
+              cfg->sdata.receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
                   (SBUS_CHN_MAX - SBUS_CHN_MID);
             } else {
-              receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
+              cfg->sdata.receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
                   (SBUS_CHN_MID - SBUS_CHN_MIN);
             }
           }
-          while (k_msgq_put(cfg->interface.rc_data_msgq_out, &receiver_data, K_NO_WAIT) != 0) {
+          while (k_msgq_put(cfg->interface.rc_data_msgq_out, &cfg->sdata.receiver_data, K_NO_WAIT) != 0) {
             k_msgq_purge(cfg->interface.rc_data_msgq_out);
           }
           printk("sbus: %04d %04d %04d %04d, %04d %04d %04d %04d\n",
