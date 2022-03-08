@@ -59,15 +59,15 @@ void UpdateSbus(void *p1, void *p2, void *p3) {
           while (k_msgq_put(cfg->interface.rc_data_msgq_out, &cfg->sdata.receiver_data, K_NO_WAIT) != 0) {
             k_msgq_purge(cfg->interface.rc_data_msgq_out);
           }
-          printk("sbus: %04d %04d %04d %04d, %04d %04d %04d %04d\n",
-                 sbus_cfg->sbus_msg_buffer.channels[0],
-                 sbus_cfg->sbus_msg_buffer.channels[1],
-                 sbus_cfg->sbus_msg_buffer.channels[2],
-                 sbus_cfg->sbus_msg_buffer.channels[3],
-                 sbus_cfg->sbus_msg_buffer.channels[4],
-                 sbus_cfg->sbus_msg_buffer.channels[5],
-                 sbus_cfg->sbus_msg_buffer.channels[6],
-                 sbus_cfg->sbus_msg_buffer.channels[7]);
+//          printk("sbus: %04d %04d %04d %04d, %04d %04d %04d %04d\n",
+//                 sbus_cfg->sbus_msg_buffer.channels[0],
+//                 sbus_cfg->sbus_msg_buffer.channels[1],
+//                 sbus_cfg->sbus_msg_buffer.channels[2],
+//                 sbus_cfg->sbus_msg_buffer.channels[3],
+//                 sbus_cfg->sbus_msg_buffer.channels[4],
+//                 sbus_cfg->sbus_msg_buffer.channels[5],
+//                 sbus_cfg->sbus_msg_buffer.channels[6],
+//                 sbus_cfg->sbus_msg_buffer.channels[7]);
         }
       }
     }
