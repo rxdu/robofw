@@ -10,10 +10,10 @@
 #include "receiver/sbus_receiver.h"
 #include "receiver/receiver_service.h"
 
-static SbusInstance sbus_decoder;
+static SbusDecoderInstance sbus_decoder;
 static ReceiverData receiver_data;
 
-#define SBUS_CHN_MAX 1850
+#define SBUS_CHN_MAX 1807
 #define SBUS_CHN_MID 1023
 #define SBUS_CHN_MIN 240
 
@@ -39,32 +39,39 @@ bool InitSbus(SbusConf *cfg) {
   return true;
 }
 
-void UpdateSbus(void *p1) {
+void UpdateSbus(void *p1, void *p2, void *p3) {
   ReceiverServiceDef *cfg = (ReceiverServiceDef *) p1;
   SbusConf *sbus_cfg = (SbusConf *) (cfg->sconf.rcvr_cfg);
 
-  if (k_sem_take(&(sbus_cfg->dd_uart->rx_sem), K_FOREVER) == 0) {
-    uint8_t ch;
-    while (ring_buf_get(&sbus_cfg->dd_uart->ring_buffer, &ch, 1) != 0) {
-      //   printk("here received a sbus msg\n");
-      //   printk("processing: %x\n", (int)ch);
-      if (SbusDecodeMessage(&sbus_decoder, ch, &sbus_cfg->sbus_msg_buffer)) {
-        for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
-          receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
-              (SBUS_CHN_MAX - SBUS_CHN_MID);
+  while (1) {
+    if (k_sem_take(&(sbus_cfg->dd_uart->rx_sem), K_FOREVER) == 0) {
+      uint8_t ch;
+      while (ring_buf_get(&sbus_cfg->dd_uart->ring_buffer, &ch, 1) != 0) {
+        //   printk("here received a sbus msg\n");
+        //   printk("processing: %x\n", (int)ch);
+        if (SbusDecodeMessage(&sbus_decoder, ch, &sbus_cfg->sbus_msg_buffer)) {
+          for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
+            if (receiver_data.channels[i] > SBUS_CHN_MID) {
+              receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
+                  (SBUS_CHN_MAX - SBUS_CHN_MID);
+            } else {
+              receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
+                  (SBUS_CHN_MID - SBUS_CHN_MIN);
+            }
+          }
+          while (k_msgq_put(cfg->interface.rc_data_msgq_out, &receiver_data, K_NO_WAIT) != 0) {
+            k_msgq_purge(cfg->interface.rc_data_msgq_out);
+          }
+          printk("sbus: %04d %04d %04d %04d, %04d %04d %04d %04d\n",
+                 sbus_cfg->sbus_msg_buffer.channels[0],
+                 sbus_cfg->sbus_msg_buffer.channels[1],
+                 sbus_cfg->sbus_msg_buffer.channels[2],
+                 sbus_cfg->sbus_msg_buffer.channels[3],
+                 sbus_cfg->sbus_msg_buffer.channels[4],
+                 sbus_cfg->sbus_msg_buffer.channels[5],
+                 sbus_cfg->sbus_msg_buffer.channels[6],
+                 sbus_cfg->sbus_msg_buffer.channels[7]);
         }
-        while (k_msgq_put(cfg->interface.rc_data_msgq_out, &receiver_data, K_NO_WAIT) != 0) {
-          k_msgq_purge(cfg->interface.rc_data_msgq_out);
-        }
-//        printk("sbus: %04d %04d %04d %04d, %04d %04d %04d %04d\n",
-//               sbus_cfg->sbus_msg_buffer.channels[0],
-//               sbus_cfg->sbus_msg_buffer.channels[1],
-//               sbus_cfg->sbus_msg_buffer.channels[2],
-//               sbus_cfg->sbus_msg_buffer.channels[3],
-//               sbus_cfg->sbus_msg_buffer.channels[4],
-//               sbus_cfg->sbus_msg_buffer.channels[5],
-//               sbus_cfg->sbus_msg_buffer.channels[6],
-//               sbus_cfg->sbus_msg_buffer.channels[7]);
       }
     }
   }

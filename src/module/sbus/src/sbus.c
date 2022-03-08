@@ -28,11 +28,11 @@ typedef enum {
 
 static void SbusBuildMessage(uint8_t *sframe_buf, SbusMessage *sbus_msg);
 
-void SbusDecoderInit(SbusInstance *inst) {
+void SbusDecoderInit(SbusDecoderInstance *inst) {
   inst->decode_buffer.decode_state = WAIT_FOR_SOF;
 }
 
-bool SbusDecodeMessage(SbusInstance *inst, uint8_t ch, SbusMessage *sbus_msg) {
+bool SbusDecodeMessage(SbusDecoderInstance *inst, uint8_t ch, SbusMessage *sbus_msg) {
   bool new_frame_parsed = false;
   switch (inst->decode_buffer.decode_state) {
     case WAIT_FOR_SOF: {
