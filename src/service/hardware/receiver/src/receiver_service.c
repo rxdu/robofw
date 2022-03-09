@@ -9,10 +9,6 @@
 
 #include "receiver/receiver_service.h"
 
-// K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
-
-static void ReceiverServiceLoop(void *p1, void *p2, void *p3);
-
 bool StartReceiverService(ReceiverServiceDef *def) {
   // init hardware
   if (def->sconf.type == RCVR_SBUS) {

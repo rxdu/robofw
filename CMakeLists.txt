@@ -10,14 +10,18 @@ if(BUILD_NATIVE_POSIX)
     set(BOARD "native_posix")
     add_definitions("-DTARGET_NATIVE_POSIX")
 else()
-    set(BOARD "tbotctrl_f405")
-    set(ROBOT "tbot")
     add_definitions("-DTARGET_CORTEX_M4")
 endif()
 
-list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+# default app and board if not specified
+if(NOT DEFINED APP_NAME)
+    set(APP_NAME "tbot")
+endif()
+if(NOT DEFINED APP_NAME)
+    set(BOARD "tbotctrl_f405")
+endif()
 
-message(STATUS "Building firmware for ${ROBOT} with board ${BOARD}")
+list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(BUILD_TESTING)
     set(BUILD_TESTS ON)

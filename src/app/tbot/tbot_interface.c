@@ -13,12 +13,11 @@
 
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
+#include "canopen/canopen_service.h"
 // #include "speed_control/speed_control_service.h"
-// #include "light/light_service.h"
 
 #include "coordinator/coordinator_service.h"
 // #include "motion/motion_service.h"
-// #include "canopen/canopen_service.h"
 
 #define TBOT_LED_STATUS DD_LED0
 #define TBOT_LED_USER1 DD_LED1
@@ -33,9 +32,6 @@
 #define TBOT_DIO_EN2 DD_DIO2
 #define TBOT_DIO_DIR2 DD_DIO3
 #define TBOT_PWM2 DD_PWM1
-
-// front light
-#define TBOT_DIO_LIGHT_CTRL DD_DIO4
 
 // encoder
 #define TBOT_ENCODER1 DD_ENCODER1
@@ -68,7 +64,7 @@ typedef struct {
   ActuatorServiceConf actr_srv;
   //   MotionServiceConf motion_srv;
   //   SpeedControlServiceConf spdctrl_srv;
-  //   CanopenServiceConf canopen_srv;
+  CanopenServiceDef canopen_srv;
 } RobotService;
 
 // Negative prio threads will not be pre-empted
@@ -102,9 +98,7 @@ K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 // struct k_thread spdctrl_thread;
 // K_THREAD_STACK_DEFINE(spdctrl_service_stack, 1024);
 
-// static CanDeviceConfig candev_cfg;
-// struct k_thread canopen_thread;
-// K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
+K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -117,7 +111,7 @@ bool InitRobot() {
   hw.cans = GetCanDescription();
 
   bool ret = false;
-  (void)ret;
+  (void) ret;
 
   // configure drivers required by robot
   // LED for debugging
@@ -230,24 +224,23 @@ bool InitRobot() {
   //     printk("[INFO] Started motion service\n");
   //   }
 
-  //   // canopen
-  //   srv.canopen_srv.priority = TASK_PRIORITY_HIGH;
-  //   srv.canopen_srv.thread = &canopen_thread;
-  //   srv.canopen_srv.stack = canopen_service_stack;
-  //   srv.canopen_srv.stack_size =
-  //   K_THREAD_STACK_SIZEOF(canopen_service_stack); srv.canopen_srv.delay =
-  //   Z_TIMEOUT_MS(40); srv.canopen_srv.period_ms = 20;
+  // canopen
+  srv.canopen_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  srv.canopen_srv.tconf.stack = canopen_service_stack;
+  srv.canopen_srv.tconf.delay = Z_TIMEOUT_MS(40);
+  srv.canopen_srv.tconf.period_ms = 20;
 
-  //   candev_cfg.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
-  //   srv.canopen_srv.can_cfg = &candev_cfg;
+  srv.canopen_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
+  printk("Selecting: CAN %s, bitrate: %dk\n", srv.canopen_srv.sconf.dd_can->device->name,
+         srv.canopen_srv.sconf.dd_can->bitrate / 1000);
 
-  //   ret = StartCanopenService(&srv.canopen_srv);
-  //   if (!ret) {
-  //     printk("[ERROR] Failed to start Canopen service\n");
-  //     return false;
-  //   } else {
-  //     printk("[INFO] Started Canopen service\n");
-  //   }
+  ret = StartCanopenService(&srv.canopen_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start Canopen service\n");
+    return false;
+  } else {
+    printk("[INFO] Started Canopen service\n");
+  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;

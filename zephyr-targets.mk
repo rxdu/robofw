@@ -12,7 +12,8 @@ _native_posix_conan_install:
 	conan install --install-folder=build/$(folder)/native_posix ./conanfile.i386 --remote=gitlab
 
 _west_build:
-	west build -d build/$(folder) -- -DBUILD_POSIX_NATIVE=OFF -DBOARD=$(board) -DAPP_NAME=$(app)
+	west build -d build/$(folder) -- -DBUILD_POSIX_NATIVE=OFF -DBOARD=$(board) -DAPP_NAME=$(app) \
+		-DCONFIG_BOOTLOADER_MCUBOOT=y
 
 _native_posix_build:
 	west build -d build/$(folder)/native_posix -- -DBUILD_POSIX_NATIVE=ON
