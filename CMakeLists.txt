@@ -17,7 +17,7 @@ endif()
 if(NOT DEFINED APP_NAME)
     set(APP_NAME "tbot")
 endif()
-if(NOT DEFINED APP_NAME)
+if(NOT DEFINED BOARD)
     set(BOARD "tbotctrl_f405")
 endif()
 
