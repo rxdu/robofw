@@ -1,4 +1,6 @@
-# Robot Firmware (Zephyr)
+# Robot Firmware
+
+This repository contains firmware code based on [Zephyr RTOS](https://github.com/zephyrproject-rtos/zephyr) for robot low-level control. 
 
 ## Target setup
 

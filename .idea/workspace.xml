@@ -78,29 +78,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/service/hardware/canopen/include/canopen/canopen_service.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/service/hardware/canopen/src/canopen_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405.dts" beforeDir="false" afterPath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405.dts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405_defconfig" beforeDir="false" afterPath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405_defconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prj.conf" beforeDir="false" afterPath="$PROJECT_DIR$/prj.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python/test_nmt.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/test_nmt.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/light/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/light/include/light/light_service.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/light/src/light_service.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/canopen/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/canopen/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/canopen/include/canopen/canopen_service.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/canopen/src/canopen_service.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/zephyr-targets.mk" beforeDir="false" afterPath="$PROJECT_DIR$/zephyr-targets.mk" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,12 +128,12 @@
     <option name="rtosEnabled" value="true" />
   </component>
   <component name="RunManager" selected="OpenOCD Download &amp; Run.zephyr-openocd">
-    <configuration name="..__modules__hal__stm32__stm32cube" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="..__modules__hal__stm32__stm32cube" CONFIG_NAME="ZDebug">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="..__modules__hal__stm32__stm32cube" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="..__modules__hal__stm32__stm32cube" CONFIG_NAME="ZDebug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -582,6 +560,7 @@
       <workItem from="1646663340256" duration="2295000" />
       <workItem from="1646794683816" duration="13463000" />
       <workItem from="1646815466134" duration="3227000" />
+      <workItem from="1646839086819" duration="124000" />
     </task>
     <servers />
   </component>
