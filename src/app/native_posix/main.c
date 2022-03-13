@@ -4,7 +4,7 @@
  * Created on: Feb 24, 2021 11:33
  * Description: 
  * 
- * Copyright (c) 2021 Weston Robot
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */ 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(net_socket_can_sample, LOG_LEVEL_DBG);

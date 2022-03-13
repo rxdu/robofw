@@ -4,7 +4,7 @@
  * Created on: Feb 03, 2022 11:48
  * Description:
  *
- * Copyright (c) 2021 Weston Robot Pte. Ltd.
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
 #include "motion/motion_service.h"

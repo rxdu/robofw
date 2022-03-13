@@ -4,7 +4,7 @@
  * Created on: Jan 29, 2022 15:37
  * Description:
  *
- * Copyright (c) 2021 Weston Robot Pte. Ltd.
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
 #ifndef SYSINIT_SERVICE_H

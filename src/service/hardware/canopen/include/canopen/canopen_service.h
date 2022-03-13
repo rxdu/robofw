@@ -4,7 +4,7 @@
  * Created on: Feb 09, 2022 15:49
  * Description: 
  * 
- * Copyright (c) 2021 Weston Robot Pte. Ltd.
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
 #ifndef CANOPEN_SERVICE_H

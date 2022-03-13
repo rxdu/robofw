@@ -9,7 +9,7 @@
  *  - Input: N/A
  *  - Output: ReceiverData (msgq_out)
  *
- * Copyright (c) 2021 Weston Robot Pte. Ltd.
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
 #ifndef RECEIVER_SERVICE_H
