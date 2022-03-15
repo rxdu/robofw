@@ -13,7 +13,7 @@
 
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
-#include "canopen/canopen_service.h"
+// #include "canopen/canopen_service.h"
 // #include "speed_control/speed_control_service.h"
 
 #include "coordinator/coordinator_service.h"
@@ -64,7 +64,7 @@ typedef struct {
   ActuatorServiceConf actr_srv;
   //   MotionServiceConf motion_srv;
   //   SpeedControlServiceConf spdctrl_srv;
-  CanopenServiceDef canopen_srv;
+//   CanopenServiceDef canopen_srv;
 } RobotService;
 
 // Negative prio threads will not be pre-empted
@@ -98,7 +98,7 @@ K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 // struct k_thread spdctrl_thread;
 // K_THREAD_STACK_DEFINE(spdctrl_service_stack, 1024);
 
-K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
+// K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -225,22 +225,22 @@ bool InitRobot() {
   //   }
 
   // canopen
-  srv.canopen_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  srv.canopen_srv.tconf.stack = canopen_service_stack;
-  srv.canopen_srv.tconf.delay = Z_TIMEOUT_MS(40);
-  srv.canopen_srv.tconf.period_ms = 20;
+//   srv.canopen_srv.tconf.priority = TASK_PRIORITY_HIGH;
+//   srv.canopen_srv.tconf.stack = canopen_service_stack;
+//   srv.canopen_srv.tconf.delay = Z_TIMEOUT_MS(40);
+//   srv.canopen_srv.tconf.period_ms = 20;
 
-  srv.canopen_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
-  printk("Selecting: CAN %s, bitrate: %dk\n", srv.canopen_srv.sconf.dd_can->device->name,
-         srv.canopen_srv.sconf.dd_can->bitrate / 1000);
+//   srv.canopen_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
+//   printk("Selecting: CAN %s, bitrate: %dk\n", srv.canopen_srv.sconf.dd_can->device->name,
+//          srv.canopen_srv.sconf.dd_can->bitrate / 1000);
 
-  ret = StartCanopenService(&srv.canopen_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start Canopen service\n");
-    return false;
-  } else {
-    printk("[INFO] Started Canopen service\n");
-  }
+//   ret = StartCanopenService(&srv.canopen_srv);
+//   if (!ret) {
+//     printk("[ERROR] Failed to start Canopen service\n");
+//     return false;
+//   } else {
+//     printk("[INFO] Started Canopen service\n");
+//   }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;
