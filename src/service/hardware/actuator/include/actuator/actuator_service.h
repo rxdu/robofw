@@ -21,7 +21,7 @@
 #include <zephyr.h>
 #include <device.h>
 
-#include "actuator/tbot_actuators.h"
+#include "interface/service.h"
 
 typedef enum { ACTR_TBOT = 0, ACTR_TA07PRO } ActuatorType;
 
@@ -31,25 +31,32 @@ typedef struct {
 } ActuatorCmd;
 
 typedef struct {
-  // thread config
-  k_tid_t tid;
-  int8_t priority;
-  struct k_thread *thread;
-  k_thread_stack_t *stack;
-  size_t stack_size;
-  k_timeout_t delay;
-  uint32_t period_ms;
-
-  // task-related config
   ActuatorType type;
   uint8_t active_motor_num;
   void *actuator_cfg;
+} ActuatorSrvConf;
 
-  // message queue for input/output
-  struct k_msgq *msgq_in;
+typedef struct {
+  struct k_msgq *actuator_cmd_msgq;
   ActuatorCmd actuator_cmd;
-} ActuatorServiceConf;
+} ActuatorSrvData;
 
-bool StartActuatorService(ActuatorServiceConf *cfg);
+struct ActuatorInterface {
+  struct k_msgq *actuator_cmd_msgq_in;
+};
+
+typedef struct {
+  // thread config
+  ThreadConfig tconf;
+
+  // service config
+  ActuatorSrvConf sconf;
+  ActuatorSrvData sdata;
+
+  // interface
+  struct ActuatorInterface interface;
+} ActuatorServiceDef;
+
+bool StartActuatorService(ActuatorServiceDef *def);
 
 #endif /* ACTUATOR_SERVICE_H */

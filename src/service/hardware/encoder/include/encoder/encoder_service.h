@@ -1,5 +1,5 @@
 /*
- * speed_control_service.h
+ * encoder_service.h
  *
  * Created on: Feb 06, 2022 16:33
  * Description:
@@ -9,8 +9,8 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
-#ifndef SPEED_CONTROL_SERVICE_H
-#define SPEED_CONTROL_SERVICE_H
+#ifndef ENCODER_SERVICE_H
+#define ENCODER_SERVICE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -52,4 +52,4 @@ typedef struct {
 
 bool StartSpeedControlService(SpeedControlServiceConf *cfg);
 
-#endif /* SPEED_CONTROL_SERVICE_H */
+#endif /* ENCODER_SERVICE_H */

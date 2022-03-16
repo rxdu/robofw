@@ -11,12 +11,12 @@
 
 #include "actuator/actuator_service.h"
 
-TbotActuatorConf* tbot_actr_cfg;
+TbotActuatorConf *tbot_actr_cfg;
 
-static void LimitCommand(float in, float* out);
+static void LimitCommand(float in, float *out);
 static void SetMotorCmd(float left, float right);
 
-bool InitTbotActuators(TbotActuatorConf* cfg) {
+bool InitTbotActuators(TbotActuatorConf *cfg) {
   tbot_actr_cfg = cfg;
 
   ConfigureDio(cfg->dd_dio_en1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
@@ -34,23 +34,29 @@ bool InitTbotActuators(TbotActuatorConf* cfg) {
   return true;
 }
 
-void UpdateTbotActuators(void* p1) {
-  ActuatorServiceConf* cfg = (ActuatorServiceConf*)p1;
-  while (k_msgq_get(cfg->msgq_in, &cfg->actuator_cmd, K_NO_WAIT) == 0) {
-    float cmd_left = cfg->actuator_cmd.motors[0];
-    float cmd_right = cfg->actuator_cmd.motors[1];
+void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
+  ActuatorServiceDef *cfg = (ActuatorServiceDef *) p1;
 
-    LimitCommand(cmd_left, &cmd_left);
-    LimitCommand(cmd_right, &cmd_right);
+  while (1) {
+    while (k_msgq_get(cfg->sdata.actuator_cmd_msgq,
+                      &cfg->sdata.actuator_cmd,
+                      K_NO_WAIT) == 0) {
+      float cmd_left = cfg->sdata.actuator_cmd.motors[0];
+      float cmd_right = cfg->sdata.actuator_cmd.motors[1];
 
-    // reverse right cmd (reversed motor installation direction)
-    cmd_right = -cmd_right;
+      LimitCommand(cmd_left, &cmd_left);
+      LimitCommand(cmd_right, &cmd_right);
 
-    SetMotorCmd(cmd_left, cmd_right);
+      // reverse right cmd (reversed motor installation direction)
+      cmd_right = -cmd_right;
+
+      SetMotorCmd(cmd_left, cmd_right);
+    }
+    if (cfg->tconf.period_ms > 0) k_msleep(cfg->tconf.period_ms);
   }
 }
 
-void LimitCommand(float in, float* out) {
+void LimitCommand(float in, float *out) {
   float cmd = in;
   if (cmd > 0) {
     cmd = 1.0f - cmd;

@@ -29,7 +29,7 @@ bool StartReceiverService(ReceiverServiceDef *def) {
     // create and start thread
     def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
                                      K_THREAD_STACK_SIZEOF(def->tconf.stack),
-                                     UpdateSbus, def, NULL, NULL,
+                                     SbusReceiverServiceLoop, def, NULL, NULL,
                                      def->tconf.priority, 0, def->tconf.delay);
   } else {
     printk("[ERROR] Unknown receiver type\n");

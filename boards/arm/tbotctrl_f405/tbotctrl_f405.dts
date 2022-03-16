@@ -19,7 +19,7 @@
         zephyr,sram = &sram0;
         zephyr,flash = &flash0;
         zephyr,ccm = &ccm0;
-        zephyr,can-primary = &can1;
+        zephyr,can-primary = &can2;
         zephyr,code-partition = &slot0_partition;
     };
 
@@ -115,8 +115,7 @@
         xuart0 = &uart4;
         xuart1 = &usart2;
         xuart2 = &usart3;
-        xcan0 = &can1;
-        xcan1 = &can2;
+        xcan0 = &can2;
         xencoder0 = &encoder1;
         xencoder1 = &encoder3;
     };
@@ -256,18 +255,8 @@
     //   status = "okay";
 // };
 
-&can1 {
-    pinctrl-0 = <&can1_rx_pb8 &can1_tx_pb9>;
-    bus-speed = <500000>;
-    sjw = <1>;
-    prop-seg = <0>;
-    phase-seg1 = <10>;
-    phase-seg2 = <1>;
-    status = "okay";
-};
-
-//&can2 {
-//    pinctrl-0 = <&can2_rx_pb5 &can2_tx_pb6>;
+//&can1 {
+//    pinctrl-0 = <&can1_rx_pb8 &can1_tx_pb9>;
 //    bus-speed = <500000>;
 //    sjw = <1>;
 //    prop-seg = <0>;
@@ -275,6 +264,16 @@
 //    phase-seg2 = <1>;
 //    status = "okay";
 //};
+
+&can2 {
+    pinctrl-0 = <&can2_rx_pb5 &can2_tx_pb6>;
+    bus-speed = <500000>;
+    sjw = <1>;
+    prop-seg = <0>;
+    phase-seg1 = <10>;
+    phase-seg2 = <1>;
+    status = "okay";
+};
 
 &rng {
     status = "okay";

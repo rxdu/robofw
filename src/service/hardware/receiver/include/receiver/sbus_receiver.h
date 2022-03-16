@@ -23,6 +23,6 @@ typedef struct {
 } SbusConf;
 
 bool InitSbus(SbusConf* cfg);
-void UpdateSbus(void *p1, void *p2, void *p3);
+void SbusReceiverServiceLoop(void *p1, void *p2, void *p3);
 
 #endif /* SBUS_RECEIVER_H */

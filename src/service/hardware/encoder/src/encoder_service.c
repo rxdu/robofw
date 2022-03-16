@@ -1,5 +1,5 @@
 /*
- * speed_control_service.c
+ * encoder_service.c
  *
  * Created on: Feb 06, 2022 16:34
  * Description:
@@ -7,7 +7,7 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
-#include "speed_control/speed_control_service.h"
+#include "encoder/encoder_service.h"
 
 #include <math.h>
 

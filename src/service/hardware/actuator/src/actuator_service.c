@@ -8,40 +8,25 @@
  */
 
 #include "actuator/actuator_service.h"
+#include "actuator/tbot_actuators.h"
 
-K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
-
-static void ActuatorServiceLoop(void *p1, void *p2, void *p3);
-
-bool StartActuatorService(ActuatorServiceConf *cfg) {
+bool StartActuatorService(ActuatorServiceDef *def) {
   // init hardware
-  if (cfg->type == ACTR_TBOT) {
-    TbotActuatorConf *motor_cfg = (TbotActuatorConf *)(cfg->actuator_cfg);
+  if (def->sconf.type == ACTR_TBOT) {
+    TbotActuatorConf *motor_cfg = (TbotActuatorConf *) (def->sconf.actuator_cfg);
     if (!InitTbotActuators(motor_cfg)) {
       printk("[ERROR] Failed to initialize Tbot brushed motor\n");
       return false;
     }
+
+    def->interface.actuator_cmd_msgq_in = def->sdata.actuator_cmd_msgq;
+
+    // create and start thread
+    def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
+                                     K_THREAD_STACK_SIZEOF(def->tconf.stack),
+                                     TbotActuatorServiceLoop, def, NULL, NULL,
+                                     def->tconf.priority, 0, def->tconf.delay);
   }
-
-  cfg->msgq_in = &actuator_data_queue;
-
-  // create and start thread
-  cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
-                             ActuatorServiceLoop, cfg, NULL, NULL,
-                             cfg->priority, 0, cfg->delay);
 
   return true;
-}
-
-void ActuatorServiceLoop(void *p1, void *p2, void *p3) {
-  ActuatorServiceConf *cfg = (ActuatorServiceConf *)p1;
-  ActuatorType type = cfg->type;
-  while (1) {
-    if (type == ACTR_TBOT) {
-      UpdateTbotActuators(p1);
-    } else if (type == ACTR_TA07PRO) {
-      // process PPM
-    }
-    if (cfg->period_ms > 0) k_msleep(cfg->period_ms);
-  }
 }
