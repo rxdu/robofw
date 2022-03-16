@@ -61,9 +61,9 @@ typedef struct {
 typedef struct {
   ReceiverServiceDef rcvr_srv;
   ActuatorServiceDef actr_srv;
-//  EncoderServiceConf encoder_srv;
-  MessengerServiceDef msger_srv;
   CoordinatorServiceDef coord_srv;
+  //  EncoderServiceConf encoder_srv;
+  MessengerServiceDef msger_srv;
 } RobotService;
 
 // Negative prio threads will not be pre-empted
@@ -82,12 +82,8 @@ K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
 
-// static LedConf led_cfg;
-// struct k_thread system_thread;
-// K_THREAD_STACK_DEFINE(system_service_stack, 512);
-
-//K_THREAD_STACK_DEFINE(coord_service_stack, 512);
-//K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
+K_THREAD_STACK_DEFINE(coord_service_stack, 512);
+K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 // struct k_thread motion_thread;
 // K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
@@ -160,12 +156,33 @@ bool InitRobot() {
   srv.actr_srv.sconf.active_motor_num = 2;
   srv.actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
 
+  srv.actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
+
   ret = StartActuatorService(&srv.actr_srv);
   if (!ret) {
     printk("[ERROR] Failed to start actuator service\n");
     return false;
   } else {
     printk("[INFO] Started actuator service\n");
+  }
+
+  // coordinator
+  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  srv.coord_srv.tconf.stack = coord_service_stack;
+  srv.coord_srv.tconf.delay = Z_TIMEOUT_MS(20);
+  srv.coord_srv.tconf.period_ms = 40;
+
+  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+  srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
+
+  srv.coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
+
+  ret = StartCoordinatorService(&srv.coord_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start coordinator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started coordinator service\n");
   }
 
   // speed control
@@ -190,23 +207,6 @@ bool InitRobot() {
   //   } else {
   //     printk("[INFO] Started speed control service\n");
   //   }
-
-  // coordinator
-//  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
-//  srv.coord_srv.tconf.stack = coord_service_stack;
-//  srv.coord_srv.tconf.delay = Z_TIMEOUT_MS(20);
-//  srv.coord_srv.tconf.period_ms = 20;
-//
-//  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-//  srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
-//
-//  ret = StartCoordinatorService(&srv.coord_srv);
-//  if (!ret) {
-//    printk("[ERROR] Failed to start coordinator service\n");
-//    return false;
-//  } else {
-//    printk("[INFO] Started coordinator service\n");
-//  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;

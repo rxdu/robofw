@@ -24,6 +24,7 @@ bool StartReceiverService(ReceiverServiceDef *def) {
       return false;
     }
 
+    if (def->sdata.rc_data_msgq == NULL) return false;
     def->interface.rc_data_msgq_out = def->sdata.rc_data_msgq;
 
     // create and start thread

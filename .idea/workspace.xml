@@ -78,29 +78,14 @@
   <component name="ChangeListManager">
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405.dts" beforeDir="false" afterPath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405.dts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/robot/wt200/firmware/tbot_firmware.drawio" beforeDir="false" afterPath="$PROJECT_DIR$/docs/robot/wt200/firmware/tbot_firmware.drawio" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/actuator_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/actuator_service.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/tbot_actuators.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/tbot_actuators.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/logging/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/logging/include/logging/logging_service.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/logging/src/logging_service.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/sbus_receiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/sbus_receiver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/sbus_receiver.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/sbus_receiver.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/speed_control/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/speed_control/include/speed_control/speed_control_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/speed_control/src/speed_control_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/include/coordinator/coordinator_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/include/coordinator/coordinator_service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -584,7 +569,7 @@
       <workItem from="1646794683816" duration="13463000" />
       <workItem from="1646815466134" duration="3227000" />
       <workItem from="1646839086819" duration="124000" />
-      <workItem from="1647438708865" duration="4358000" />
+      <workItem from="1647438708865" duration="5220000" />
     </task>
     <servers />
   </component>

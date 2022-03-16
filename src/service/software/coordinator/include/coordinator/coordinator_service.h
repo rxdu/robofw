@@ -43,6 +43,7 @@ typedef struct {
 } CoordinatorSrvData;
 
 struct ReceiverInterface;
+struct ActuatorInterface;
 
 typedef struct {
   struct k_msgq *desired_motion_msgq_out;
@@ -59,6 +60,7 @@ typedef struct {
   // dependent interfaces
   struct {
     struct ReceiverInterface *receiver_interface;
+    struct ActuatorInterface *actuator_interface;
   } dependencies;
 
   // interface

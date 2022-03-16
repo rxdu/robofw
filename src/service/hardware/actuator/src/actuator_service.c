@@ -19,6 +19,7 @@ bool StartActuatorService(ActuatorServiceDef *def) {
       return false;
     }
 
+    if (def->sdata.actuator_cmd_msgq == NULL) return false;
     def->interface.actuator_cmd_msgq_in = def->sdata.actuator_cmd_msgq;
 
     // create and start thread
