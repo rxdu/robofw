@@ -18,7 +18,7 @@ typedef struct {
   struct k_thread thread;
   k_thread_stack_t *stack;
   int8_t priority;
-  k_timeout_t delay;
+  uint32_t delay_ms;
   uint32_t period_ms;
 } ThreadConfig;
 

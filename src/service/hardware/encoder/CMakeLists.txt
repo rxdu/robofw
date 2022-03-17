@@ -1,5 +1,5 @@
 # add library
-message(STATUS "* Enabled encoder service")
+message(STATUS "[SERVICE] Enabled encoder service")
 
 add_library(encoder src/encoder_service.c)
 target_link_libraries(encoder PUBLIC zephyr mcal actuator ${GCC_FLAG})

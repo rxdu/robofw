@@ -35,14 +35,14 @@ bool InitTbotActuators(TbotActuatorConf *cfg) {
 }
 
 void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
-  ActuatorServiceDef *cfg = (ActuatorServiceDef *) p1;
+  ActuatorServiceDef *def = (ActuatorServiceDef *) p1;
 
   while (1) {
-    while (k_msgq_get(cfg->sdata.actuator_cmd_msgq,
-                      &cfg->sdata.actuator_cmd,
-                      K_NO_WAIT) == 0) {
-      float cmd_left = cfg->sdata.actuator_cmd.motors[0];
-      float cmd_right = cfg->sdata.actuator_cmd.motors[1];
+    while (k_msgq_get(def->sdata.actuator_cmd_msgq,
+                      &def->sdata.actuator_cmd,
+                      K_FOREVER) == 0) {
+      float cmd_left = def->sdata.actuator_cmd.motors[0];
+      float cmd_right = def->sdata.actuator_cmd.motors[1];
 
       LimitCommand(cmd_left, &cmd_left);
       LimitCommand(cmd_right, &cmd_right);
@@ -53,7 +53,7 @@ void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
       printk("%3d, %3d\n", (int) (cmd_left * 100), (int) (cmd_right * 100));
 //      SetMotorCmd(cmd_left, cmd_right);
     }
-    if (cfg->tconf.period_ms > 0) k_msleep(cfg->tconf.period_ms);
+    k_msleep(def->tconf.period_ms);
   }
 }
 

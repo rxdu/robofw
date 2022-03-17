@@ -79,7 +79,7 @@ static RobotService srv;
 K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
-K_THREAD_STACK_DEFINE(actuator_service_stack, 512);
+K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
 
 K_THREAD_STACK_DEFINE(coord_service_stack, 512);
@@ -119,7 +119,7 @@ bool InitRobot() {
   // receiver service
   srv.rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
   srv.rcvr_srv.tconf.stack = receiver_service_stack;
-  srv.rcvr_srv.tconf.delay = K_NO_WAIT;
+  srv.rcvr_srv.tconf.delay_ms = 0;
   srv.rcvr_srv.tconf.period_ms = 0;
 
   static SbusConf sbus_cfg;
@@ -139,9 +139,9 @@ bool InitRobot() {
   }
 
   // actuator service
-  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
+  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
   srv.actr_srv.tconf.stack = actuator_service_stack;
-  srv.actr_srv.tconf.delay = K_NO_WAIT;
+  srv.actr_srv.tconf.delay_ms = 0;
   srv.actr_srv.tconf.period_ms = 20;
 
   static TbotActuatorConf tbot_motor_cfg;
@@ -169,7 +169,7 @@ bool InitRobot() {
   // coordinator
   srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
   srv.coord_srv.tconf.stack = coord_service_stack;
-  srv.coord_srv.tconf.delay = Z_TIMEOUT_MS(20);
+  srv.coord_srv.tconf.delay_ms = 20;
   srv.coord_srv.tconf.period_ms = 40;
 
   srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);

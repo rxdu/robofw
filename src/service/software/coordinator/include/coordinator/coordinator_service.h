@@ -28,8 +28,8 @@ typedef struct {
 } Vector3f;
 
 typedef struct {
-  Vector3f linear;
-  Vector3f angular;
+  Vector3f linear __attribute__((aligned(8)));
+  Vector3f angular __attribute__((aligned(8)));
 } DesiredMotion;
 
 typedef struct {

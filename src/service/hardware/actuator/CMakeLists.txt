@@ -1,4 +1,6 @@
 # add library
+message(STATUS "[SERVICE] Enabled actuator service")
+
 add_library(actuator 
     src/actuator_service.c
     src/tbot_actuators.c)

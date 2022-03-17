@@ -1,4 +1,6 @@
 # add library
+message(STATUS "[SERVICE] Enabled receiver service")
+
 add_library(receiver 
     src/receiver_service.c
     src/sbus_receiver.c)

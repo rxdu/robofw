@@ -1,5 +1,5 @@
 # add library
-message(STATUS "* Enabled messenger service")
+message(STATUS "[SERVICE] Enabled messenger service")
 
 add_library(messenger src/messenger_service.c)
 target_link_libraries(messenger PUBLIC zephyr mcal interface ${GCC_FLAG})

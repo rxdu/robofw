@@ -23,7 +23,7 @@ bool StartSpeedControlService(SpeedControlServiceConf *cfg) {
   // create and start thread
   cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
                              SpeedControlServiceLoop, cfg, NULL, NULL,
-                             cfg->priority, 0, cfg->delay);
+                             cfg->priority, 0, Z_TIMEOUT_MS(def->tconf.delay_ms));
   return true;
 }
 
