@@ -60,8 +60,8 @@ typedef struct {
 
 typedef struct {
   ReceiverServiceDef rcvr_srv;
-  ActuatorServiceDef actr_srv;
   CoordinatorServiceDef coord_srv;
+  ActuatorServiceDef actr_srv;
   //  EncoderServiceConf encoder_srv;
   MessengerServiceDef msger_srv;
 } RobotService;
@@ -77,12 +77,12 @@ static RobotHardware hw;
 static RobotService srv;
 
 K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
-K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
+K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 2, 8);
 
 K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
 
-K_THREAD_STACK_DEFINE(coord_service_stack, 512);
+K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 // struct k_thread motion_thread;
@@ -120,7 +120,7 @@ bool InitRobot() {
   srv.rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
   srv.rcvr_srv.tconf.stack = receiver_service_stack;
   srv.rcvr_srv.tconf.delay_ms = 0;
-  srv.rcvr_srv.tconf.period_ms = 0;
+  srv.rcvr_srv.tconf.period_ms = 10;
 
   static SbusConf sbus_cfg;
   sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
@@ -138,52 +138,52 @@ bool InitRobot() {
     printk("[INFO] Started receiver service\n");
   }
 
-  // actuator service
-  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  srv.actr_srv.tconf.stack = actuator_service_stack;
-  srv.actr_srv.tconf.delay_ms = 0;
-  srv.actr_srv.tconf.period_ms = 20;
-
-  static TbotActuatorConf tbot_motor_cfg;
-  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-
-  srv.actr_srv.sconf.type = ACTR_TBOT;
-  srv.actr_srv.sconf.active_motor_num = 2;
-  srv.actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
-
-  srv.actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
-
-  ret = StartActuatorService(&srv.actr_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start actuator service\n");
-    return false;
-  } else {
-    printk("[INFO] Started actuator service\n");
-  }
-
   // coordinator
-  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  srv.coord_srv.tconf.stack = coord_service_stack;
-  srv.coord_srv.tconf.delay_ms = 20;
-  srv.coord_srv.tconf.period_ms = 40;
+//  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
+//  srv.coord_srv.tconf.stack = coord_service_stack;
+//  srv.coord_srv.tconf.delay_ms = 0;
+//  srv.coord_srv.tconf.period_ms = 20;
+//
+//  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+//  srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
+//
+//  srv.coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
 
-  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-  srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
+//  ret = StartCoordinatorService(&srv.coord_srv);
+//  if (!ret) {
+//    printk("[ERROR] Failed to start coordinator service\n");
+//    return false;
+//  } else {
+//    printk("[INFO] Started coordinator service\n");
+//  }
 
-  srv.coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
+  // actuator service
+//  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
+//  srv.actr_srv.tconf.stack = actuator_service_stack;
+//  srv.actr_srv.tconf.delay_ms = 0;
+//  srv.actr_srv.tconf.period_ms = 20;
+//
+//  static TbotActuatorConf tbot_motor_cfg;
+//  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
+//  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
+//  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
+//  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
+//  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
+//  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
+//
+//  srv.actr_srv.sconf.type = ACTR_TBOT;
+//  srv.actr_srv.sconf.active_motor_num = 2;
+//  srv.actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
+//
+//  srv.actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
 
-  ret = StartCoordinatorService(&srv.coord_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start coordinator service\n");
-    return false;
-  } else {
-    printk("[INFO] Started coordinator service\n");
-  }
+//  ret = StartActuatorService(&srv.actr_srv);
+//  if (!ret) {
+//    printk("[ERROR] Failed to start actuator service\n");
+//    return false;
+//  } else {
+//    printk("[INFO] Started actuator service\n");
+//  }
 
   // speed control
   //   srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
@@ -227,17 +227,6 @@ bool InitRobot() {
   //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
   //   StartUartAsyncReceive(
   //       &hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
-
-  // uplink CAN to onboard computer
-  struct zcan_filter can_filter;
-  can_filter.id_type = CAN_STANDARD_IDENTIFIER;
-  can_filter.rtr = CAN_DATAFRAME;
-  can_filter.rtr_mask = 1;
-  can_filter.id_mask = 0;
-  ConfigureCan(&hw.cans->descriptor[TBOT_CAN_UPLINK],
-               CAN_NORMAL_MODE, 500000, can_filter);
-//  ConfigureCan(&hw.cans->descriptor[TBOT_CAN_DOWNLINK],
-//               CAN_NORMAL_MODE, 500000, can_filter);
 
   printk("-----------------------------------------------------\n");
 

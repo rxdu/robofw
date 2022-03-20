@@ -28,8 +28,8 @@ typedef struct {
 } Vector3f;
 
 typedef struct {
-  Vector3f linear __attribute__((aligned(8)));
-  Vector3f angular __attribute__((aligned(8)));
+  Vector3f linear;
+  Vector3f angular;
 } DesiredMotion;
 
 typedef struct {
@@ -37,9 +37,7 @@ typedef struct {
 } CoordinatorSrvConf;
 
 typedef struct {
-  ReceiverData receiver_data;
   struct k_msgq *desired_motion_msgq;
-  DesiredMotion desired_motion;
 } CoordinatorSrvData;
 
 struct ReceiverInterface;
