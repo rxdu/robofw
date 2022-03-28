@@ -30,9 +30,9 @@ bool StartCoordinatorService(CoordinatorServiceDef *def) {
 void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
   CoordinatorServiceDef *def = (CoordinatorServiceDef *) p1;
   uint8_t count = 0;
-  ActuatorCmd actuator_cmd;
   ReceiverData receiver_data;
-  DesiredMotion desired_motion;
+  ActuatorCmd actuator_cmd;
+//  DesiredMotion desired_motion;
 
   printk("Running coordinator service\n");
   while (1) {
@@ -41,15 +41,15 @@ void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
 //    printk("Checking receiver queue...\n");
     if (k_msgq_get(def->dependencies.receiver_interface->rc_data_msgq_out,
                    &receiver_data, K_NO_WAIT) == 0) {
-      printk("coordinator: %04f %04f %04f %04f, %04f %04f %04f %04f <-----------\n",
-             receiver_data.channels[0],
-             receiver_data.channels[1],
-             receiver_data.channels[2],
-             receiver_data.channels[3],
-             receiver_data.channels[4],
-             receiver_data.channels[5],
-             receiver_data.channels[6],
-             receiver_data.channels[7]);
+//      printk("coordinator: %04f %04f %04f %04f, %04f %04f %04f %04f <-----------\n",
+//             receiver_data.channels[0],
+//             receiver_data.channels[1],
+//             receiver_data.channels[2],
+//             receiver_data.channels[3],
+//             receiver_data.channels[4],
+//             receiver_data.channels[5],
+//             receiver_data.channels[6],
+//             receiver_data.channels[7]);
       printk("Throttle: %d ---------------\n", (int) (receiver_data.channels[2] * 100));
 
       actuator_cmd.motors[0] = receiver_data.channels[2];

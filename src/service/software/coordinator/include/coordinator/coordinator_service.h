@@ -30,7 +30,7 @@ typedef struct {
 typedef struct {
   Vector3f linear;
   Vector3f angular;
-} DesiredMotion;
+} __attribute__((aligned(8))) DesiredMotion;
 
 typedef struct {
   LedDescriptor *dd_led_status;

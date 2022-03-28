@@ -28,6 +28,8 @@ bool StartActuatorService(ActuatorServiceDef *def) {
                                      TbotActuatorServiceLoop, def, NULL, NULL,
                                      def->tconf.priority, 0,
                                      Z_TIMEOUT_MS(def->tconf.delay_ms));
+  } else {
+    return false;
   }
 
   return true;

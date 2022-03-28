@@ -29,7 +29,7 @@ typedef enum { RCVR_SBUS = 0, RCVR_PPM } ReceiverType;
 #define RECEIVER_CHANNEL_NUMBER 8
 typedef struct {
   float channels[RECEIVER_CHANNEL_NUMBER];  // scaled to [-1, 1]
-} ReceiverData;
+} __attribute__((aligned(8))) ReceiverData;
 
 // service related config
 typedef struct {

@@ -50,7 +50,7 @@ void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
       // reverse right cmd (reversed motor installation direction)
       cmd_right = -cmd_right;
 
-      printk("cmd: %3d, %3d\n", (int) (cmd_left * 100), (int) (cmd_right * 100));
+//      printk("cmd: %3d, %3d\n", (int) (cmd_left * 100), (int) (cmd_right * 100));
 //      SetMotorCmd(cmd_left, cmd_right);
     }
   }

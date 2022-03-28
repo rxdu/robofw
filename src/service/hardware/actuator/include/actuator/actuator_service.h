@@ -28,7 +28,7 @@ typedef enum { ACTR_TBOT = 0, ACTR_TA07PRO } ActuatorType;
 #define ACTUATOR_CHANNEL_NUMBER 4
 typedef struct {
   float motors[ACTUATOR_CHANNEL_NUMBER];  // scaled to [-1, 1]
-} ActuatorCmd;
+} __attribute__((aligned(8))) ActuatorCmd;
 
 typedef struct {
   ActuatorType type;
