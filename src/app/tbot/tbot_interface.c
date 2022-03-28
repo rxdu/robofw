@@ -120,7 +120,7 @@ bool InitRobot() {
   srv.rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
   srv.rcvr_srv.tconf.stack = receiver_service_stack;
   srv.rcvr_srv.tconf.delay_ms = 0;
-  srv.rcvr_srv.tconf.period_ms = 10;
+  srv.rcvr_srv.tconf.period_ms = 7;
 
   static SbusConf sbus_cfg;
   sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
@@ -138,52 +138,52 @@ bool InitRobot() {
     printk("[INFO] Started receiver service\n");
   }
 
-  // coordinator
-//  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
-//  srv.coord_srv.tconf.stack = coord_service_stack;
-//  srv.coord_srv.tconf.delay_ms = 0;
-//  srv.coord_srv.tconf.period_ms = 20;
-//
-//  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-//  srv.coord_srv.dependencies.receiver_interface = &srv.rcvr_srv.interface;
-//
-//  srv.coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
-
-//  ret = StartCoordinatorService(&srv.coord_srv);
-//  if (!ret) {
-//    printk("[ERROR] Failed to start coordinator service\n");
-//    return false;
-//  } else {
-//    printk("[INFO] Started coordinator service\n");
-//  }
-
   // actuator service
-//  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
-//  srv.actr_srv.tconf.stack = actuator_service_stack;
-//  srv.actr_srv.tconf.delay_ms = 0;
-//  srv.actr_srv.tconf.period_ms = 20;
-//
-//  static TbotActuatorConf tbot_motor_cfg;
-//  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-//  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-//  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-//  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-//  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-//  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-//
-//  srv.actr_srv.sconf.type = ACTR_TBOT;
-//  srv.actr_srv.sconf.active_motor_num = 2;
-//  srv.actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
-//
-//  srv.actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
+  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  srv.actr_srv.tconf.stack = actuator_service_stack;
+  srv.actr_srv.tconf.delay_ms = 0;
+  srv.actr_srv.tconf.period_ms = 20;
 
-//  ret = StartActuatorService(&srv.actr_srv);
-//  if (!ret) {
-//    printk("[ERROR] Failed to start actuator service\n");
-//    return false;
-//  } else {
-//    printk("[INFO] Started actuator service\n");
-//  }
+  static TbotActuatorConf tbot_motor_cfg;
+  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
+  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
+  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
+  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
+  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
+  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
+
+  srv.actr_srv.sconf.type = ACTR_TBOT;
+  srv.actr_srv.sconf.active_motor_num = 2;
+  srv.actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
+
+  srv.actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
+
+  ret = StartActuatorService(&srv.actr_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start actuator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started actuator service\n");
+  }
+
+  // coordinator
+  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  srv.coord_srv.tconf.stack = coord_service_stack;
+  srv.coord_srv.tconf.delay_ms = 0;
+  srv.coord_srv.tconf.period_ms = 20;
+
+  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+  srv.coord_srv.dependencies.receiver_interface = &(srv.rcvr_srv.interface);
+
+  srv.coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
+
+  ret = StartCoordinatorService(&srv.coord_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start coordinator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started coordinator service\n");
+  }
 
   // speed control
   //   srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;

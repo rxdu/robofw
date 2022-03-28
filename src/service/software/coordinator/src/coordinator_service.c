@@ -38,28 +38,28 @@ void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
   while (1) {
     if (count % 25 == 0) ToggleLed(def->sconf.dd_led_status);
 
-    printk("Checking receiver queue...\n");
-//    while (k_msgq_get(def->dependencies.receiver_interface->rc_data_msgq_out,
-//                      &receiver_data, K_FOREVER) == 0) {
-//      printk("coordinator: %04f %04f %04f %04f, %04f %04f %04f %04f <-----------\n",
-//             receiver_data.channels[0],
-//             receiver_data.channels[1],
-//             receiver_data.channels[2],
-//             receiver_data.channels[3],
-//             receiver_data.channels[4],
-//             receiver_data.channels[5],
-//             receiver_data.channels[6],
-//             receiver_data.channels[7]);
-////      printk("Throttle: %d ---------------\n", (int) (receiver_data.channels[2] * 100));
-//
-////      actuator_cmd.motors[0] = receiver_data.channels[2];
-////      actuator_cmd.motors[1] = receiver_data.channels[2];
-////
-////      while (k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
-////                        &actuator_cmd, K_NO_WAIT) != 0) {
-////        k_msgq_purge(def->dependencies.actuator_interface->actuator_cmd_msgq_in);
-////      }
-//    }
+//    printk("Checking receiver queue...\n");
+    if (k_msgq_get(def->dependencies.receiver_interface->rc_data_msgq_out,
+                   &receiver_data, K_NO_WAIT) == 0) {
+      printk("coordinator: %04f %04f %04f %04f, %04f %04f %04f %04f <-----------\n",
+             receiver_data.channels[0],
+             receiver_data.channels[1],
+             receiver_data.channels[2],
+             receiver_data.channels[3],
+             receiver_data.channels[4],
+             receiver_data.channels[5],
+             receiver_data.channels[6],
+             receiver_data.channels[7]);
+      printk("Throttle: %d ---------------\n", (int) (receiver_data.channels[2] * 100));
+
+      actuator_cmd.motors[0] = receiver_data.channels[2];
+      actuator_cmd.motors[1] = receiver_data.channels[2];
+
+//      while (k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
+//                        &actuator_cmd, K_NO_WAIT) != 0) {
+//        k_msgq_purge(def->dependencies.actuator_interface->actuator_cmd_msgq_in);
+//      }
+    }
 
     // task timing
     ++count;
