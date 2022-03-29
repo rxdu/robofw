@@ -54,6 +54,8 @@ typedef struct {
   ReceiverSrvConf sconf;
   ReceiverSrvData sdata;
 
+  // no dependency
+
   // interface
   struct ReceiverInterface interface;
 } ReceiverServiceDef;

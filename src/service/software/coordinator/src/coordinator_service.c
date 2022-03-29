@@ -10,13 +10,19 @@
 #include "coordinator/coordinator_service.h"
 #include "actuator/actuator_service.h"
 
-static void CoordinatorServiceLoop(void *p1, void *p2, void *p3);
+_Noreturn static void CoordinatorServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartCoordinatorService(CoordinatorServiceDef *def) {
   TurnOffLed(def->sconf.dd_led_status);
 
   if (def->sdata.desired_motion_msgq == NULL) return false;
   def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
+
+  if (def->dependencies.receiver_interface == NULL ||
+      def->dependencies.actuator_interface == NULL) {
+    printk("Dependency not set properly\n");
+    return false;
+  }
 
   // create and start thread
   def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
@@ -27,7 +33,7 @@ bool StartCoordinatorService(CoordinatorServiceDef *def) {
   return true;
 }
 
-void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
+_Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
   CoordinatorServiceDef *def = (CoordinatorServiceDef *) p1;
   uint8_t count = 0;
   ReceiverData receiver_data;
@@ -55,10 +61,12 @@ void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
       actuator_cmd.motors[0] = receiver_data.channels[2];
       actuator_cmd.motors[1] = receiver_data.channels[2];
 
-//      while (k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
-//                        &actuator_cmd, K_NO_WAIT) != 0) {
-//        k_msgq_purge(def->dependencies.actuator_interface->actuator_cmd_msgq_in);
-//      }
+      printk("actuator_cmd_msgq_in free: %d\n",
+             k_msgq_num_free_get(def->dependencies.actuator_interface->actuator_cmd_msgq_in));
+      while (k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
+                        &actuator_cmd, K_NO_WAIT) != 0) {
+        k_msgq_purge(def->dependencies.actuator_interface->actuator_cmd_msgq_in);
+      }
     }
 
     // task timing

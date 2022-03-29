@@ -25,7 +25,7 @@
 
 typedef enum { ACTR_TBOT = 0, ACTR_TA07PRO } ActuatorType;
 
-#define ACTUATOR_CHANNEL_NUMBER 4
+#define ACTUATOR_CHANNEL_NUMBER 2
 typedef struct {
   float motors[ACTUATOR_CHANNEL_NUMBER];  // scaled to [-1, 1]
 } __attribute__((aligned(8))) ActuatorCmd;
@@ -38,7 +38,6 @@ typedef struct {
 
 typedef struct {
   struct k_msgq *actuator_cmd_msgq;
-  ActuatorCmd actuator_cmd;
 } ActuatorSrvData;
 
 struct ActuatorInterface {
@@ -52,6 +51,8 @@ typedef struct {
   // service config
   ActuatorSrvConf sconf;
   ActuatorSrvData sdata;
+
+  // no dependency
 
   // interface
   struct ActuatorInterface interface;

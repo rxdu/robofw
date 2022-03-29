@@ -74,10 +74,16 @@ typedef struct {
 #define TASK_PRIORITY_LOW 4
 
 static RobotHardware hw;
-static RobotService srv;
+//static RobotService srv;
+
+static ReceiverServiceDef rcvr_srv;
+static CoordinatorServiceDef coord_srv;
+static ActuatorServiceDef actr_srv;
+//  EncoderServiceConf encoder_srv;
+static MessengerServiceDef msger_srv;
 
 K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
-K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 2, 8);
+K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
 K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
@@ -117,20 +123,20 @@ bool InitRobot() {
   TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
   // receiver service
-  srv.rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
-  srv.rcvr_srv.tconf.stack = receiver_service_stack;
-  srv.rcvr_srv.tconf.delay_ms = 0;
-  srv.rcvr_srv.tconf.period_ms = 7;
+  rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
+  rcvr_srv.tconf.stack = receiver_service_stack;
+  rcvr_srv.tconf.delay_ms = 0;
+  rcvr_srv.tconf.period_ms = 7;
 
   static SbusConf sbus_cfg;
   sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
 
-  srv.rcvr_srv.sconf.type = RCVR_SBUS;
-  srv.rcvr_srv.sconf.rcvr_cfg = &sbus_cfg;
+  rcvr_srv.sconf.type = RCVR_SBUS;
+  rcvr_srv.sconf.rcvr_cfg = &sbus_cfg;
 
-  srv.rcvr_srv.sdata.rc_data_msgq = &receiver_data_queue;
+  rcvr_srv.sdata.rc_data_msgq = &receiver_data_queue;
 
-  ret = StartReceiverService(&srv.rcvr_srv);
+  ret = StartReceiverService(&rcvr_srv);
   if (!ret) {
     printk("[ERROR] Failed to start receiver service\n");
     return false;
@@ -139,10 +145,10 @@ bool InitRobot() {
   }
 
   // actuator service
-  srv.actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  srv.actr_srv.tconf.stack = actuator_service_stack;
-  srv.actr_srv.tconf.delay_ms = 0;
-  srv.actr_srv.tconf.period_ms = 20;
+  actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  actr_srv.tconf.stack = actuator_service_stack;
+  actr_srv.tconf.delay_ms = 0;
+  actr_srv.tconf.period_ms = 20;
 
   static TbotActuatorConf tbot_motor_cfg;
   tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
@@ -152,13 +158,13 @@ bool InitRobot() {
   tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
   tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
 
-  srv.actr_srv.sconf.type = ACTR_TBOT;
-  srv.actr_srv.sconf.active_motor_num = 2;
-  srv.actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
+  actr_srv.sconf.type = ACTR_TBOT;
+  actr_srv.sconf.active_motor_num = 2;
+  actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
 
-  srv.actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
+  actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
 
-  ret = StartActuatorService(&srv.actr_srv);
+  ret = StartActuatorService(&actr_srv);
   if (!ret) {
     printk("[ERROR] Failed to start actuator service\n");
     return false;
@@ -167,17 +173,18 @@ bool InitRobot() {
   }
 
   // coordinator
-  srv.coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  srv.coord_srv.tconf.stack = coord_service_stack;
-  srv.coord_srv.tconf.delay_ms = 0;
-  srv.coord_srv.tconf.period_ms = 20;
+  coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  coord_srv.tconf.stack = coord_service_stack;
+  coord_srv.tconf.delay_ms = 0;
+  coord_srv.tconf.period_ms = 20;
 
-  srv.coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-  srv.coord_srv.dependencies.receiver_interface = &(srv.rcvr_srv.interface);
+  coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+  coord_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
+  coord_srv.dependencies.actuator_interface = &(actr_srv.interface);
 
-  srv.coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
+  coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
 
-  ret = StartCoordinatorService(&srv.coord_srv);
+  ret = StartCoordinatorService(&coord_srv);
   if (!ret) {
     printk("[ERROR] Failed to start coordinator service\n");
     return false;
@@ -186,21 +193,21 @@ bool InitRobot() {
   }
 
   // speed control
-  //   srv.spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
-  //   srv.spdctrl_srv.thread = &spdctrl_thread;
-  //   srv.spdctrl_srv.stack = spdctrl_service_stack;
-  //   srv.spdctrl_srv.stack_size =
-  //   K_THREAD_STACK_SIZEOF(spdctrl_service_stack); srv.spdctrl_srv.delay =
-  //   K_NO_WAIT; srv.spdctrl_srv.period_ms = 20;
+  //   spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
+  //   spdctrl_srv.thread = &spdctrl_thread;
+  //   spdctrl_srv.stack = spdctrl_service_stack;
+  //   spdctrl_srv.stack_size =
+  //   K_THREAD_STACK_SIZEOF(spdctrl_service_stack); spdctrl_srv.delay =
+  //   K_NO_WAIT; spdctrl_srv.period_ms = 20;
 
   //   encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
   //   encoder_cfg.pulse_per_round[0] = 11 * 30 * 4;
   //   encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
   //   encoder_cfg.pulse_per_round[1] = 11 * 30 * 4;
   //   encoder_cfg.active_encoder_num = 2;
-  //   srv.spdctrl_srv.encoder_cfg = &encoder_cfg;
+  //   spdctrl_srv.encoder_cfg = &encoder_cfg;
 
-  //   ret = StartSpeedControlService(&srv.spdctrl_srv);
+  //   ret = StartSpeedControlService(&spdctrl_srv);
   //   if (!ret) {
   //     printk("[ERROR] Failed to start speed control service\n");
   //     return false;
@@ -238,11 +245,11 @@ void ShowRobotPanic() {
   LedDescriptor *led1 = GetLedDescriptor(TBOT_LED_USER1);
   LedDescriptor *led2 = GetLedDescriptor(TBOT_LED_USER2);
 
-  //   k_thread_abort(srv.rcvr_srv.tid);
-  //   k_thread_abort(srv.actr_srv.tid);
-  //   k_thread_abort(srv.coord_srv.tid);
-  //   k_thread_abort(srv.spdctrl_srv.tid);
-  //   k_thread_abort(srv.motion_srv.tid);
+  //   k_thread_abort(rcvr_srv.tid);
+  //   k_thread_abort(actr_srv.tid);
+  //   k_thread_abort(coord_srv.tid);
+  //   k_thread_abort(spdctrl_srv.tid);
+  //   k_thread_abort(motion_srv.tid);
 
   TurnOnLed(led0);
   TurnOnLed(led1);
