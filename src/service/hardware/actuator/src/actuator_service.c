@@ -19,8 +19,18 @@ bool StartActuatorService(ActuatorServiceDef *def) {
       return false;
     }
 
+    // sanity check
     if (def->sdata.actuator_cmd_msgq == NULL) return false;
     def->interface.actuator_cmd_msgq_in = def->sdata.actuator_cmd_msgq;
+
+    if (def->sconf.active_motor_num == 0 || def->sconf.active_motor_num > ACTUATOR_CHANNEL_NUMBER) {
+      printk("Invalid active actuator number: %d\n", def->sconf.active_motor_num);
+      return false;
+    }
+    if (def->sconf.actuator_cfg == NULL) {
+      printk("Empty actuator cfg\n");
+      return false;
+    }
 
     // create and start thread
     def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,

@@ -13,7 +13,7 @@
 
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
-//#include "encoder/encoder_service.h"
+#include "encoder/encoder_service.h"
 #include "messenger/messenger_service.h"
 #include "coordinator/coordinator_service.h"
 
@@ -79,7 +79,7 @@ static RobotHardware hw;
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
 static ActuatorServiceDef actr_srv;
-//  EncoderServiceConf encoder_srv;
+static EncoderServiceDef encoder_srv;
 //static MessengerServiceDef msger_srv;
 
 K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
@@ -91,14 +91,9 @@ K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
-// struct k_thread motion_thread;
-// K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
-
 // static EncoderConfig encoder_cfg;
-// struct k_thread spdctrl_thread;
-// K_THREAD_STACK_DEFINE(spdctrl_service_stack, 1024);
-
-// K_THREAD_STACK_DEFINE(canopen_service_stack, 1024);
+K_THREAD_STACK_DEFINE(encoder_service_stack, 1024);
+K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
 
 //K_THREAD_STACK_DEFINE(messenger_service_stack, 512);
 //K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
@@ -192,28 +187,28 @@ bool InitRobot() {
     printk("[INFO] Started coordinator service\n");
   }
 
-  // speed control
-  //   spdctrl_srv.priority = TASK_PRIORITY_HIGHEST;
-  //   spdctrl_srv.thread = &spdctrl_thread;
-  //   spdctrl_srv.stack = spdctrl_service_stack;
-  //   spdctrl_srv.stack_size =
-  //   K_THREAD_STACK_SIZEOF(spdctrl_service_stack); spdctrl_srv.delay =
-  //   K_NO_WAIT; spdctrl_srv.period_ms = 20;
+  // encoder
+  encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  encoder_srv.tconf.stack = encoder_service_stack;
+  encoder_srv.tconf.delay_ms = 0;
+  encoder_srv.tconf.period_ms = 20;
 
-  //   encoder_cfg.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
-  //   encoder_cfg.pulse_per_round[0] = 11 * 30 * 4;
-  //   encoder_cfg.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
-  //   encoder_cfg.pulse_per_round[1] = 11 * 30 * 4;
-  //   encoder_cfg.active_encoder_num = 2;
-  //   spdctrl_srv.encoder_cfg = &encoder_cfg;
+  encoder_srv.sconf.active_encoder_num = 2;
+  encoder_srv.sconf.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
+  encoder_srv.sconf.pulse_per_round[0] = 11 * 30 * 4;
+  encoder_srv.sconf.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
+  encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
+  encoder_srv.sconf.active_encoder_num = 2;
 
-  //   ret = StartSpeedControlService(&spdctrl_srv);
-  //   if (!ret) {
-  //     printk("[ERROR] Failed to start speed control service\n");
-  //     return false;
-  //   } else {
-  //     printk("[INFO] Started speed control service\n");
-  //   }
+  encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
+
+  ret = StartEncoderService(&encoder_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start encoder service\n");
+    return false;
+  } else {
+    printk("[INFO] Started encoder service\n");
+  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;
@@ -248,7 +243,7 @@ void ShowRobotPanic() {
   //   k_thread_abort(rcvr_srv.tid);
   //   k_thread_abort(actr_srv.tid);
   //   k_thread_abort(coord_srv.tid);
-  //   k_thread_abort(spdctrl_srv.tid);
+  //   k_thread_abort(encoder_srv.tid);
   //   k_thread_abort(motion_srv.tid);
 
   TurnOnLed(led0);

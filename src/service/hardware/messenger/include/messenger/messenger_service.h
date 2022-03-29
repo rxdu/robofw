@@ -26,6 +26,9 @@ typedef struct {
 typedef struct {
 } MessengerSrvData;
 
+struct EncoderInterface;
+struct ReceiverInterface;
+
 struct MessengerInterface {
   struct k_msgq *desired_motion_msgq_out;
 };
@@ -37,6 +40,12 @@ typedef struct {
   // service config
   MessengerSrvConf sconf;
   MessengerSrvData sdata;
+
+  // dependent interfaces
+  struct {
+    struct ReceiverInterface *receiver_interface;
+    struct ActuatorInterface *actuator_interface;
+  } dependencies;
 
   // interface
   struct MessengerInterface interface;

@@ -45,13 +45,15 @@ void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
       float cmd_left = actuator_cmd.motors[0];
       float cmd_right = actuator_cmd.motors[1];
 
+      printk("received cmd: %3f, %3f\n", cmd_left, cmd_right);
+
       LimitCommand(cmd_left, &cmd_left);
       LimitCommand(cmd_right, &cmd_right);
 
       // reverse right cmd (reversed motor installation direction)
       cmd_right = -cmd_right;
 
-      printk("cmd: %3f, %3f\n", cmd_left, cmd_right);
+      printk("final cmd: %3f, %3f\n", cmd_left, cmd_right);
 //      SetMotorCmd(cmd_left, cmd_right);
     }
 //    k_msleep(def->tconf.period_ms);

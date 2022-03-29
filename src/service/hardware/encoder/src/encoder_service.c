@@ -15,20 +15,35 @@
 #define EST_PERIOD 0.02
 #define PULSE_PER_ROUND 1320.f  // 11*30*4
 
-static void SpeedControlServiceLoop(void *p1, void *p2, void *p3);
+_Noreturn static void EncoderServiceLoop(void *p1, void *p2, void *p3);
 
-K_MSGQ_DEFINE(control_data_queue, sizeof(DesiredSpeed), 1, 8);
+bool StartEncoderService(EncoderServiceDef *def) {
+  if (def->sdata.encoder_rpm_msgq == NULL) return false;
+  def->interface.estimated_rpm_msgq_out = def->sdata.encoder_rpm_msgq;
 
-bool StartSpeedControlService(SpeedControlServiceConf *cfg) {
+  // sanity check
+  if (def->sconf.active_encoder_num == 0 || def->sconf.active_encoder_num > ACTUATOR_CHANNEL_NUMBER) {
+    printk("Invalid active encoder number: %d\n", def->sconf.active_encoder_num);
+    return false;
+  }
+  for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
+    if (def->sconf.dd_encoders[i] == NULL) {
+      printk("Encoder hardware descriptor not set properly\n");
+      return false;
+    }
+  }
+
   // create and start thread
-  cfg->tid = k_thread_create(cfg->thread, cfg->stack, cfg->stack_size,
-                             SpeedControlServiceLoop, cfg, NULL, NULL,
-                             cfg->priority, 0, Z_TIMEOUT_MS(def->tconf.delay_ms));
+  def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
+                                   K_THREAD_STACK_SIZEOF(def->tconf.stack),
+                                   EncoderServiceLoop, def, NULL, NULL,
+                                   def->tconf.priority, 0,
+                                   Z_TIMEOUT_MS(def->tconf.delay_ms));
   return true;
 }
 
-void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
-  SpeedControlServiceConf *cfg = (SpeedControlServiceConf *)p1;
+_Noreturn void EncoderServiceLoop(void *p1, void *p2, void *p3) {
+  EncoderServiceDef *def = (EncoderServiceDef *) p1;
 
   uint16_t encoder_reading[ACTUATOR_CHANNEL_NUMBER];
   bool is_counting_up[ACTUATOR_CHANNEL_NUMBER];
@@ -40,24 +55,24 @@ void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
   bool first_time = true;
 
   while (1) {
-    for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
-      encoder_reading[i] = GetEncoderCount(cfg->encoder_cfg->dd_encoders[i]);
-      is_counting_up[i] = IsEncoderCountingUp(cfg->encoder_cfg->dd_encoders[i]);
+    for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
+      encoder_reading[i] = GetEncoderCount(def->sconf.dd_encoders[i]);
+      is_counting_up[i] = IsEncoderCountingUp(def->sconf.dd_encoders[i]);
     }
 
     if (first_time) {
-      for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
+      for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
         encoder_prev_reading[i] = encoder_reading[i];
       }
       first_time = false;
     } else {
-      for (int i = 0; i < cfg->encoder_cfg->active_encoder_num; ++i) {
+      for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
         // if (is_counting_up[i])
         reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
         // else
         //   reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
-        rpm_estimate[i] = (int32_t)(reading_error[i]) * 60 * 1000 /
-                          cfg->period_ms / cfg->encoder_cfg->pulse_per_round[i];
+        rpm_estimate[i] = (int32_t) (reading_error[i]) * 60 * 1000 /
+            def->tconf.period_ms / def->sconf.pulse_per_round[i];
 
         if (i == 0)
           printk("%s, current: %d, prev: %d, error: %d\n",
@@ -69,10 +84,10 @@ void SpeedControlServiceLoop(void *p1, void *p2, void *p3) {
 
       //   printk("left error: %lld, right error: %lld\n", reading_error[0],
       //          reading_error[1]);
-      //   printk("left rpm: %d, right rpm: %d\n", rpm_estimate[0],
-      //   rpm_estimate[1]);
+      printk("left rpm: %d, right rpm: %d\n", rpm_estimate[0],
+             rpm_estimate[1]);
     }
 
-    if (cfg->period_ms > 0) k_msleep(cfg->period_ms);
+    k_msleep(def->tconf.period_ms);
   }
 }

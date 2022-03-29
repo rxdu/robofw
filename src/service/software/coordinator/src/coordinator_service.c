@@ -18,6 +18,7 @@ bool StartCoordinatorService(CoordinatorServiceDef *def) {
   if (def->sdata.desired_motion_msgq == NULL) return false;
   def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
 
+  // sanity check
   if (def->dependencies.receiver_interface == NULL ||
       def->dependencies.actuator_interface == NULL) {
     printk("Dependency not set properly\n");

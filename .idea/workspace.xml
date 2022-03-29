@@ -47,6 +47,7 @@
       <config projectName="robofw" targetName="footprint" />
       <config projectName="robofw" targetName="isr_tables" />
       <config projectName="robofw" targetName="run" />
+      <config projectName="robofw" targetName="encoder" />
       <config projectName="robofw" targetName="arch__arm__core__aarch32__cortex_m" />
       <config projectName="robofw" targetName="soc__arm__common__cortex_m" />
       <config projectName="robofw" targetName="receiver" />
@@ -78,10 +79,15 @@
   <component name="ChangeListManager">
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prj.conf" beforeDir="false" afterPath="$PROJECT_DIR$/prj.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/tbot/service-list.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/service-list.cmake" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/actuator_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/actuator_service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/include/messenger/messenger_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/include/messenger/messenger_service.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -300,6 +306,11 @@
       </method>
     </configuration>
     <configuration name="drivers__timer" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="drivers__timer" CONFIG_NAME="ZDebug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="encoder" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="encoder" CONFIG_NAME="ZDebug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -539,6 +550,7 @@
       <item itemvalue="CMake Application.runners_yaml_props_target" />
       <item itemvalue="CMake Application.sbus" />
       <item itemvalue="CMake Application.actuator" />
+      <item itemvalue="CMake Application.encoder" />
       <item itemvalue="CMake Application.messenger" />
       <item itemvalue="CMake Application.shields" />
       <item itemvalue="CMake Application.soc__arm__common__cortex_m" />

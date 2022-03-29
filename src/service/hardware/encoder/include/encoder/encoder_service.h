@@ -18,38 +18,42 @@
 #include <zephyr.h>
 #include <device.h>
 
-#include "mcal/interface/encoder_interface.h"
+#include "interface/service.h"
 #include "actuator/actuator_service.h"
+#include "mcal/interface/encoder_interface.h"
+
+typedef struct {
+  int32_t rpms[ACTUATOR_CHANNEL_NUMBER];
+} __attribute__((aligned(8))) EstimatedSpeed;
 
 typedef struct {
   uint8_t active_encoder_num;
   EncoderDescriptor *dd_encoders[ACTUATOR_CHANNEL_NUMBER];
   uint32_t pulse_per_round[ACTUATOR_CHANNEL_NUMBER];
-} EncoderConfig;
+} EncoderSrvConf;
 
 typedef struct {
-  uint32_t rpm[ACTUATOR_CHANNEL_NUMBER];
-} DesiredSpeed;
+  struct k_msgq *encoder_rpm_msgq;
+} EncoderSrvData;
+
+typedef struct {
+  struct k_msgq *estimated_rpm_msgq_out;
+} EncoderInterface;
 
 typedef struct {
   // thread config
-  k_tid_t tid;
-  int8_t priority;
-  struct k_thread *thread;
-  k_thread_stack_t *stack;
-  size_t stack_size;
-  k_timeout_t delay;
-  uint32_t period_ms;
+  ThreadConfig tconf;
 
-  // task-related config
-  EncoderConfig *encoder_cfg;
-  ActuatorServiceConf *actr_srv;
+  // service config
+  EncoderSrvConf sconf;
+  EncoderSrvData sdata;
+
+  // no dependency
 
   // message queue for input/output
-  struct k_msgq *msgq_in;
-  DesiredSpeed control_data;
-} SpeedControlServiceConf;
+  EncoderInterface interface;
+} EncoderServiceDef;
 
-bool StartSpeedControlService(SpeedControlServiceConf *cfg);
+bool StartEncoderService(EncoderServiceDef *cfg);
 
 #endif /* ENCODER_SERVICE_H */
