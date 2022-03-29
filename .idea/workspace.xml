@@ -78,10 +78,10 @@
   <component name="ChangeListManager">
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prj.conf" beforeDir="false" afterPath="$PROJECT_DIR$/prj.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/actuator_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/actuator_service.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/receiver_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/receiver_service.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

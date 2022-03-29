@@ -80,13 +80,13 @@ static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
 static ActuatorServiceDef actr_srv;
 //  EncoderServiceConf encoder_srv;
-static MessengerServiceDef msger_srv;
+//static MessengerServiceDef msger_srv;
 
 K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
 K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
-K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 1, 8);
+K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 
 K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
