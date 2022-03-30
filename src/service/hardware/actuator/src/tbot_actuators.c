@@ -34,7 +34,7 @@ bool InitTbotActuators(TbotActuatorConf *cfg) {
   return true;
 }
 
-void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
+_Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
   ActuatorServiceDef *def = (ActuatorServiceDef *) p1;
   ActuatorCmd actuator_cmd;
 

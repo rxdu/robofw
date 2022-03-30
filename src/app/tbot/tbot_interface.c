@@ -140,7 +140,7 @@ bool InitRobot() {
   }
 
   // actuator service
-  actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  actr_srv.tconf.priority = TASK_PRIORITY_MID;
   actr_srv.tconf.stack = actuator_service_stack;
   actr_srv.tconf.delay_ms = 0;
   actr_srv.tconf.period_ms = 20;
@@ -168,7 +168,7 @@ bool InitRobot() {
   }
 
   // coordinator
-  coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  coord_srv.tconf.priority = TASK_PRIORITY_MID;
   coord_srv.tconf.stack = coord_service_stack;
   coord_srv.tconf.delay_ms = 0;
   coord_srv.tconf.period_ms = 20;
@@ -190,7 +190,7 @@ bool InitRobot() {
   // encoder
   encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
   encoder_srv.tconf.stack = encoder_service_stack;
-  encoder_srv.tconf.delay_ms = 0;
+  encoder_srv.tconf.delay_ms = 100;
   encoder_srv.tconf.period_ms = 20;
 
   encoder_srv.sconf.active_encoder_num = 2;
@@ -200,15 +200,18 @@ bool InitRobot() {
   encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
   encoder_srv.sconf.active_encoder_num = 2;
 
+  printk("encoder device: %s, %s\n", encoder_srv.sconf.dd_encoders[0]->device->name,
+         encoder_srv.sconf.dd_encoders[1]->device->name);
+
   encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 
-//  ret = StartEncoderService(&encoder_srv);
-//  if (!ret) {
-//    printk("[ERROR] Failed to start encoder service\n");
-//    return false;
-//  } else {
-//    printk("[INFO] Started encoder service\n");
-//  }
+  ret = StartEncoderService(&encoder_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start encoder service\n");
+    return false;
+  } else {
+    printk("[INFO] Started encoder service\n");
+  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;

@@ -39,7 +39,6 @@ typedef struct {
 
 typedef struct {
   struct k_msgq *rc_data_msgq;
-  ReceiverData receiver_data;
 } ReceiverSrvData;
 
 struct ReceiverInterface {

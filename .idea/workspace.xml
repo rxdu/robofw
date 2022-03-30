@@ -20,7 +20,6 @@
       <config projectName="robofw" targetName="debug" />
       <config projectName="robofw" targetName="attach" />
       <config projectName="robofw" targetName="linker" />
-      <config projectName="robofw" targetName="modules__segger" />
       <config projectName="robofw" targetName="drivers__sensor__stm32_temp" />
       <config projectName="robofw" targetName="messenger" />
       <config projectName="robofw" targetName="compiler" />
@@ -80,14 +79,17 @@
   <component name="ChangeListManager">
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/board.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/board.cmake" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405_defconfig" beforeDir="false" afterPath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405_defconfig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prj.conf" beforeDir="false" afterPath="$PROJECT_DIR$/prj.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/tbot_actuators.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/include/actuator/tbot_actuators.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/src/messenger_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/src/messenger_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/receiver_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/receiver_service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/sbus_receiver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/include/receiver/sbus_receiver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/sbus_receiver.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/sbus_receiver.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -390,11 +392,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="modules__segger" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="modules__segger" CONFIG_NAME="ZDebug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="offsets" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="offsets" CONFIG_NAME="ZDebug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -538,7 +535,6 @@
       <item itemvalue="CMake Application.kobj_types_h_target" />
       <item itemvalue="CMake Application.lib__libc__minimal" />
       <item itemvalue="CMake Application.lib__posix" />
-      <item itemvalue="CMake Application.modules__segger" />
       <item itemvalue="CMake Application.linker" />
       <item itemvalue="CMake Application.linker_zephyr_final_script_target" />
       <item itemvalue="CMake Application.linker_zephyr_prebuilt_script_target" />
@@ -591,7 +587,7 @@
       <workItem from="1647747702317" duration="6743000" />
       <workItem from="1648382147599" duration="1000" />
       <workItem from="1648474920264" duration="4601000" />
-      <workItem from="1648646976255" duration="2222000" />
+      <workItem from="1648646976255" duration="5075000" />
     </task>
     <servers />
   </component>

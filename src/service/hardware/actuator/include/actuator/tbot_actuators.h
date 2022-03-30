@@ -27,6 +27,6 @@ typedef struct {
 } TbotActuatorConf;
 
 bool InitTbotActuators(TbotActuatorConf *cfg);
-void TbotActuatorServiceLoop(void *p1, void *p2, void *p3);
+_Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3);
 
 #endif /* TBOT_ACTUATORS_H */

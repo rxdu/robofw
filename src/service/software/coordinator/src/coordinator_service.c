@@ -43,7 +43,6 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
   ActuatorCmd actuator_cmd;
 //  DesiredMotion desired_motion;
 
-  printk("Running coordinator service\n");
   while (1) {
     if (count % 25 == 0) ToggleLed(def->sconf.dd_led_status);
 

@@ -36,9 +36,10 @@ bool InitSbus(SbusConf *conf) {
   return true;
 }
 
-void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
+_Noreturn void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
   ReceiverServiceDef *def = (ReceiverServiceDef *) p1;
   SbusConf *sbus_cfg = (SbusConf *) (def->sconf.rcvr_cfg);
+  ReceiverData receiver_data;
 
   while (1) {
 
@@ -50,14 +51,14 @@ void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
         if (SbusDecodeMessage(&sbus_cfg->sbus_decoder, ch, &sbus_cfg->sbus_msg_buffer)) {
           for (int i = 0; i < RECEIVER_CHANNEL_NUMBER; ++i) {
             if (sbus_cfg->sbus_msg_buffer.channels[i] > SBUS_CHN_MID) {
-              def->sdata.receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
+              receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
                   (SBUS_CHN_MAX - SBUS_CHN_MID);
             } else {
-              def->sdata.receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
+              receiver_data.channels[i] = (sbus_cfg->sbus_msg_buffer.channels[i] - SBUS_CHN_MID) * 1.0f /
                   (SBUS_CHN_MID - SBUS_CHN_MIN);
             }
           }
-          while (k_msgq_put(def->interface.rc_data_msgq_out, &def->sdata.receiver_data, K_NO_WAIT) != 0) {
+          while (k_msgq_put(def->interface.rc_data_msgq_out, &receiver_data, K_NO_WAIT) != 0) {
             k_msgq_purge(def->interface.rc_data_msgq_out);
           }
 
