@@ -22,7 +22,7 @@ bool StartEncoderService(EncoderServiceDef *def) {
   def->interface.estimated_rpm_msgq_out = def->sdata.encoder_rpm_msgq;
 
   // sanity check
-  if (def->sconf.active_encoder_num == 0 || def->sconf.active_encoder_num > ACTUATOR_CHANNEL_NUMBER) {
+  if (def->sconf.active_encoder_num == 0 || def->sconf.active_encoder_num > ENCODER_CHANNEL_NUMBER) {
     printk("Invalid active encoder number: %d\n", def->sconf.active_encoder_num);
     return false;
   }
@@ -47,12 +47,12 @@ bool StartEncoderService(EncoderServiceDef *def) {
 _Noreturn void EncoderServiceLoop(void *p1, void *p2, void *p3) {
   EncoderServiceDef *def = (EncoderServiceDef *) p1;
 
-  uint16_t encoder_reading[ACTUATOR_CHANNEL_NUMBER];
-  bool is_counting_up[ACTUATOR_CHANNEL_NUMBER];
-  uint16_t encoder_prev_reading[ACTUATOR_CHANNEL_NUMBER] = {0};
+  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
+  bool is_counting_up[ENCODER_CHANNEL_NUMBER];
+  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0};
 
-  uint16_t reading_error[ACTUATOR_CHANNEL_NUMBER] = {0};
-  int32_t rpm_estimate[ACTUATOR_CHANNEL_NUMBER] = {0};
+  uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
+  int32_t rpm_estimate[ENCODER_CHANNEL_NUMBER] = {0};
 
   bool first_time = true;
 

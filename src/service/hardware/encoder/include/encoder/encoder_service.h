@@ -19,17 +19,17 @@
 #include <device.h>
 
 #include "interface/service.h"
-#include "actuator/actuator_service.h"
 #include "mcal/interface/encoder_interface.h"
 
+#define ENCODER_CHANNEL_NUMBER 2
 typedef struct {
-  int32_t rpms[ACTUATOR_CHANNEL_NUMBER];
+  int32_t rpms[ENCODER_CHANNEL_NUMBER];
 } __attribute__((aligned(8))) EstimatedSpeed;
 
 typedef struct {
   uint8_t active_encoder_num;
-  EncoderDescriptor *dd_encoders[ACTUATOR_CHANNEL_NUMBER];
-  uint32_t pulse_per_round[ACTUATOR_CHANNEL_NUMBER];
+  EncoderDescriptor *dd_encoders[ENCODER_CHANNEL_NUMBER];
+  uint32_t pulse_per_round[ENCODER_CHANNEL_NUMBER];
 } EncoderSrvConf;
 
 typedef struct {

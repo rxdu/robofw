@@ -198,7 +198,6 @@ bool InitRobot() {
   encoder_srv.sconf.pulse_per_round[0] = 11 * 30 * 4;
   encoder_srv.sconf.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
   encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
-  encoder_srv.sconf.active_encoder_num = 2;
 
   printk("encoder device: %s, %s\n", encoder_srv.sconf.dd_encoders[0]->device->name,
          encoder_srv.sconf.dd_encoders[1]->device->name);
