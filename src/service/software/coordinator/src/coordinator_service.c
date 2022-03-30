@@ -31,6 +31,8 @@ bool StartCoordinatorService(CoordinatorServiceDef *def) {
                                    CoordinatorServiceLoop, def, NULL, NULL,
                                    def->tconf.priority, 0,
                                    Z_TIMEOUT_MS(def->tconf.delay_ms));
+  k_thread_name_set(def->tconf.tid, "coordinator_service");
+
   return true;
 }
 

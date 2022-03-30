@@ -29,6 +29,8 @@ bool StartMessengerService(MessengerServiceDef *def) {
                                    MessengerServiceLoop, def, NULL, NULL,
                                    def->tconf.priority, 0,
                                    Z_TIMEOUT_MS(def->tconf.delay_ms));
+  k_thread_name_set(def->tconf.tid, "messenger_service");
+
   return true;
 }
 

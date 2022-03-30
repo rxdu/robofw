@@ -38,6 +38,8 @@ bool StartActuatorService(ActuatorServiceDef *def) {
                                      TbotActuatorServiceLoop, def, NULL, NULL,
                                      def->tconf.priority, 0,
                                      Z_TIMEOUT_MS(def->tconf.delay_ms));
+    k_thread_name_set(def->tconf.tid, "actuator_service");
+
   } else {
     return false;
   }

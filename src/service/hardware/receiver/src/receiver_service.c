@@ -33,6 +33,7 @@ bool StartReceiverService(ReceiverServiceDef *def) {
                                      SbusReceiverServiceLoop, def, NULL, NULL,
                                      def->tconf.priority, 0,
                                      Z_TIMEOUT_MS(def->tconf.delay_ms));
+    k_thread_name_set(def->tconf.tid, "receiver_service");
   } else {
     printk("[ERROR] Unknown receiver type\n");
     return false;

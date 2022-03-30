@@ -202,13 +202,13 @@ bool InitRobot() {
 
   encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 
-  ret = StartEncoderService(&encoder_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start encoder service\n");
-    return false;
-  } else {
-    printk("[INFO] Started encoder service\n");
-  }
+//  ret = StartEncoderService(&encoder_srv);
+//  if (!ret) {
+//    printk("[ERROR] Failed to start encoder service\n");
+//    return false;
+//  } else {
+//    printk("[INFO] Started encoder service\n");
+//  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;

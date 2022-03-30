@@ -39,6 +39,8 @@ bool StartEncoderService(EncoderServiceDef *def) {
                                    EncoderServiceLoop, def, NULL, NULL,
                                    def->tconf.priority, 0,
                                    Z_TIMEOUT_MS(def->tconf.delay_ms));
+  k_thread_name_set(def->tconf.tid, "encoder_service");
+
   return true;
 }
 
