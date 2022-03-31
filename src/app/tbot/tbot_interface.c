@@ -14,7 +14,7 @@
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
 #include "encoder/encoder_service.h"
-#include "messenger/messenger_service.h"
+//#include "messenger/messenger_service.h"
 #include "coordinator/coordinator_service.h"
 
 #include "actuator/tbot_actuators.h"
@@ -58,13 +58,13 @@ typedef struct {
   CanDescription *cans;
 } RobotHardware;
 
-typedef struct {
-  ReceiverServiceDef rcvr_srv;
-  CoordinatorServiceDef coord_srv;
-  ActuatorServiceDef actr_srv;
-  //  EncoderServiceConf encoder_srv;
-  MessengerServiceDef msger_srv;
-} RobotService;
+//typedef struct {
+//  ReceiverServiceDef rcvr_srv;
+//  CoordinatorServiceDef coord_srv;
+//  ActuatorServiceDef actr_srv;
+//  //  EncoderServiceConf encoder_srv;
+//  MessengerServiceDef msger_srv;
+//} RobotService;
 
 // Negative prio threads will not be pre-empted
 #define TASK_PRIORITY_VIP -1
@@ -76,22 +76,18 @@ typedef struct {
 static RobotHardware hw;
 //static RobotService srv;
 
-static ReceiverServiceDef rcvr_srv;
-static CoordinatorServiceDef coord_srv;
-static ActuatorServiceDef actr_srv;
-static EncoderServiceDef encoder_srv;
 //static MessengerServiceDef msger_srv;
+EncoderServiceDef encoder_srv;
 
-K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
+K_THREAD_STACK_DEFINE(receiver_service_stack, 1024);
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
-K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
-K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
+//K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
+//K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
+//
+//K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
+//K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
-K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
-K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
-
-// static EncoderConfig encoder_cfg;
 K_THREAD_STACK_DEFINE(encoder_service_stack, 1024);
 K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
 
@@ -117,7 +113,35 @@ bool InitRobot() {
   TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER1]);
   TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
 
+  ///////////////////////////////////////////////////////////////////////////
+
+  // encoder
+  encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  encoder_srv.tconf.stack = encoder_service_stack;
+  encoder_srv.tconf.delay_ms = 100;
+  encoder_srv.tconf.period_ms = 20;
+
+  encoder_srv.sconf.active_encoder_num = 2;
+  encoder_srv.sconf.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
+  encoder_srv.sconf.pulse_per_round[0] = 11 * 30 * 4;
+  encoder_srv.sconf.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
+  encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
+
+  printk("encoder device init: %s, %s\n", encoder_srv.sconf.dd_encoders[0]->device->name,
+         encoder_srv.sconf.dd_encoders[1]->device->name);
+
+  encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
+
+  ret = StartEncoderService(&encoder_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start encoder service\n");
+    return false;
+  } else {
+    printk("[INFO] Started encoder service\n");
+  }
+
   // receiver service
+  static ReceiverServiceDef rcvr_srv;
   rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
   rcvr_srv.tconf.stack = receiver_service_stack;
   rcvr_srv.tconf.delay_ms = 0;
@@ -140,77 +164,56 @@ bool InitRobot() {
   }
 
   // actuator service
-  actr_srv.tconf.priority = TASK_PRIORITY_MID;
-  actr_srv.tconf.stack = actuator_service_stack;
-  actr_srv.tconf.delay_ms = 0;
-  actr_srv.tconf.period_ms = 20;
+//  static ActuatorServiceDef actr_srv;
+//  actr_srv.tconf.priority = TASK_PRIORITY_MID;
+//  actr_srv.tconf.stack = actuator_service_stack;
+//  actr_srv.tconf.delay_ms = 0;
+//  actr_srv.tconf.period_ms = 20;
+//
+//  static TbotActuatorConf tbot_motor_cfg;
+//  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
+//  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
+//  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
+//  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
+//  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
+//  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
+//
+//  actr_srv.sconf.type = ACTR_TBOT;
+//  actr_srv.sconf.active_motor_num = 2;
+//  actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
+//
+//  actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
 
-  static TbotActuatorConf tbot_motor_cfg;
-  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-
-  actr_srv.sconf.type = ACTR_TBOT;
-  actr_srv.sconf.active_motor_num = 2;
-  actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
-
-  actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
-
-  ret = StartActuatorService(&actr_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start actuator service\n");
-    return false;
-  } else {
-    printk("[INFO] Started actuator service\n");
-  }
+//  ret = StartActuatorService(&actr_srv);
+//  if (!ret) {
+//    printk("[ERROR] Failed to start actuator service\n");
+//    return false;
+//  } else {
+//    printk("[INFO] Started actuator service\n");
+//  }
 
   // coordinator
-  coord_srv.tconf.priority = TASK_PRIORITY_MID;
-  coord_srv.tconf.stack = coord_service_stack;
-  coord_srv.tconf.delay_ms = 0;
-  coord_srv.tconf.period_ms = 20;
+//  static CoordinatorServiceDef coord_srv;
+//  coord_srv.tconf.priority = TASK_PRIORITY_MID;
+//  coord_srv.tconf.stack = coord_service_stack;
+//  coord_srv.tconf.delay_ms = 0;
+//  coord_srv.tconf.period_ms = 20;
+//
+//  coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+//  coord_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
+//  coord_srv.dependencies.actuator_interface = &(actr_srv.interface);
+//
+//  coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
 
-  coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-  coord_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
-  coord_srv.dependencies.actuator_interface = &(actr_srv.interface);
+//  ret = StartCoordinatorService(&coord_srv);
+//  if (!ret) {
+//    printk("[ERROR] Failed to start coordinator service\n");
+//    return false;
+//  } else {
+//    printk("[INFO] Started coordinator service\n");
+//  }
 
-  coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
 
-  ret = StartCoordinatorService(&coord_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start coordinator service\n");
-    return false;
-  } else {
-    printk("[INFO] Started coordinator service\n");
-  }
-
-  // encoder
-  encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  encoder_srv.tconf.stack = encoder_service_stack;
-  encoder_srv.tconf.delay_ms = 100;
-  encoder_srv.tconf.period_ms = 20;
-
-  encoder_srv.sconf.active_encoder_num = 2;
-  encoder_srv.sconf.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
-  encoder_srv.sconf.pulse_per_round[0] = 11 * 30 * 4;
-  encoder_srv.sconf.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
-  encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
-
-  printk("encoder device: %s, %s\n", encoder_srv.sconf.dd_encoders[0]->device->name,
-         encoder_srv.sconf.dd_encoders[1]->device->name);
-
-  encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
-
-  ret = StartEncoderService(&encoder_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start encoder service\n");
-    return false;
-  } else {
-    printk("[INFO] Started encoder service\n");
-  }
 
   //   // gps receiver
   //   struct uart_config uart_test_cfg;

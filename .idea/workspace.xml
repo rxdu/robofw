@@ -21,7 +21,6 @@
       <config projectName="robofw" targetName="attach" />
       <config projectName="robofw" targetName="linker" />
       <config projectName="robofw" targetName="drivers__sensor__stm32_temp" />
-      <config projectName="robofw" targetName="messenger" />
       <config projectName="robofw" targetName="compiler" />
       <config projectName="robofw" targetName="guiconfig" />
       <config projectName="robofw" targetName="menuconfig" />
@@ -79,10 +78,16 @@
   <component name="ChangeListManager">
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405_defconfig" beforeDir="false" afterPath="$PROJECT_DIR$/boards/arm/tbotctrl_f405/tbotctrl_f405_defconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/prj.conf" beforeDir="false" afterPath="$PROJECT_DIR$/prj.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/tbot/service-list.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/service-list.cmake" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/sbus_receiver.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/sbus_receiver.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,12 +144,12 @@
     <option name="rtosEnabled" value="true" />
   </component>
   <component name="RunManager" selected="OpenOCD Download &amp; Run.zephyr-openocd">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="..__modules__hal__stm32__stm32cube" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="..__modules__hal__stm32__stm32cube" CONFIG_NAME="ZDebug">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="..__modules__hal__stm32__stm32cube" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="..__modules__hal__stm32__stm32cube" CONFIG_NAME="ZDebug">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -379,11 +384,6 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="messenger" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="messenger" CONFIG_NAME="ZDebug">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="offsets" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="offsets" CONFIG_NAME="ZDebug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -545,7 +545,6 @@
       <item itemvalue="CMake Application.sbus" />
       <item itemvalue="CMake Application.actuator" />
       <item itemvalue="CMake Application.encoder" />
-      <item itemvalue="CMake Application.messenger" />
       <item itemvalue="CMake Application.shields" />
       <item itemvalue="CMake Application.soc__arm__common__cortex_m" />
       <item itemvalue="CMake Application.syscall_list_h_target" />
@@ -579,7 +578,8 @@
       <workItem from="1647747702317" duration="6743000" />
       <workItem from="1648382147599" duration="1000" />
       <workItem from="1648474920264" duration="4601000" />
-      <workItem from="1648646976255" duration="5325000" />
+      <workItem from="1648646976255" duration="5362000" />
+      <workItem from="1648731318283" duration="7076000" />
     </task>
     <servers />
   </component>

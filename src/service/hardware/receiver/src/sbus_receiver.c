@@ -38,11 +38,10 @@ bool InitSbus(SbusConf *conf) {
 
 _Noreturn void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
   ReceiverServiceDef *def = (ReceiverServiceDef *) p1;
-  SbusConf *sbus_cfg = (SbusConf *) (def->sconf.rcvr_cfg);
+  SbusConf *sbus_cfg = (SbusConf * )(def->sconf.rcvr_cfg);
   ReceiverData receiver_data;
 
   while (1) {
-
     if (k_sem_take(&(sbus_cfg->dd_uart->rx_sem), K_NO_WAIT) == 0) {
       uint8_t ch;
       while (ring_buf_get(&sbus_cfg->dd_uart->ring_buffer, &ch, 1) != 0) {

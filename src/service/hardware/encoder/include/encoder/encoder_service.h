@@ -21,7 +21,7 @@
 #include "interface/service.h"
 #include "mcal/interface/encoder_interface.h"
 
-#define ENCODER_CHANNEL_NUMBER 2
+#define ENCODER_CHANNEL_NUMBER 4
 typedef struct {
   int32_t rpms[ENCODER_CHANNEL_NUMBER];
 } __attribute__((aligned(8))) EstimatedSpeed;

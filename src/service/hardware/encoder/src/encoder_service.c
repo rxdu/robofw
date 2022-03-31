@@ -15,7 +15,7 @@
 #define EST_PERIOD 0.02
 #define PULSE_PER_ROUND 1320.f  // 11*30*4
 
-_Noreturn static void EncoderServiceLoop(void *p1, void *p2, void *p3);
+static void EncoderServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartEncoderService(EncoderServiceDef *def) {
   if (def->sdata.encoder_rpm_msgq == NULL) return false;
@@ -33,6 +33,9 @@ bool StartEncoderService(EncoderServiceDef *def) {
     }
   }
 
+  printk("init encoder device: %s, %s\n", def->sconf.dd_encoders[0]->device->name,
+         def->sconf.dd_encoders[1]->device->name);
+
   // create and start thread
   def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
                                    K_THREAD_STACK_SIZEOF(def->tconf.stack),
@@ -41,31 +44,36 @@ bool StartEncoderService(EncoderServiceDef *def) {
                                    Z_TIMEOUT_MS(def->tconf.delay_ms));
   k_thread_name_set(def->tconf.tid, "encoder_service");
 
+  printk("thread create encoder device: %s, %s\n", def->sconf.dd_encoders[0]->device->name,
+         def->sconf.dd_encoders[1]->device->name);
+
   return true;
 }
 
-_Noreturn void EncoderServiceLoop(void *p1, void *p2, void *p3) {
+void EncoderServiceLoop(void *p1, void *p2, void *p3) {
   EncoderServiceDef *def = (EncoderServiceDef *) p1;
 
-  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
-  bool is_counting_up[ENCODER_CHANNEL_NUMBER];
-  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0};
-
-  uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
-  int32_t rpm_estimate[ENCODER_CHANNEL_NUMBER] = {0};
+//  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
+//  bool is_counting_up[ENCODER_CHANNEL_NUMBER];
+//  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0};
+//
+//  uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
+//  int32_t rpm_estimate[ENCODER_CHANNEL_NUMBER] = {0};
 
   bool first_time = true;
-
+  printk("before loop encoder device: %s, %s\n", def->sconf.dd_encoders[0]->device->name,
+         def->sconf.dd_encoders[1]->device->name);
   while (1) {
     printk("encoder service running\n");
+    if (def == NULL) printk("NULL def\n");
     if (def->sconf.dd_encoders[0] == NULL) printk("Null ptr 0 found\n");
     if (def->sconf.dd_encoders[1] == NULL) printk("Null ptr 1 found\n");
 
     printk("encoder device: %s, %s\n", def->sconf.dd_encoders[0]->device->name,
            def->sconf.dd_encoders[1]->device->name);
 
-    printk("encoder count: %d, %d\n", GetEncoderCount(def->sconf.dd_encoders[0]),
-           GetEncoderCount(def->sconf.dd_encoders[1]));
+//    printk("encoder count: %d, %d\n", GetEncoderCount(def->sconf.dd_encoders[0]),
+//           GetEncoderCount(def->sconf.dd_encoders[1]));
 //    for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
 //      encoder_reading[i] = GetEncoderCount(def->sconf.dd_encoders[i]);
 //      is_counting_up[i] = IsEncoderCountingUp(def->sconf.dd_encoders[i]);
