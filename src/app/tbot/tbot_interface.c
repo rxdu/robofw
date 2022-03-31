@@ -40,31 +40,15 @@
 // rc input
 #define TBOT_UART_SBUS DD_UART0
 
+// CAN uplink/downlink
+#define TBOT_CAN_UPLINK DD_CAN0
+#define TBOT_CAN_DOWNLINK DD_CAN1
+
 // gps receiver
 #define TBOT_UART_GPS DD_UART1
 
 // ultrasonic sensor
 #define TBOT_UART_ULTRASONIC DD_UART2
-
-// CAN uplink/downlink
-#define TBOT_CAN_UPLINK DD_CAN0
-#define TBOT_CAN_DOWNLINK DD_CAN1
-
-typedef struct {
-  LedDescription *leds;
-  DioDescription *dios;
-  PwmDescription *pwms;
-  UartDescription *uarts;
-  CanDescription *cans;
-} RobotHardware;
-
-typedef struct {
-  ReceiverServiceDef rcvr_srv;
-  CoordinatorServiceDef coord_srv;
-  ActuatorServiceDef actr_srv;
-  //  EncoderServiceConf encoder_srv;
-  MessengerServiceDef msger_srv;
-} RobotService;
 
 // Negative prio threads will not be pre-empted
 #define TASK_PRIORITY_VIP -1
@@ -73,52 +57,33 @@ typedef struct {
 #define TASK_PRIORITY_MID 3
 #define TASK_PRIORITY_LOW 4
 
-static RobotHardware hw;
-//static RobotService srv;
+K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
+K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
+K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
+K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
+//K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
 static ActuatorServiceDef actr_srv;
 static EncoderServiceDef encoder_srv;
-//static MessengerServiceDef msger_srv;
-
-//K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
-K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
-
-//K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
-K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
-
-//K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
-K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
-
-// static EncoderConfig encoder_cfg;
-K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
-
-//K_THREAD_STACK_DEFINE(messenger_service_stack, 512);
-//K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
+static MessengerServiceDef msger_srv;
 
 bool InitRobot() {
   // load all drivers from device tree
   if (!InitHardware()) return false;
-
-  hw.leds = GetLedDescription();
-  hw.dios = GetDioDescription();
-  hw.pwms = GetPwmDescription();
-  hw.uarts = GetUartDescription();
-  hw.cans = GetCanDescription();
 
   bool ret = false;
   (void) ret;
 
   // configure drivers required by robot
   // LED for debugging
-  TurnOffLed(&hw.leds->descriptor[TBOT_LED_STATUS]);
-  TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER1]);
-  TurnOffLed(&hw.leds->descriptor[TBOT_LED_USER2]);
+  TurnOffLed(GetLedDescriptor(TBOT_LED_STATUS));
+  TurnOffLed(GetLedDescriptor(TBOT_LED_USER1));
+  TurnOffLed(GetLedDescriptor(TBOT_LED_USER2));
 
   // receiver service
   rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
-//  rcvr_srv.tconf.stack = receiver_service_stack;
   rcvr_srv.tconf.delay_ms = 0;
   rcvr_srv.tconf.period_ms = 7;
 
@@ -139,8 +104,7 @@ bool InitRobot() {
   }
 
   // actuator service
-  actr_srv.tconf.priority = TASK_PRIORITY_MID;
-//  actr_srv.tconf.stack = actuator_service_stack;
+  actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
   actr_srv.tconf.delay_ms = 0;
   actr_srv.tconf.period_ms = 20;
 
@@ -168,7 +132,6 @@ bool InitRobot() {
 
   // coordinator
   coord_srv.tconf.priority = TASK_PRIORITY_MID;
-//  coord_srv.tconf.stack = coord_service_stack;
   coord_srv.tconf.delay_ms = 0;
   coord_srv.tconf.period_ms = 20;
 
@@ -188,7 +151,6 @@ bool InitRobot() {
 
   // encoder
   encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
-//  encoder_srv.tconf.stack = encoder_service_stack;
   encoder_srv.tconf.delay_ms = 100;
   encoder_srv.tconf.period_ms = 20;
 
@@ -197,9 +159,6 @@ bool InitRobot() {
   encoder_srv.sconf.pulse_per_round[0] = 11 * 30 * 4;
   encoder_srv.sconf.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
   encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
-
-  printk("encoder device: %s, %s\n", encoder_srv.sconf.dd_encoders[0]->device->name,
-         encoder_srv.sconf.dd_encoders[1]->device->name);
 
   encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 
@@ -211,41 +170,38 @@ bool InitRobot() {
     printk("[INFO] Started encoder service\n");
   }
 
-  //   // gps receiver
-  //   struct uart_config uart_test_cfg;
-  //   uart_test_cfg.baudrate = 115200;
-  //   uart_test_cfg.parity = UART_CFG_PARITY_NONE;
-  //   uart_test_cfg.stop_bits = UART_CFG_STOP_BITS_1;
-  //   uart_test_cfg.data_bits = UART_CFG_DATA_BITS_8;
-  //   uart_test_cfg.flow_ctrl = UART_CFG_FLOW_CTRL_NONE;
+  // messenger
+  msger_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  msger_srv.tconf.delay_ms = 100;
+  msger_srv.tconf.period_ms = 20;
 
-  //   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_GPS],
-  //                 uart_test_cfg);
-  //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_GPS]);
-  //   StartUartAsyncReceive(&hw.uarts->descriptor[TBOT_UART_GPS]);
+  msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
 
-  //   // ultrasonic sensor
-  //   ConfigureUart(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC],
-  //                 uart_test_cfg);
-  //   SetupUartAsyncMode(&hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
-  //   StartUartAsyncReceive(
-  //       &hw.uarts->descriptor[TBOT_UART_ULTRASONIC]);
+//  msger_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
+
+  ret = StartMessengerService(&msger_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start messenger service\n");
+    return false;
+  } else {
+    printk("[INFO] Started messenger service\n");
+  }
 
   printk("-----------------------------------------------------\n");
 
   return true;
 }
 
-void ShowRobotPanic() {
+_Noreturn void ShowRobotPanic() {
   LedDescriptor *led0 = GetLedDescriptor(TBOT_LED_STATUS);
   LedDescriptor *led1 = GetLedDescriptor(TBOT_LED_USER1);
   LedDescriptor *led2 = GetLedDescriptor(TBOT_LED_USER2);
 
-  //   k_thread_abort(rcvr_srv.tid);
-  //   k_thread_abort(actr_srv.tid);
-  //   k_thread_abort(coord_srv.tid);
-  //   k_thread_abort(encoder_srv.tid);
-  //   k_thread_abort(motion_srv.tid);
+  k_thread_abort(rcvr_srv.tconf.tid);
+  k_thread_abort(actr_srv.tconf.tid);
+  k_thread_abort(coord_srv.tconf.tid);
+  k_thread_abort(encoder_srv.tconf.tid);
+  k_thread_abort(msger_srv.tconf.tid);
 
   TurnOnLed(led0);
   TurnOnLed(led1);

@@ -80,11 +80,17 @@
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/actuator_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/actuator/src/tbot_actuators.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/receiver/src/receiver_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/src/coordinator_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/canopen/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/canopen/include/canopen/canopen_service.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/canopen/src/canopen_service.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/include/messenger/messenger_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/include/messenger/messenger_service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/src/messenger_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/src/messenger_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/interface/include/interface/service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/interface/include/interface/service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/motion/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/motion/include/motion/motion_service.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/software/motion/src/motion_service.c" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

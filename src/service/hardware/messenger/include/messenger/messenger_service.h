@@ -24,13 +24,14 @@ typedef struct {
 } MessengerSrvConf;
 
 typedef struct {
+//  struct k_msgq *desired_motion_msgq;
 } MessengerSrvData;
 
 struct EncoderInterface;
 struct ReceiverInterface;
 
 struct MessengerInterface {
-  struct k_msgq *desired_motion_msgq_out;
+//  struct k_msgq *desired_motion_msgq_out;
 };
 
 typedef struct {

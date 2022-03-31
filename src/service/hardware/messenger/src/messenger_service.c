@@ -9,23 +9,32 @@
 
 #include "messenger/messenger_service.h"
 
-static void MessengerServiceLoop(void *p1, void *p2, void *p3);
+K_THREAD_STACK_DEFINE(messenger_service_stack, 1024);
+
+_Noreturn static void MessengerServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartMessengerService(MessengerServiceDef *def) {
-  // uplink CAN to onboard computer
-//  struct zcan_filter can_filter;
-//  can_filter.id_type = CAN_STANDARD_IDENTIFIER;
-//  can_filter.rtr = CAN_DATAFRAME;
-//  can_filter.rtr_mask = 1;
-//  can_filter.id_mask = 0;
-//  ConfigureCan(&hw.cans->descriptor[TBOT_CAN_UPLINK],
-//               CAN_NORMAL_MODE, 500000, can_filter);
-//  ConfigureCan(&hw.cans->descriptor[TBOT_CAN_DOWNLINK],
-//               CAN_NORMAL_MODE, 500000, can_filter);
+  // initialize hardware
+  struct zcan_filter can_filter;
+  can_filter.id_type = CAN_STANDARD_IDENTIFIER;
+  can_filter.rtr = CAN_DATAFRAME;
+  can_filter.rtr_mask = 1;
+  can_filter.id_mask = 0;
+  ConfigureCan(def->sconf.dd_can,
+               CAN_NORMAL_MODE, 1000000, can_filter);
+
+//  if (def->sdata.desired_motion_msgq == NULL) return false;
+//  def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
+
+  // sanity check
+  if (def->sconf.dd_can == NULL) {
+    printk("Messenger can descriptor not set properly\n");
+    return false;
+  }
 
   // create and start thread
-  def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
-                                   K_THREAD_STACK_SIZEOF(def->tconf.stack),
+  def->tconf.tid = k_thread_create(&def->tconf.thread, messenger_service_stack,
+                                   K_THREAD_STACK_SIZEOF(messenger_service_stack),
                                    MessengerServiceLoop, def, NULL, NULL,
                                    def->tconf.priority, 0,
                                    Z_TIMEOUT_MS(def->tconf.delay_ms));
@@ -34,6 +43,10 @@ bool StartMessengerService(MessengerServiceDef *def) {
   return true;
 }
 
-void MessengerServiceLoop(void *p1, void *p2, void *p3) {
-
+_Noreturn void MessengerServiceLoop(void *p1, void *p2, void *p3) {
+  MessengerServiceDef *def = (MessengerServiceDef *) p1;
+  while (1) {
+    printk("running messenger\n");
+    k_msleep(def->tconf.period_ms);
+  }
 }

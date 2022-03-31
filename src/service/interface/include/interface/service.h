@@ -16,7 +16,6 @@
 typedef struct {
   k_tid_t tid;
   struct k_thread thread;
-  k_thread_stack_t *stack;
   int8_t priority;
   uint32_t delay_ms;
   uint32_t period_ms;
