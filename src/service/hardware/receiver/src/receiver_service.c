@@ -9,6 +9,8 @@
 
 #include "receiver/receiver_service.h"
 
+K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
+
 bool StartReceiverService(ReceiverServiceDef *def) {
   // init hardware
   if (def->sconf.type == RCVR_SBUS) {
@@ -28,8 +30,8 @@ bool StartReceiverService(ReceiverServiceDef *def) {
     def->interface.rc_data_msgq_out = def->sdata.rc_data_msgq;
 
     // create and start thread
-    def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
-                                     K_THREAD_STACK_SIZEOF(def->tconf.stack),
+    def->tconf.tid = k_thread_create(&def->tconf.thread, receiver_service_stack,
+                                     K_THREAD_STACK_SIZEOF(receiver_service_stack),
                                      SbusReceiverServiceLoop, def, NULL, NULL,
                                      def->tconf.priority, 0,
                                      Z_TIMEOUT_MS(def->tconf.delay_ms));

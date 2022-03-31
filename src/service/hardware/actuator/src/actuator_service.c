@@ -10,6 +10,8 @@
 #include "actuator/actuator_service.h"
 #include "actuator/tbot_actuators.h"
 
+K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
+
 bool StartActuatorService(ActuatorServiceDef *def) {
   // init hardware
   if (def->sconf.type == ACTR_TBOT) {
@@ -33,8 +35,8 @@ bool StartActuatorService(ActuatorServiceDef *def) {
     }
 
     // create and start thread
-    def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
-                                     K_THREAD_STACK_SIZEOF(def->tconf.stack),
+    def->tconf.tid = k_thread_create(&def->tconf.thread, actuator_service_stack,
+                                     K_THREAD_STACK_SIZEOF(actuator_service_stack),
                                      TbotActuatorServiceLoop, def, NULL, NULL,
                                      def->tconf.priority, 0,
                                      Z_TIMEOUT_MS(def->tconf.delay_ms));

@@ -82,17 +82,16 @@ static ActuatorServiceDef actr_srv;
 static EncoderServiceDef encoder_srv;
 //static MessengerServiceDef msger_srv;
 
-K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
+//K_THREAD_STACK_DEFINE(receiver_service_stack, 512);
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 
-K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
+//K_THREAD_STACK_DEFINE(actuator_service_stack, 1024);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 
-K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
+//K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 // static EncoderConfig encoder_cfg;
-K_THREAD_STACK_DEFINE(encoder_service_stack, 1024);
 K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
 
 //K_THREAD_STACK_DEFINE(messenger_service_stack, 512);
@@ -119,7 +118,7 @@ bool InitRobot() {
 
   // receiver service
   rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
-  rcvr_srv.tconf.stack = receiver_service_stack;
+//  rcvr_srv.tconf.stack = receiver_service_stack;
   rcvr_srv.tconf.delay_ms = 0;
   rcvr_srv.tconf.period_ms = 7;
 
@@ -141,7 +140,7 @@ bool InitRobot() {
 
   // actuator service
   actr_srv.tconf.priority = TASK_PRIORITY_MID;
-  actr_srv.tconf.stack = actuator_service_stack;
+//  actr_srv.tconf.stack = actuator_service_stack;
   actr_srv.tconf.delay_ms = 0;
   actr_srv.tconf.period_ms = 20;
 
@@ -169,7 +168,7 @@ bool InitRobot() {
 
   // coordinator
   coord_srv.tconf.priority = TASK_PRIORITY_MID;
-  coord_srv.tconf.stack = coord_service_stack;
+//  coord_srv.tconf.stack = coord_service_stack;
   coord_srv.tconf.delay_ms = 0;
   coord_srv.tconf.period_ms = 20;
 
@@ -189,7 +188,7 @@ bool InitRobot() {
 
   // encoder
   encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  encoder_srv.tconf.stack = encoder_service_stack;
+//  encoder_srv.tconf.stack = encoder_service_stack;
   encoder_srv.tconf.delay_ms = 100;
   encoder_srv.tconf.period_ms = 20;
 

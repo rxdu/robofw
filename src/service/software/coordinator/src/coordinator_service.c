@@ -10,6 +10,8 @@
 #include "coordinator/coordinator_service.h"
 #include "actuator/actuator_service.h"
 
+K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
+
 _Noreturn static void CoordinatorServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartCoordinatorService(CoordinatorServiceDef *def) {
@@ -26,8 +28,8 @@ bool StartCoordinatorService(CoordinatorServiceDef *def) {
   }
 
   // create and start thread
-  def->tconf.tid = k_thread_create(&def->tconf.thread, def->tconf.stack,
-                                   K_THREAD_STACK_SIZEOF(def->tconf.stack),
+  def->tconf.tid = k_thread_create(&def->tconf.thread, coord_service_stack,
+                                   K_THREAD_STACK_SIZEOF(coord_service_stack),
                                    CoordinatorServiceLoop, def, NULL, NULL,
                                    def->tconf.priority, 0,
                                    Z_TIMEOUT_MS(def->tconf.delay_ms));
@@ -58,7 +60,7 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
 //             receiver_data.channels[5],
 //             receiver_data.channels[6],
 //             receiver_data.channels[7]);
-      printk("Throttle: %d ---------------\n", (int) (receiver_data.channels[2] * 100));
+//      printk("Throttle: %d ---------------\n", (int) (receiver_data.channels[2] * 100));
 
       actuator_cmd.motors[0] = receiver_data.channels[2];
       actuator_cmd.motors[1] = receiver_data.channels[2];
