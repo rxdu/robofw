@@ -21,7 +21,7 @@ _Noreturn static void EncoderServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartEncoderService(EncoderServiceDef *def) {
   if (def->sdata.encoder_rpm_msgq == NULL) return false;
-  def->interface.estimated_rpm_msgq_out = def->sdata.encoder_rpm_msgq;
+  def->interface.rpm_msgq_out = def->sdata.encoder_rpm_msgq;
 
   // sanity check
   if (def->sconf.active_encoder_num == 0 || def->sconf.active_encoder_num > ENCODER_CHANNEL_NUMBER) {
@@ -49,22 +49,18 @@ bool StartEncoderService(EncoderServiceDef *def) {
 _Noreturn void EncoderServiceLoop(void *p1, void *p2, void *p3) {
   EncoderServiceDef *def = (EncoderServiceDef *) p1;
 
-  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
   bool is_counting_up[ENCODER_CHANNEL_NUMBER];
+  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
   uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0};
-
   uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
-  int32_t rpm_estimate[ENCODER_CHANNEL_NUMBER] = {0};
+//  int32_t rpm_estimate[ENCODER_CHANNEL_NUMBER] = {0};
 
   bool first_time = true;
+  int64_t time_stamp = k_uptime_get();
+  int64_t time_diff = 0;
+  EstimatedSpeed speed_estimate;
 
   while (1) {
-//    printk("encoder service running\n");
-//    if (def->sconf.dd_encoders[0] == NULL) printk("Null ptr 0 found\n");
-//    if (def->sconf.dd_encoders[1] == NULL) printk("Null ptr 1 found\n");
-//    printk("encoder device: %s, %s\n", def->sconf.dd_encoders[0]->device->name,
-//           def->sconf.dd_encoders[1]->device->name);
-
     for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
       encoder_reading[i] = GetEncoderCount(def->sconf.dd_encoders[i]);
       is_counting_up[i] = IsEncoderCountingUp(def->sconf.dd_encoders[i]);
@@ -76,26 +72,28 @@ _Noreturn void EncoderServiceLoop(void *p1, void *p2, void *p3) {
       }
       first_time = false;
     } else {
+      time_diff = k_uptime_delta(&time_stamp);
       for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
-        // if (is_counting_up[i])
-        reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
-        // else
-        //   reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
-        rpm_estimate[i] = (int32_t) (reading_error[i]) * 60 * 1000 /
-            def->tconf.period_ms / def->sconf.pulse_per_round[i];
-
-//        if (i == 0)
-//          printk("%s, current: %d, prev: %d, error: %d\n",
-//                 is_counting_up[i] ? "up" : "dn", encoder_reading[i],
-//                 encoder_prev_reading[i], reading_error[i]);
-
+        if (is_counting_up[i]) {
+          reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
+        } else {
+          reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
+        }
+        speed_estimate.rpms[i] = (int32_t) (reading_error[i]) * 60 * 1000 /
+            time_diff / def->sconf.pulse_per_round[i];
         encoder_prev_reading[i] = encoder_reading[i];
       }
-
-      printk("left rpm: %d, right rpm: %d\n", rpm_estimate[0],
-             rpm_estimate[1]);
     }
 
+//    printk("diff: %lld; left: (%d), %d, %d； right: (%d), %d, %d\n", time_diff,
+//           is_counting_up[0], encoder_reading[0], speed_estimate.rpms[0],
+//           is_counting_up[1], encoder_reading[1], speed_estimate.rpms[1]);
+
+    while (k_msgq_put(def->interface.rpm_msgq_out, &speed_estimate, K_NO_WAIT) != 0) {
+      k_msgq_purge(def->interface.rpm_msgq_out);
+    }
+
+//    printk("system: %d\n ", CONFIG_SYS_CLOCK_TICKS_PER_SEC);
     k_msleep(def->tconf.period_ms);
   }
 }

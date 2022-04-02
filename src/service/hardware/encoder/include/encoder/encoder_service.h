@@ -36,9 +36,9 @@ typedef struct {
   struct k_msgq *encoder_rpm_msgq;
 } EncoderSrvData;
 
-typedef struct {
-  struct k_msgq *estimated_rpm_msgq_out;
-} EncoderInterface;
+struct EncoderInterface {
+  struct k_msgq *rpm_msgq_out;
+};
 
 typedef struct {
   // thread config
@@ -51,7 +51,7 @@ typedef struct {
   // no dependency
 
   // message queue for input/output
-  EncoderInterface interface;
+  struct EncoderInterface interface;
 } EncoderServiceDef;
 
 bool StartEncoderService(EncoderServiceDef *cfg);

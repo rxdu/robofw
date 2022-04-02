@@ -9,6 +9,8 @@
 
 #include "messenger/messenger_service.h"
 
+#include "encoder/encoder_service.h"
+
 K_THREAD_STACK_DEFINE(messenger_service_stack, 1024);
 
 _Noreturn static void MessengerServiceLoop(void *p1, void *p2, void *p3);
@@ -32,6 +34,13 @@ bool StartMessengerService(MessengerServiceDef *def) {
     return false;
   }
 
+  if (def->dependencies.receiver_interface == NULL ||
+      def->dependencies.actuator_interface == NULL ||
+      def->dependencies.encoder_interface == NULL) {
+    printk("Dependency not set properly\n");
+    return false;
+  }
+
   // create and start thread
   def->tconf.tid = k_thread_create(&def->tconf.thread, messenger_service_stack,
                                    K_THREAD_STACK_SIZEOF(messenger_service_stack),
@@ -45,8 +54,16 @@ bool StartMessengerService(MessengerServiceDef *def) {
 
 _Noreturn void MessengerServiceLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *) p1;
+
+  EstimatedSpeed speed_estimate;
+
   while (1) {
-    printk("running messenger\n");
+//    printk("running messenger\n");
+    while (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
+                      &speed_estimate, K_FOREVER) == 0) {
+      printk("left: %d； right: %d\n", speed_estimate.rpms[0], speed_estimate.rpms[1]);
+    }
+
     k_msleep(def->tconf.period_ms);
   }
 }

@@ -176,6 +176,9 @@ bool InitRobot() {
   msger_srv.tconf.period_ms = 20;
 
   msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
+  msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
+  msger_srv.dependencies.encoder_interface = &(encoder_srv.interface);
+  msger_srv.dependencies.actuator_interface = &(actr_srv.interface);
 
 //  msger_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 

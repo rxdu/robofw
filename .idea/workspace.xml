@@ -80,17 +80,11 @@
     <list default="true" id="09c8d9e5-4b7a-4021-ab58-ebe54952d985" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/tbot/tbot_interface.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/tbot/tbot_interface.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/canopen/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/canopen/include/canopen/canopen_service.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/hardware/canopen/src/canopen_service.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/include/encoder/encoder_service.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/encoder/src/encoder_service.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/include/messenger/messenger_service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/include/messenger/messenger_service.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/hardware/messenger/src/messenger_service.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/hardware/messenger/src/messenger_service.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/interface/include/interface/service.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/interface/include/interface/service.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/software/coordinator/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/motion/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/motion/include/motion/motion_service.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/service/software/motion/src/motion_service.c" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,6 +97,14 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:ZDebug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="8u9tihwk" />
@@ -147,12 +149,12 @@
     <option name="rtosEnabled" value="true" />
   </component>
   <component name="RunManager" selected="OpenOCD Download &amp; Run.zephyr-openocd">
-    <configuration name="..__modules__hal__stm32__stm32cube" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="..__modules__hal__stm32__stm32cube" CONFIG_NAME="ZDebug">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="..__modules__hal__stm32__stm32cube" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="robofw" TARGET_NAME="..__modules__hal__stm32__stm32cube" CONFIG_NAME="ZDebug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -588,6 +590,9 @@
       <workItem from="1648382147599" duration="1000" />
       <workItem from="1648474920264" duration="4601000" />
       <workItem from="1648646976255" duration="5325000" />
+      <workItem from="1648887762581" duration="38000" />
+      <workItem from="1648887817899" duration="4000" />
+      <workItem from="1648887831656" duration="4199000" />
     </task>
     <servers />
   </component>
