@@ -17,16 +17,16 @@
 #include "mcal/interface/pwm_interface.h"
 
 typedef struct {
-  DioDescriptor* dd_dio_en1;
-  DioDescriptor* dd_dio_dir1;
-  DioDescriptor* dd_dio_en2;
-  DioDescriptor* dd_dio_dir2;
+  DioDescriptor *dd_dio_en1;
+  DioDescriptor *dd_dio_dir1;
+  DioDescriptor *dd_dio_en2;
+  DioDescriptor *dd_dio_dir2;
 
-  PwmDescriptor* dd_pwm1;
-  PwmDescriptor* dd_pwm2;
+  PwmDescriptor *dd_pwm1;
+  PwmDescriptor *dd_pwm2;
 } TbotActuatorConf;
 
-bool InitTbotActuators(TbotActuatorConf* cfg);
-void UpdateTbotActuators(void* p1);
+bool InitTbotActuators(TbotActuatorConf *cfg);
+_Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3);
 
 #endif /* TBOT_ACTUATORS_H */

@@ -9,7 +9,7 @@
  *  - Input: N/A
  *  - Output: ReceiverData (msgq_out)
  *
- * Copyright (c) 2021 Weston Robot Pte. Ltd.
+ * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
 #ifndef RECEIVER_SERVICE_H
@@ -21,35 +21,44 @@
 #include <zephyr.h>
 #include <device.h>
 
+#include "interface/service.h"
 #include "sbus_receiver.h"
 
 typedef enum { RCVR_SBUS = 0, RCVR_PPM } ReceiverType;
 
 #define RECEIVER_CHANNEL_NUMBER 8
 typedef struct {
-  bool signal_lost;
   float channels[RECEIVER_CHANNEL_NUMBER];  // scaled to [-1, 1]
-} ReceiverData;
+} __attribute__((aligned(8))) ReceiverData;
+
+// service related config
+typedef struct {
+  ReceiverType type;
+  void *rcvr_cfg;
+} ReceiverSrvConf;
+
+typedef struct {
+  struct k_msgq *rc_data_msgq;
+} ReceiverSrvData;
+
+struct ReceiverInterface {
+  struct k_msgq *rc_data_msgq_out;
+};
 
 typedef struct {
   // thread config
-  k_tid_t tid;
-  int8_t priority;
-  struct k_thread *thread;
-  k_thread_stack_t *stack;
-  size_t stack_size;
-  k_timeout_t delay;
-  uint32_t period_ms;
+  ThreadConfig tconf;
 
-  // task-related config
-  ReceiverType type;
-  void *rcvr_cfg;
+  // service config/data
+  ReceiverSrvConf sconf;
+  ReceiverSrvData sdata;
 
-  // message queue for input/output
-  struct k_msgq *msgq_out;
-  ReceiverData receiver_data;
-} ReceiverServiceConf;
+  // no dependency
 
-bool StartReceiverService(ReceiverServiceConf *cfg);
+  // interface
+  struct ReceiverInterface interface;
+} ReceiverServiceDef;
+
+bool StartReceiverService(ReceiverServiceDef *def);
 
 #endif /* RECEIVER_SERVICE_H */

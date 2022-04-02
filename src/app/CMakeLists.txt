@@ -1,9 +1,7 @@
 # Main application 
-
-# add_subdirectory(blinky)
-# add_subdirectory(canopennode)
-# add_subdirectory(hwconfig)
-# add_subdirectory(native_posix)
-# add_subdirectory(racer)
-# add_subdirectory(encoder)
-add_subdirectory(tbot)
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/${APP_NAME}" AND IS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/${APP_NAME}")
+    add_subdirectory(${APP_NAME})
+    message(STATUS "Building firmware for app \"${APP_NAME}\" with board \"${BOARD}\" <--------------")
+else()
+    message(STATUS "Cannot find the app folder: ${APP_NAME}")
+endif()

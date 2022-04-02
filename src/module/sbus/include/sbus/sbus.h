@@ -42,10 +42,10 @@ typedef struct {
 
 typedef struct {
   SbusDecodeBuffer decode_buffer;
-} SbusInstance;
+} SbusDecoderInstance;
 
-void SbusDecoderInit(SbusInstance *inst);
-bool SbusDecodeMessage(SbusInstance *inst, uint8_t ch, SbusMessage *sbus_msg);
+void SbusDecoderInit(SbusDecoderInstance *inst);
+bool SbusDecodeMessage(SbusDecoderInstance *inst, uint8_t ch, SbusMessage *sbus_msg);
 bool ValidateSbusMessage(const SbusMessage *sbus_msg);
 
 #endif /* SBUS_H */

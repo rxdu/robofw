@@ -11,12 +11,12 @@
 
 #include "actuator/actuator_service.h"
 
-TbotActuatorConf* tbot_actr_cfg;
+TbotActuatorConf *tbot_actr_cfg;
 
-static void LimitCommand(float in, float* out);
+static void LimitCommand(float in, float *out);
 static void SetMotorCmd(float left, float right);
 
-bool InitTbotActuators(TbotActuatorConf* cfg) {
+bool InitTbotActuators(TbotActuatorConf *cfg) {
   tbot_actr_cfg = cfg;
 
   ConfigureDio(cfg->dd_dio_en1, GPIO_OUTPUT_ACTIVE | GPIO_PULL_UP);
@@ -34,23 +34,33 @@ bool InitTbotActuators(TbotActuatorConf* cfg) {
   return true;
 }
 
-void UpdateTbotActuators(void* p1) {
-  ActuatorServiceConf* cfg = (ActuatorServiceConf*)p1;
-  while (k_msgq_get(cfg->msgq_in, &cfg->actuator_cmd, K_NO_WAIT) == 0) {
-    float cmd_left = cfg->actuator_cmd.motors[0];
-    float cmd_right = cfg->actuator_cmd.motors[1];
+_Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
+  ActuatorServiceDef *def = (ActuatorServiceDef *) p1;
+  ActuatorCmd actuator_cmd;
 
-    LimitCommand(cmd_left, &cmd_left);
-    LimitCommand(cmd_right, &cmd_right);
+  while (1) {
+//    printk("actuator_cmd_msgq free: %d\n", k_msgq_num_free_get(def->sdata.actuator_cmd_msgq));
+    while (k_msgq_get(def->sdata.actuator_cmd_msgq,
+                      &actuator_cmd, K_FOREVER) == 0) {
+      float cmd_left = actuator_cmd.motors[0];
+      float cmd_right = actuator_cmd.motors[1];
 
-    // reverse right cmd (reversed motor installation direction)
-    cmd_right = -cmd_right;
+//      printk("received cmd: %3f, %3f\n", cmd_left, cmd_right);
 
-    SetMotorCmd(cmd_left, cmd_right);
+      LimitCommand(cmd_left, &cmd_left);
+      LimitCommand(cmd_right, &cmd_right);
+
+      // reverse right cmd (reversed motor installation direction)
+      cmd_right = -cmd_right;
+
+//      printk("final cmd: %3f, %3f\n", cmd_left, cmd_right);
+//      SetMotorCmd(cmd_left, cmd_right);
+    }
+//    k_msleep(def->tconf.period_ms);
   }
 }
 
-void LimitCommand(float in, float* out) {
+void LimitCommand(float in, float *out) {
   float cmd = in;
   if (cmd > 0) {
     cmd = 1.0f - cmd;

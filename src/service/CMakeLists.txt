@@ -1,2 +1,1 @@
-add_subdirectory(software)
-add_subdirectory(hardware)
+add_subdirectory(interface)

@@ -34,7 +34,7 @@ typedef enum {
   DD_UART_NUM
 } UartList;
 
-// LED
+// UART
 typedef struct {
   bool active;
   const struct device* device;
