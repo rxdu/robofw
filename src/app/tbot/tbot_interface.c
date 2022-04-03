@@ -171,9 +171,13 @@ bool InitRobot() {
   }
 
   // messenger
-  msger_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  msger_srv.tconf.delay_ms = 100;
-  msger_srv.tconf.period_ms = 20;
+  msger_srv.rx_tconf.priority = TASK_PRIORITY_HIGH;
+  msger_srv.rx_tconf.delay_ms = 100;
+  msger_srv.rx_tconf.period_ms = 20;
+
+  msger_srv.tx_tconf.priority = TASK_PRIORITY_MID;
+  msger_srv.tx_tconf.delay_ms = 100;
+  msger_srv.tx_tconf.period_ms = 20;
 
   msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
   msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
@@ -204,7 +208,8 @@ _Noreturn void ShowRobotPanic() {
   k_thread_abort(actr_srv.tconf.tid);
   k_thread_abort(coord_srv.tconf.tid);
   k_thread_abort(encoder_srv.tconf.tid);
-  k_thread_abort(msger_srv.tconf.tid);
+  k_thread_abort(msger_srv.tx_tconf.tid);
+  k_thread_abort(msger_srv.rx_tconf.tid);
 
   TurnOnLed(led0);
   TurnOnLed(led1);

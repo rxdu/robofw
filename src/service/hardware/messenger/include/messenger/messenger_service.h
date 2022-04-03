@@ -36,7 +36,8 @@ struct MessengerInterface {
 
 typedef struct {
   // thread config
-  ThreadConfig tconf;
+  ThreadConfig rx_tconf;
+  ThreadConfig tx_tconf;
 
   // service config
   MessengerSrvConf sconf;
