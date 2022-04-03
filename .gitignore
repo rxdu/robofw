@@ -1,5 +1,8 @@
 # Temporary
+
+# IDE
 .vscode
+.idea
 
 mcuboot.conf
 
