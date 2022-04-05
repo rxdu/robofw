@@ -54,7 +54,7 @@ _Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
       cmd_right = -cmd_right;
 
       printk("final cmd: %3f, %3f\n", cmd_left, cmd_right);
-//      SetMotorCmd(cmd_left, cmd_right);
+      SetMotorCmd(cmd_left, cmd_right);
     }
 //    k_msleep(def->tconf.period_ms);
   }
@@ -89,23 +89,23 @@ void SetMotorCmd(float left, float right) {
   if (right > 0 && right < 0.01) right = 0.01;
   if (right < 0 && right > -0.01) right = -0.01;
 
-  if (left > 0) {
+  if (left < 0) {
+    left = -left;
     SetDio(tbot_actr_cfg->dd_dio_en1, 1);
     SetDio(tbot_actr_cfg->dd_dio_dir1, 1);
   } else {
     SetDio(tbot_actr_cfg->dd_dio_en1, 1);
     SetDio(tbot_actr_cfg->dd_dio_dir1, 0);
   }
-  if (left < 0) left = -left;
   SetPwmDutyCycle(tbot_actr_cfg->dd_pwm1, left);
 
-  if (right > 0) {
+  if (right < 0) {
+    right = -right;
     SetDio(tbot_actr_cfg->dd_dio_en2, 1);
     SetDio(tbot_actr_cfg->dd_dio_dir2, 1);
   } else {
     SetDio(tbot_actr_cfg->dd_dio_en2, 1);
     SetDio(tbot_actr_cfg->dd_dio_dir2, 0);
   }
-  if (right < 0) right = -right;
   SetPwmDutyCycle(tbot_actr_cfg->dd_pwm2, right);
 }

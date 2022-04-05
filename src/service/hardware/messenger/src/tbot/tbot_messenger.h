@@ -15,18 +15,18 @@
 #include "mcal/interface/can_interface.h"
 
 typedef struct {
-  int32_t pwm_left;
-  int32_t pwm_right;
+  int8_t pwm_left;
+  int8_t pwm_right;
 } TbotPwmCommand;
 
 typedef struct {
-  int32_t pwm_left;
-  int32_t pwm_right;
+  int32_t rpm_left;
+  int32_t rpm_right;
 } TbotMotorCommand;
 
 typedef struct {
-  int32_t pwm_left;
-  int32_t pwm_right;
+  int32_t linear;
+  int32_t angular;
 } TbotMotionCommand;
 
 typedef enum {

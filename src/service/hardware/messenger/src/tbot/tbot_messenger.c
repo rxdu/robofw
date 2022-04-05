@@ -21,8 +21,8 @@ bool DecodeCanMessage(const struct zcan_frame *frame, TbotMsg *msg) {
   switch (frame->id) {
     case TBOT_PWM_CMD_CAN_ID: {
       msg->type = kTbotPwmCommand;
-      msg->data.pwm_cmd.pwm_left = frame->data[0];
-      msg->data.pwm_cmd.pwm_right = frame->data[1];
+      msg->data.pwm_cmd.pwm_left = (int8_t) (frame->data[0]);
+      msg->data.pwm_cmd.pwm_right = (int8_t) (frame->data[1]);
       break;
     }
     case TBOT_MOTOR_CMD_CAN_ID: {
