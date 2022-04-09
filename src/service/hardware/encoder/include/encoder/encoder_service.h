@@ -5,7 +5,7 @@
  * Description:
  *
  * Assumption: using 16-bit timers
- * 
+ *
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
@@ -42,7 +42,8 @@ struct EncoderInterface {
 
 typedef struct {
   // thread config
-  ThreadConfig tconf;
+  ThreadConfig main_tconf;
+  ThreadConfig tim_tconf;
 
   // service config
   EncoderSrvConf sconf;

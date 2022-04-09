@@ -61,7 +61,7 @@ K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
-//K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
+// K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
@@ -74,7 +74,7 @@ bool InitRobot() {
   if (!InitHardware()) return false;
 
   bool ret = false;
-  (void) ret;
+  (void)ret;
 
   // configure drivers required by robot
   // LED for debugging
@@ -150,9 +150,13 @@ bool InitRobot() {
   }
 
   // encoder
-  encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  encoder_srv.tconf.delay_ms = 100;
-  encoder_srv.tconf.period_ms = 20;
+  encoder_srv.main_tconf.priority = TASK_PRIORITY_HIGH;
+  encoder_srv.main_tconf.delay_ms = 100;
+  encoder_srv.main_tconf.period_ms = 20;
+
+  encoder_srv.tim_tconf.priority = TASK_PRIORITY_HIGHEST;
+  encoder_srv.tim_tconf.delay_ms = 100;
+  encoder_srv.tim_tconf.period_ms = 5;
 
   encoder_srv.sconf.active_encoder_num = 2;
   encoder_srv.sconf.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
@@ -184,7 +188,7 @@ bool InitRobot() {
   msger_srv.dependencies.encoder_interface = &(encoder_srv.interface);
   msger_srv.dependencies.actuator_interface = &(actr_srv.interface);
 
-//  msger_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
+  //  msger_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 
   ret = StartMessengerService(&msger_srv);
   if (!ret) {
@@ -207,7 +211,8 @@ _Noreturn void ShowRobotPanic() {
   k_thread_abort(rcvr_srv.tconf.tid);
   k_thread_abort(actr_srv.tconf.tid);
   k_thread_abort(coord_srv.tconf.tid);
-  k_thread_abort(encoder_srv.tconf.tid);
+  k_thread_abort(encoder_srv.main_tconf.tid);
+  k_thread_abort(encoder_srv.tim_tconf.tid);
   k_thread_abort(msger_srv.tx_tconf.tid);
   k_thread_abort(msger_srv.rx_tconf.tid);
 

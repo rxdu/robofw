@@ -1,4 +1,4 @@
-/* 
+/*
  * tbot_messenger.h
  *
  * Created on 4/3/22 10:07 PM
@@ -29,20 +29,27 @@ typedef struct {
   int32_t angular;
 } TbotMotionCommand;
 
+typedef struct {
+  int32_t left;
+  int32_t right;
+} TbotEncoderRawData;
+
 typedef enum {
   kTbotPwmCommand = 0,
   kTbotMotorCommand,
-  kTbotMotionCommand
+  kTbotMotionCommand,
+  kTbotEncoderRawData
 } TbotMsgType;
 
 typedef struct {
   TbotMsgType type;
   union {
     TbotPwmCommand pwm_cmd;
+    TbotEncoderRawData encoder_raw_data;
   } data;
 } TbotMsg;
 
 void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame);
 bool DecodeCanMessage(const struct zcan_frame *frame, TbotMsg *msg);
 
-#endif //ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_TBOT_TBOT_MESSENGER_H
+#endif  // ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_TBOT_TBOT_MESSENGER_H
