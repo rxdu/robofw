@@ -13,10 +13,12 @@
 
 #define WHEEL_RADIUS 0.0175f
 #define EST_PERIOD 0.02
-#define PULSE_PER_ROUND 1320.f  // 11*30*4
-#define MAX_PULSE_PER_MS 10     // 450 r/m * 1320 p/r / 60s/m = 9900 p/s
+#define PULSE_PER_ROUND 1320.f    // 11*30*4
+#define MAX_PULSE_PER_MS 10       // 450 r/m * 1320 p/r / 60s/m = 9900 p/s
+#define MAX_PULSE_PER_PERIOD 100  // by experiment, in theory should be ~50
 
-static bool is_counting_up[ENCODER_CHANNEL_NUMBER] = {true, true};
+static bool overflow_detected[ENCODER_CHANNEL_NUMBER] = {true};
+static bool underflow_detected[ENCODER_CHANNEL_NUMBER] = {false};
 
 K_THREAD_STACK_DEFINE(encoder_service_main_stack, 1024);
 K_THREAD_STACK_DEFINE(encoder_service_tim_stack, 512);
@@ -66,7 +68,6 @@ _Noreturn void EncoderServiceTimerLoop(void *p1, void *p2, void *p3) {
   bool first_time = true;
   uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
   uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER];
-  uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
 
   while (1) {
     for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
@@ -79,25 +80,21 @@ _Noreturn void EncoderServiceTimerLoop(void *p1, void *p2, void *p3) {
       first_time = false;
     } else {
       for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
-        // is_counting_up[i] = IsEncoderCountingUp(def->sconf.dd_encoders[i]);
-        if (encoder_reading[i] >= encoder_prev_reading[i]) {
-          reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
-          if (reading_error[i] < MAX_PULSE_PER_MS) {
-            is_counting_up[i] = true;
-          } else {
-            is_counting_up[i] = false;
-          }
+        if ((encoder_reading[i] >= encoder_prev_reading[i]) &&
+            (encoder_reading[i] - encoder_prev_reading[i] >
+             MAX_PULSE_PER_PERIOD)) {
+          underflow_detected[i] = true;
+          printk("underflow %d ----------------------------\n", i);
         } else {
-          reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
-          if (reading_error[i] < MAX_PULSE_PER_MS) {
-            is_counting_up[i] = false;
-          } else {
-            is_counting_up[i] = true;
+          if (encoder_prev_reading[i] - encoder_reading[i] >
+              MAX_PULSE_PER_PERIOD) {
+            overflow_detected[i] = true;
+            printk("overflow %d ----------------------------\n", i);
           }
         }
-
         encoder_prev_reading[i] = encoder_reading[i];
       }
+      //   printk("error: %d, %d\n", reading_error[0], reading_error[1]);
     }
     k_msleep(def->tim_tconf.period_ms);
   }
@@ -106,6 +103,7 @@ _Noreturn void EncoderServiceTimerLoop(void *p1, void *p2, void *p3) {
 _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   EncoderServiceDef *def = (EncoderServiceDef *)p1;
 
+  bool is_counting_up[ENCODER_CHANNEL_NUMBER] = {true, true};
   uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
   uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER];
   uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
@@ -130,13 +128,23 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
     } else {
       time_diff = k_uptime_delta(&time_stamp);
 
-      int32_t sign[ENCODER_CHANNEL_NUMBER] = {1, -1};
+      int32_t sign[ENCODER_CHANNEL_NUMBER] = {1, 1};
       for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
-        if (is_counting_up[i]) {
-          reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
+        if (encoder_reading[i] > encoder_prev_reading[i]) {
+          if (underflow_detected[i]) {
+            reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
+            underflow_detected[i] = false;
+          } else {
+            reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
+          }
         } else {
-          reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
-          sign[i] = -1 * sign[i];
+          if (overflow_detected[i]) {
+            reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
+            overflow_detected[i] = false;
+          } else {
+            reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
+          }
+          //   sign[i] = -1 * sign[i];
         }
         speed_estimate.rpms[i] = sign[i] * (int32_t)(reading_error[i]) * 60 *
                                  1000 / time_diff /
