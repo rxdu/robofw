@@ -42,8 +42,7 @@ struct EncoderInterface {
 
 typedef struct {
   // thread config
-  ThreadConfig main_tconf;
-  ThreadConfig tim_tconf;
+  ThreadConfig tconf;
 
   // service config
   EncoderSrvConf sconf;

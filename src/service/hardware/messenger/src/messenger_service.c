@@ -69,7 +69,7 @@ bool StartMessengerService(MessengerServiceDef *def) {
 }
 
 _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
-  MessengerServiceDef *def = (MessengerServiceDef *)p1;
+  MessengerServiceDef *def = (MessengerServiceDef *) p1;
   struct zcan_frame rx_frame;
   // #ifndef UNKOWN_DECODER
   TbotMsg msg;
@@ -113,7 +113,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 }
 
 _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
-  MessengerServiceDef *def = (MessengerServiceDef *)p1;
+  MessengerServiceDef *def = (MessengerServiceDef *) p1;
 
   EstimatedSpeed speed_estimate;
   uint8_t candata[] = {0x00, 0x00, 0x04, 0xb0, 0x00, 0x00, 0x04, 0xe2};
@@ -128,7 +128,8 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
       //          speed_estimate.rpms[1]);
       tmsg.type = kTbotEncoderRawData;
       tmsg.data.encoder_raw_data.left = speed_estimate.rpms[0];
-      tmsg.data.encoder_raw_data.right = speed_estimate.rpms[1];
+      // invert value since motor is mechanically installed in an opposite direction
+      tmsg.data.encoder_raw_data.right = -speed_estimate.rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
 
       int ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,

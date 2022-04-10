@@ -74,7 +74,7 @@ bool InitRobot() {
   if (!InitHardware()) return false;
 
   bool ret = false;
-  (void)ret;
+  (void) ret;
 
   // configure drivers required by robot
   // LED for debugging
@@ -150,13 +150,9 @@ bool InitRobot() {
   }
 
   // encoder
-  encoder_srv.main_tconf.priority = TASK_PRIORITY_HIGH;
-  encoder_srv.main_tconf.delay_ms = 100;
-  encoder_srv.main_tconf.period_ms = 5;
-
-//  encoder_srv.tim_tconf.priority = TASK_PRIORITY_HIGHEST;
-//  encoder_srv.tim_tconf.delay_ms = 100;
-//  encoder_srv.tim_tconf.period_ms = 5;
+  encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  encoder_srv.tconf.delay_ms = 100;
+  encoder_srv.tconf.period_ms = 5;
 
   encoder_srv.sconf.active_encoder_num = 2;
   encoder_srv.sconf.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);
@@ -211,8 +207,7 @@ _Noreturn void ShowRobotPanic() {
   k_thread_abort(rcvr_srv.tconf.tid);
   k_thread_abort(actr_srv.tconf.tid);
   k_thread_abort(coord_srv.tconf.tid);
-  k_thread_abort(encoder_srv.main_tconf.tid);
-  k_thread_abort(encoder_srv.tim_tconf.tid);
+  k_thread_abort(encoder_srv.tconf.tid);
   k_thread_abort(msger_srv.tx_tconf.tid);
   k_thread_abort(msger_srv.rx_tconf.tid);
 

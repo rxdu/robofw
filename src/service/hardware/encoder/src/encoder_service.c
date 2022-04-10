@@ -21,10 +21,8 @@
 static bool overflow_detected[ENCODER_CHANNEL_NUMBER] = {true};
 static bool underflow_detected[ENCODER_CHANNEL_NUMBER] = {false};
 
-K_THREAD_STACK_DEFINE(encoder_service_main_stack, 1024);
-K_THREAD_STACK_DEFINE(encoder_service_tim_stack, 512);
+K_THREAD_STACK_DEFINE(encoder_service_stack, 1024);
 
-_Noreturn static void EncoderServiceTimerLoop(void *p1, void *p2, void *p3);
 _Noreturn static void EncoderServiceMainLoop(void *p1, void *p2, void *p3);
 
 bool StartEncoderService(EncoderServiceDef *def) {
@@ -46,59 +44,14 @@ bool StartEncoderService(EncoderServiceDef *def) {
   }
 
   // create and start thread
-  def->main_tconf.tid = k_thread_create(
-      &def->main_tconf.thread, encoder_service_main_stack,
-      K_THREAD_STACK_SIZEOF(encoder_service_main_stack), EncoderServiceMainLoop,
-      def, NULL, NULL, def->main_tconf.priority, 0,
-      Z_TIMEOUT_MS(def->main_tconf.delay_ms));
-  k_thread_name_set(def->main_tconf.tid, "encoder_service_main");
-
-//  def->tim_tconf.tid = k_thread_create(
-//      &def->tim_tconf.thread, encoder_service_tim_stack,
-//      K_THREAD_STACK_SIZEOF(encoder_service_tim_stack), EncoderServiceTimerLoop,
-//      def, NULL, NULL, def->tim_tconf.priority, 0,
-//      Z_TIMEOUT_MS(def->tim_tconf.delay_ms));
-//  k_thread_name_set(def->tim_tconf.tid, "encoder_service_timer");
+  def->tconf.tid = k_thread_create(
+      &def->tconf.thread, encoder_service_stack,
+      K_THREAD_STACK_SIZEOF(encoder_service_stack), EncoderServiceMainLoop,
+      def, NULL, NULL, def->tconf.priority, 0,
+      Z_TIMEOUT_MS(def->tconf.delay_ms));
+  k_thread_name_set(def->tconf.tid, "encoder_service_main");
 
   return true;
-}
-
-_Noreturn void EncoderServiceTimerLoop(void *p1, void *p2, void *p3) {
-  EncoderServiceDef *def = (EncoderServiceDef *) p1;
-
-  bool first_time = true;
-  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
-  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER];
-
-  while (1) {
-    for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
-      encoder_reading[i] = GetEncoderCount(def->sconf.dd_encoders[i]);
-    }
-    if (first_time) {
-      for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
-        encoder_prev_reading[i] = encoder_reading[i];
-      }
-      first_time = false;
-    } else {
-      for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
-        if ((encoder_reading[i] >= encoder_prev_reading[i]) &&
-            (encoder_reading[i] - encoder_prev_reading[i] >
-                MAX_PULSE_PER_PERIOD)) {
-          underflow_detected[i] = true;
-          printk("underflow %d ----------------------------\n", i);
-        } else {
-          if (encoder_prev_reading[i] - encoder_reading[i] >
-              MAX_PULSE_PER_PERIOD) {
-            overflow_detected[i] = true;
-            printk("overflow %d ----------------------------\n", i);
-          }
-        }
-        encoder_prev_reading[i] = encoder_reading[i];
-      }
-      //   printk("error: %d, %d\n", reading_error[0], reading_error[1]);
-    }
-    k_msleep(def->tim_tconf.period_ms);
-  }
 }
 
 _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
@@ -108,7 +61,6 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
   uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER];
   uint16_t accumulated_error[ENCODER_CHANNEL_NUMBER] = {0};
-  uint16_t reading_error[ENCODER_CHANNEL_NUMBER] = {0};
 
   bool first_time = true;
   int64_t time_stamp = k_uptime_get();
@@ -121,7 +73,6 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   while (1) {
     for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
       encoder_reading[i] = GetEncoderCount(def->sconf.dd_encoders[i]);
-      //   is_counting_up[i] = IsEncoderCountingUp(def->sconf.dd_encoders[i]);
     }
 
     if (first_time) {
@@ -166,12 +117,13 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
         }
 
         // save error values
+        uint16_t reading_error = 0;
         if (is_counting_up[i]) {
-          reading_error[i] = encoder_reading[i] - encoder_prev_reading[i];
+          reading_error = encoder_reading[i] - encoder_prev_reading[i];
         } else {
-          reading_error[i] = encoder_prev_reading[i] - encoder_reading[i];
+          reading_error = encoder_prev_reading[i] - encoder_reading[i];
         }
-        accumulated_error[i] += reading_error[i];
+        accumulated_error[i] += reading_error;
 
         // update previous reading
         encoder_prev_reading[i] = encoder_reading[i];
@@ -179,8 +131,8 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
 
       // calculate rpm every ~20ms
       if (loop_counter++ % ITERATION_NUM_PER_CALCULATION == 0) {
-        int32_t sign = 1;
         for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
+          int32_t sign = 1;
           if (!is_counting_up[i]) sign = -1;
           speed_estimate.rpms[i] = sign * (int32_t) (accumulated_error[i]) * 60 *
               1000 / accumulated_time /
@@ -205,6 +157,6 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
       }
     }
 
-    k_msleep(def->main_tconf.period_ms);
+    k_msleep(def->tconf.period_ms);
   }
 }
