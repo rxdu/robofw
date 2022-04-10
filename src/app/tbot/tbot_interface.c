@@ -152,11 +152,11 @@ bool InitRobot() {
   // encoder
   encoder_srv.main_tconf.priority = TASK_PRIORITY_HIGH;
   encoder_srv.main_tconf.delay_ms = 100;
-  encoder_srv.main_tconf.period_ms = 20;
+  encoder_srv.main_tconf.period_ms = 5;
 
-  encoder_srv.tim_tconf.priority = TASK_PRIORITY_HIGHEST;
-  encoder_srv.tim_tconf.delay_ms = 100;
-  encoder_srv.tim_tconf.period_ms = 5;
+//  encoder_srv.tim_tconf.priority = TASK_PRIORITY_HIGHEST;
+//  encoder_srv.tim_tconf.delay_ms = 100;
+//  encoder_srv.tim_tconf.period_ms = 5;
 
   encoder_srv.sconf.active_encoder_num = 2;
   encoder_srv.sconf.dd_encoders[0] = GetEncoderDescriptor(TBOT_ENCODER1);

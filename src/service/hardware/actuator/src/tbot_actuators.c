@@ -28,33 +28,35 @@ bool InitTbotActuators(TbotActuatorConf *cfg) {
   SetDio(cfg->dd_dio_en2, 0);
   SetDio(cfg->dd_dio_dir2, 0);
 
-  SetPwmDutyCycle(cfg->dd_pwm1, 0.0);
-  SetPwmDutyCycle(cfg->dd_pwm2, 0.0);
+  SetPwmDutyCycle(cfg->dd_pwm1, -1.0);
+  SetPwmDutyCycle(cfg->dd_pwm2, 1.0);
 
   return true;
 }
 
 _Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
-  ActuatorServiceDef *def = (ActuatorServiceDef *)p1;
+  ActuatorServiceDef *def = (ActuatorServiceDef *) p1;
   ActuatorCmd actuator_cmd;
+
+  float cmd_left = 0;
+  float cmd_right = 0;
 
   while (1) {
     //    printk("actuator_cmd_msgq free: %d\n",
     //    k_msgq_num_free_get(def->sdata.actuator_cmd_msgq));
     while (k_msgq_get(def->sdata.actuator_cmd_msgq, &actuator_cmd, K_FOREVER) ==
-           0) {
-      float cmd_left = actuator_cmd.motors[0];
-      float cmd_right = actuator_cmd.motors[1];
+        0) {
+      float cmd_left_in = actuator_cmd.motors[0];
+      float cmd_right_in = actuator_cmd.motors[1];
 
       //      printk("received cmd: %3f, %3f\n", cmd_left, cmd_right);
-
-      LimitCommand(cmd_left, &cmd_left);
-      LimitCommand(cmd_right, &cmd_right);
+      LimitCommand(cmd_left_in, &cmd_left);
+      LimitCommand(cmd_right_in, &cmd_right);
 
       // reverse right cmd (reversed motor installation direction)
       cmd_right = -cmd_right;
 
-      //   printk("final cmd: %3f, %3f\n", cmd_left, cmd_right);
+//      printk("received cmd: %3f, %3f, final cmd: %3f, %3f\n", cmd_left_in, cmd_right_in, cmd_left, cmd_right);
       SetMotorCmd(cmd_left, cmd_right);
     }
     //    k_msleep(def->tconf.period_ms);
@@ -62,34 +64,22 @@ _Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
 }
 
 void LimitCommand(float in, float *out) {
-  float cmd = in;
+  // add deadzone to avoid motion at neutral position
+  if (in > -0.05 && in < 0.05) in = 0.0;
 
-  if (cmd > 1.0) cmd = 1.0;
-  if (cmd < -1.0) cmd = -1.0;
+  // valid cmd: (+-)(1-99)%
+  float cmd = in;
+  if (cmd > 0.99) cmd = 0.99;
+  if (cmd < -0.99) cmd = -0.99;
   if (cmd > 0) {
     cmd = 1.0f - cmd;
   } else {
     cmd = -(1.0f + cmd);
   }
-  if (cmd > -0.05 && cmd < 0.05) cmd = 0.0;
   *out = cmd;
 }
 
 void SetMotorCmd(float left, float right) {
-  //   printk("set cmd (left/right): %d, %d\n", (int)(left * 100),
-  //          (int)(right * 100));
-
-  // valid cmd: (+-)(1-99)%
-  if (left > 0.99) left = 0.99;
-  if (left < -0.99) left = -0.99;
-  if (left > 0 && left < 0.01) left = 0.01;
-  if (left < 0 && left > -0.01) left = -0.01;
-
-  if (right > 0.99) right = 0.99;
-  if (right < -0.99) right = -0.99;
-  if (right > 0 && right < 0.01) right = 0.01;
-  if (right < 0 && right > -0.01) right = -0.01;
-
   if (left < 0) {
     left = -left;
     SetDio(tbot_actr_cfg->dd_dio_en1, 1);
