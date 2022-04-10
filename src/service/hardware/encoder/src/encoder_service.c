@@ -85,17 +85,19 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
       accumulated_time += time_diff;
 
       // check overflow/underflow
+      // positive direction: current > previous, unless overflow
+      // negative direction: current < previous, unless underflow
       for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
         if ((encoder_reading[i] >= encoder_prev_reading[i]) &&
             (encoder_reading[i] - encoder_prev_reading[i] >
                 MAX_PULSE_PER_PERIOD)) {
           underflow_detected[i] = true;
-          printk("underflow %d ----------------------------\n", i);
+//          printk("underflow %d ----------------------------\n", i);
         } else {
           if (encoder_prev_reading[i] - encoder_reading[i] >
               MAX_PULSE_PER_PERIOD) {
             overflow_detected[i] = true;
-            printk("overflow %d ----------------------------\n", i);
+//            printk("overflow %d ----------------------------\n", i);
           }
         }
 
@@ -138,10 +140,10 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
               1000 / accumulated_time /
               def->sconf.pulse_per_round[i];
         }
-        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s), %d, %d, %d\n", accumulated_time,
-               is_counting_up[0] ? "up" : "down", encoder_reading[0], accumulated_error[0],
-               speed_estimate.rpms[0], is_counting_up[1] ? "up" : "down",
-               encoder_reading[1], accumulated_error[1], speed_estimate.rpms[1]);
+//        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s), %d, %d, %d\n", accumulated_time,
+//               is_counting_up[0] ? "up" : "down", encoder_reading[0], accumulated_error[0],
+//               speed_estimate.rpms[0], is_counting_up[1] ? "up" : "down",
+//               encoder_reading[1], accumulated_error[1], speed_estimate.rpms[1]);
 
         // clear time and error
         accumulated_time = 0;
