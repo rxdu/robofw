@@ -71,6 +71,8 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   EstimatedSpeed speed_estimate;
 
   while (1) {
+    int64_t t0 = k_loop_start();
+
     for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
       encoder_reading[i] = GetEncoderCount(def->sconf.dd_encoders[i]);
     }
@@ -159,6 +161,6 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
       }
     }
 
-    k_msleep(def->tconf.period_ms);
+    k_msleep_until(def->tconf.period_ms, t0);
   }
 }

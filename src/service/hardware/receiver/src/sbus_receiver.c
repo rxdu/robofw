@@ -43,7 +43,7 @@ _Noreturn void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
 
   while (1) {
 
-    if (k_sem_take(&(sbus_cfg->dd_uart->rx_sem), K_NO_WAIT) == 0) {
+    if (k_sem_take(&(sbus_cfg->dd_uart->rx_sem), K_FOREVER) == 0) {
       uint8_t ch;
       while (ring_buf_get(&sbus_cfg->dd_uart->ring_buffer, &ch, 1) != 0) {
 //        printk("------> received a sbus msg\n");
@@ -73,18 +73,18 @@ _Noreturn void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
 //                 sbus_cfg->sbus_msg_buffer.channels[7]);
 
 //          printk("receiver: %04f %04f %04f %04f, %04f %04f %04f %04f\n",
-//                 def->sdata.receiver_data.channels[0],
-//                 def->sdata.receiver_data.channels[1],
-//                 def->sdata.receiver_data.channels[2],
-//                 def->sdata.receiver_data.channels[3],
-//                 def->sdata.receiver_data.channels[4],
-//                 def->sdata.receiver_data.channels[5],
-//                 def->sdata.receiver_data.channels[6],
-//                 def->sdata.receiver_data.channels[7]);
+//                 receiver_data.channels[0],
+//                 receiver_data.channels[1],
+//                 receiver_data.channels[2],
+//                 receiver_data.channels[3],
+//                 receiver_data.channels[4],
+//                 receiver_data.channels[5],
+//                 receiver_data.channels[6],
+//                 receiver_data.channels[7]);
         }
       }
     }
 
-    k_msleep(def->tconf.period_ms);
+//    k_msleep(def->tconf.period_ms);
   }
 }

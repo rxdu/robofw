@@ -12,12 +12,12 @@
 #include "encoder/encoder_service.h"
 #include "actuator/actuator_service.h"
 
-// #ifdef APP_tbot
+#ifdef APP_tbot
 #include "tbot/tbot_messenger.h"
 typedef TbotMsg DecodeMsgType;
-// #else
-// #define UNKOWN_DECODER
-// #endif
+#else
+#define UNKOWN_DECODER
+#endif
 
 K_THREAD_STACK_DEFINE(messenger_rx_service_stack, 512);
 K_THREAD_STACK_DEFINE(messenger_tx_service_stack, 1024);
@@ -71,18 +71,19 @@ bool StartMessengerService(MessengerServiceDef *def) {
 _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *) p1;
   struct zcan_frame rx_frame;
-  // #ifndef UNKOWN_DECODER
-  TbotMsg msg;
-  // #endif
+
+#ifndef UNKOWN_DECODER
+  DecodeMsgType msg;
+#endif
 
   ActuatorCmd actuator_cmd;
 
   while (1) {
     if (k_msgq_get(def->sconf.dd_can->msgq, &rx_frame, K_FOREVER) == 0) {
       //   printk("CAN1 %02x: ", rx_frame.id);
-      //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
-      //   rx_frame.data[i]); printk("\n");
-      // #ifndef UNKOWN_DECODER
+      //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
+      //   printk("\n");
+#ifndef UNKOWN_DECODER
       if (DecodeCanMessage(&rx_frame, &msg)) {
         switch (msg.type) {
           case kTbotPwmCommand: {
@@ -107,7 +108,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
           }
         }
       }
-      // #endif
+#endif
     }
   }
 }
@@ -116,7 +117,6 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *) p1;
 
   EstimatedSpeed speed_estimate;
-  uint8_t candata[] = {0x00, 0x00, 0x04, 0xb0, 0x00, 0x00, 0x04, 0xe2};
 
   TbotMsg tmsg;
   struct zcan_frame tx_frame;
@@ -136,8 +136,6 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
                              tx_frame.data, tx_frame.dlc);
       if (ret != CAN_TX_OK) {
         printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
-      } else {
-        //      printk("%s sent\n", def->sconf.dd_can->device->name);
       }
     }
     k_msleep(def->tx_tconf.period_ms);
