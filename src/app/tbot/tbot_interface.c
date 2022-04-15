@@ -159,6 +159,7 @@ bool InitRobot() {
   encoder_srv.sconf.pulse_per_round[0] = 11 * 30 * 4;
   encoder_srv.sconf.dd_encoders[1] = GetEncoderDescriptor(TBOT_ENCODER2);
   encoder_srv.sconf.pulse_per_round[1] = 11 * 30 * 4;
+  encoder_srv.sconf.sample_per_every_iteration = 2;
 
   encoder_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 

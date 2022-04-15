@@ -16,7 +16,7 @@
 #define PULSE_PER_ROUND 1320.f    // 11*30*4
 #define MAX_PULSE_PER_MS 10       // 450 r/m * 1320 p/r / 60s/m = 9900 p/s
 #define MAX_PULSE_PER_PERIOD 150  // by experiment, in theory should be ~50
-#define ITERATION_NUM_PER_CALCULATION 4
+//#define ITERATION_NUM_PER_CALCULATION 4
 
 static bool overflow_detected[ENCODER_CHANNEL_NUMBER] = {true};
 static bool underflow_detected[ENCODER_CHANNEL_NUMBER] = {false};
@@ -56,6 +56,11 @@ bool StartEncoderService(EncoderServiceDef *def) {
 
 _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   EncoderServiceDef *def = (EncoderServiceDef *) p1;
+
+  static float a = 0.7284895;
+  static float b[2] = {0.13575525, 0.13575525};
+  int32_t last_filtered_rpms[ENCODER_CHANNEL_NUMBER] = {0};
+  int32_t raw_rpm_history[ENCODER_CHANNEL_NUMBER][2] = {0};
 
   bool is_counting_up[ENCODER_CHANNEL_NUMBER] = {true, true};
   uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
@@ -134,13 +139,22 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
       }
 
       // calculate rpm every ~20ms
-      if (loop_counter++ % ITERATION_NUM_PER_CALCULATION == 0) {
+      if (loop_counter++ % def->sconf.sample_per_every_iteration == 0) {
         for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
           int32_t sign = 1;
           if (!is_counting_up[i]) sign = -1;
           speed_estimate.rpms[i] = sign * (int32_t) (accumulated_error[i]) * 60 *
               1000 / accumulated_time /
               def->sconf.pulse_per_round[i];
+
+          // apply low-pass filter
+          speed_estimate.filtered_rpms[i] =
+              a * last_filtered_rpms[i] + b[0] * raw_rpm_history[i][1] + b[1] * raw_rpm_history[i][0];
+
+          // save for next iternation
+          raw_rpm_history[i][0] = raw_rpm_history[i][1];
+          raw_rpm_history[i][1] = speed_estimate.rpms[i];
+          last_filtered_rpms[i] = speed_estimate.filtered_rpms[i];
         }
 //        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s), %d, %d, %d\n", accumulated_time,
 //               is_counting_up[0] ? "up" : "down", encoder_reading[0], accumulated_error[0],

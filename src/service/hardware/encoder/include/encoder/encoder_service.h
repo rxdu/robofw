@@ -24,12 +24,14 @@
 #define ENCODER_CHANNEL_NUMBER 2
 typedef struct {
   int32_t rpms[ENCODER_CHANNEL_NUMBER];
+  int32_t filtered_rpms[ENCODER_CHANNEL_NUMBER];
 } __attribute__((aligned(8))) EstimatedSpeed;
 
 typedef struct {
   uint8_t active_encoder_num;
   EncoderDescriptor *dd_encoders[ENCODER_CHANNEL_NUMBER];
   uint32_t pulse_per_round[ENCODER_CHANNEL_NUMBER];
+  uint32_t sample_per_every_iteration;
 } EncoderSrvConf;
 
 typedef struct {

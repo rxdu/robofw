@@ -34,11 +34,14 @@ typedef struct {
   int32_t right;
 } TbotEncoderRawData;
 
+typedef TbotEncoderRawData TbotEncoderFilteredData;
+
 typedef enum {
   kTbotPwmCommand = 0,
   kTbotMotorCommand,
   kTbotMotionCommand,
-  kTbotEncoderRawData
+  kTbotEncoderRawData,
+  kTbotEncoderFilteredData
 } TbotMsgType;
 
 typedef struct {
@@ -46,6 +49,7 @@ typedef struct {
   union {
     TbotPwmCommand pwm_cmd;
     TbotEncoderRawData encoder_raw_data;
+    TbotEncoderFilteredData encoder_filtered_data;
   } data;
 } TbotMsg;
 

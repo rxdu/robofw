@@ -121,6 +121,9 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   TbotMsg tmsg;
   struct zcan_frame tx_frame;
 
+  int ret = -1;
+  (void) ret;
+
   while (1) {
     while (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
                       &speed_estimate, K_FOREVER) == 0) {
@@ -132,8 +135,19 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
       tmsg.data.encoder_raw_data.right = -speed_estimate.rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
 
-      int ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
-                             tx_frame.data, tx_frame.dlc);
+      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
+                         tx_frame.data, tx_frame.dlc);
+      if (ret != CAN_TX_OK) {
+        printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
+      }
+
+      tmsg.type = kTbotEncoderFilteredData;
+      tmsg.data.encoder_filtered_data.left = speed_estimate.filtered_rpms[0];
+      tmsg.data.encoder_filtered_data.right = -speed_estimate.filtered_rpms[1];
+      EncodeCanMessage(&tmsg, &tx_frame);
+
+      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
+                         tx_frame.data, tx_frame.dlc);
       if (ret != CAN_TX_OK) {
         printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
       }
