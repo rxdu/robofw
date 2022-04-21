@@ -40,21 +40,21 @@ _Noreturn void SpeedServiceLoop(void *p1, void *p2, void *p3) {
   ActuatorCmd actuator_cmd;
 
   while (1) {
-//    if (k_msgq_get(def->interface.desired_rpm_msgq_in, &desired_rpm,
-//                   K_NO_WAIT) == 0) {
+    if (k_msgq_get(def->interface.desired_rpm_msgq_in, &desired_rpm,
+                   K_NO_WAIT) == 0) {
 //      printk("desired rpm: %04d %04d\n", desired_rpm.motors[0],
 //             desired_rpm.motors[1]);
-//
-//      //      actuator_cmd.motors[0] = receiver_data.channels[2];
-//      //      actuator_cmd.motors[1] = receiver_data.channels[2];
-//
-//      while (
-//          k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
-//                     &actuator_cmd, K_NO_WAIT) != 0) {
-//        k_msgq_purge(
-//            def->dependencies.actuator_interface->actuator_cmd_msgq_in);
-//      }
-//    }
+
+      //      actuator_cmd.motors[0] = receiver_data.channels[2];
+      //      actuator_cmd.motors[1] = receiver_data.channels[2];
+
+      while (
+          k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
+                     &actuator_cmd, K_NO_WAIT) != 0) {
+        k_msgq_purge(
+            def->dependencies.actuator_interface->actuator_cmd_msgq_in);
+      }
+    }
 
     // task timing
     k_msleep(def->tconf.period_ms);

@@ -62,14 +62,14 @@ K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
-//K_MSGQ_DEFINE(desired_rpm_queue, sizeof(DesiredRpm), 1, 8);
+K_MSGQ_DEFINE(desired_rpm_queue, sizeof(DesiredRpm), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
 static ActuatorServiceDef actr_srv;
 static EncoderServiceDef encoder_srv;
 static MessengerServiceDef msger_srv;
-//static SpeedControlServiceDef spdcon_srv;
+static SpeedControlServiceDef spdcon_srv;
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -173,6 +173,23 @@ bool InitRobot() {
     printk("[INFO] Started encoder service\n");
   }
 
+  // speed control
+  spdcon_srv.tconf.priority = TASK_PRIORITY_HIGH;
+  spdcon_srv.tconf.delay_ms = 100;
+  spdcon_srv.tconf.period_ms = 20;
+
+  spdcon_srv.dependencies.actuator_interface = &(actr_srv.interface);
+
+  spdcon_srv.sdata.desired_rpm_msgq = &desired_rpm_queue;
+
+  ret = StartSpeedControlService(&spdcon_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start speed control service\n");
+    return false;
+  } else {
+    printk("[INFO] Started speed control service\n");
+  }
+
   // messenger
   msger_srv.rx_tconf.priority = TASK_PRIORITY_HIGH;
   msger_srv.rx_tconf.delay_ms = 100;
@@ -186,6 +203,7 @@ bool InitRobot() {
   msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
   msger_srv.dependencies.encoder_interface = &(encoder_srv.interface);
   msger_srv.dependencies.actuator_interface = &(actr_srv.interface);
+  msger_srv.dependencies.speed_control_interface = &(spdcon_srv.interface);
 
   //  msger_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
 
@@ -196,23 +214,6 @@ bool InitRobot() {
   } else {
     printk("[INFO] Started messenger service\n");
   }
-
-  // speed control
-//  spdcon_srv.tconf.priority = TASK_PRIORITY_HIGH;
-//  spdcon_srv.tconf.delay_ms = 100;
-//  spdcon_srv.tconf.period_ms = 20;
-//
-//  spdcon_srv.dependencies.actuator_interface = &(actr_srv.interface);
-//
-//  spdcon_srv.sdata.desired_rpm_msgq = &desired_rpm_queue;
-
-//  ret = StartSpeedControlService(&spdcon_srv);
-//  if (!ret) {
-//    printk("[ERROR] Failed to start speed control service\n");
-//    return false;
-//  } else {
-//    printk("[INFO] Started speed control service\n");
-//  }
 
   printk("-----------------------------------------------------\n");
 
