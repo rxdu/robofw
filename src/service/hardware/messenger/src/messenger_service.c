@@ -11,6 +11,7 @@
 
 #include "encoder/encoder_service.h"
 #include "actuator/actuator_service.h"
+#include "speed_control/speed_control_service.h"
 
 #ifdef APP_tbot
 #include "tbot/tbot_messenger.h"
@@ -45,7 +46,8 @@ bool StartMessengerService(MessengerServiceDef *def) {
 
   if (def->dependencies.receiver_interface == NULL ||
       def->dependencies.actuator_interface == NULL ||
-      def->dependencies.encoder_interface == NULL) {
+      def->dependencies.encoder_interface == NULL ||
+      def->dependencies.speed_control_interface == NULL) {
     printk("Dependency not set properly\n");
     return false;
   }
@@ -69,7 +71,7 @@ bool StartMessengerService(MessengerServiceDef *def) {
 }
 
 _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
-  MessengerServiceDef *def = (MessengerServiceDef *) p1;
+  MessengerServiceDef *def = (MessengerServiceDef *)p1;
   struct zcan_frame rx_frame;
 
 #ifndef UNKOWN_DECODER
@@ -77,18 +79,19 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 #endif
 
   ActuatorCmd actuator_cmd;
+  DesiredRpm desired_rpm;
 
   while (1) {
     if (k_msgq_get(def->sconf.dd_can->msgq, &rx_frame, K_FOREVER) == 0) {
       //   printk("CAN1 %02x: ", rx_frame.id);
-      //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ", rx_frame.data[i]);
-      //   printk("\n");
+      //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
+      //   rx_frame.data[i]); printk("\n");
 #ifndef UNKOWN_DECODER
       if (DecodeCanMessage(&rx_frame, &msg)) {
         switch (msg.type) {
           case kTbotPwmCommand: {
-            // printk("cmd: %d, %d\n", msg.data.pwm_cmd.pwm_left,
-            //        msg.data.pwm_cmd.pwm_right);
+            //            printk("pwm cmd: %d, %d\n", msg.data.pwm_cmd.pwm_left,
+            //                   msg.data.pwm_cmd.pwm_right);
             actuator_cmd.motors[0] = msg.data.pwm_cmd.pwm_left / 100.0f;
             actuator_cmd.motors[1] = msg.data.pwm_cmd.pwm_right / 100.0f;
             while (
@@ -101,6 +104,16 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
             break;
           }
           case kTbotMotorCommand: {
+//            printk("rpm cmd: %d, %d\n", msg.data.rpm_cmd.rpm_left,
+//                   msg.data.rpm_cmd.rpm_right);
+//            desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
+//            desired_rpm.motors[1] = msg.data.rpm_cmd.rpm_right;
+//            while (k_msgq_put(def->dependencies.speed_control_interface
+//                                  ->desired_rpm_msgq_in,
+//                              &desired_rpm, K_NO_WAIT) != 0) {
+//              k_msgq_purge(def->dependencies.speed_control_interface
+//                               ->desired_rpm_msgq_in);
+//            }
             break;
           }
           case kTbotMotionCommand: {
@@ -114,7 +127,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 }
 
 _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
-  MessengerServiceDef *def = (MessengerServiceDef *) p1;
+  MessengerServiceDef *def = (MessengerServiceDef *)p1;
 
   EstimatedSpeed speed_estimate;
 
@@ -122,7 +135,7 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   struct zcan_frame tx_frame;
 
   int ret = -1;
-  (void) ret;
+  (void)ret;
 
   while (1) {
     while (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
@@ -131,12 +144,13 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
       //          speed_estimate.rpms[1]);
       tmsg.type = kTbotEncoderRawData;
       tmsg.data.encoder_raw_data.left = speed_estimate.rpms[0];
-      // invert value since motor is mechanically installed in an opposite direction
+      // invert value since motor is mechanically installed in an opposite
+      // direction
       tmsg.data.encoder_raw_data.right = -speed_estimate.rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
 
-      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
-                         tx_frame.data, tx_frame.dlc);
+      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
+                         tx_frame.dlc);
       if (ret != CAN_TX_OK) {
         printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
       }
@@ -146,8 +160,8 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
       tmsg.data.encoder_filtered_data.right = -speed_estimate.filtered_rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
 
-      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
-                         tx_frame.data, tx_frame.dlc);
+      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
+                         tx_frame.dlc);
       if (ret != CAN_TX_OK) {
         printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
       }

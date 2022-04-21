@@ -33,9 +33,9 @@ typedef struct {
 // struct ReceiverInterface;
 struct ActuatorInterface;
 
-typedef struct {
+struct SpeedControlInterface {
   struct k_msgq* desired_rpm_msgq_in;
-} SpeedControlInterface;
+};
 
 typedef struct {
   // thread config
@@ -51,7 +51,7 @@ typedef struct {
   } dependencies;
 
   // interface
-  SpeedControlInterface interface;
+  struct SpeedControlInterface interface;
 } SpeedControlServiceDef;
 
 bool StartSpeedControlService(SpeedControlServiceDef* def);

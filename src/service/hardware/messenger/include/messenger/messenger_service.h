@@ -1,4 +1,4 @@
-/* 
+/*
  * messenger_service.h
  *
  * Created on 3/16/22 10:22 PM
@@ -24,14 +24,15 @@ typedef struct {
 } MessengerSrvConf;
 
 typedef struct {
-//  struct k_msgq *desired_motion_msgq;
+  //  struct k_msgq *desired_motion_msgq;
 } MessengerSrvData;
 
 struct EncoderInterface;
 struct ReceiverInterface;
+struct SpeedControlInterface;
 
 struct MessengerInterface {
-//  struct k_msgq *desired_motion_msgq_out;
+  //  struct k_msgq *desired_motion_msgq_out;
 };
 
 typedef struct {
@@ -47,6 +48,7 @@ typedef struct {
   struct {
     struct ReceiverInterface *receiver_interface;
     struct EncoderInterface *encoder_interface;
+    struct SpeedControlInterface *speed_control_interface;
     struct ActuatorInterface *actuator_interface;
   } dependencies;
 
@@ -56,4 +58,4 @@ typedef struct {
 
 bool StartMessengerService(MessengerServiceDef *def);
 
-#endif //ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_MESSENGER_SERVICE_H
+#endif  // ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_MESSENGER_SERVICE_H

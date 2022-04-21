@@ -48,6 +48,7 @@ typedef struct {
   TbotMsgType type;
   union {
     TbotPwmCommand pwm_cmd;
+    TbotMotorCommand rpm_cmd;
     TbotEncoderRawData encoder_raw_data;
     TbotEncoderFilteredData encoder_filtered_data;
   } data;

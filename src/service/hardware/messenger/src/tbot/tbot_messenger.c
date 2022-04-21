@@ -22,42 +22,42 @@ void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame) {
       frame->id = TBOT_ENCODER_RAW_DATA_CAN_ID;
       frame->dlc = 8;
       frame->data[0] =
-          (uint8_t) ((msg->data.encoder_raw_data.left & 0xff000000) >> 24);
+          (uint8_t)((msg->data.encoder_raw_data.left & 0xff000000) >> 24);
       frame->data[1] =
-          (uint8_t) ((msg->data.encoder_raw_data.left & 0x00ff0000) >> 16);
+          (uint8_t)((msg->data.encoder_raw_data.left & 0x00ff0000) >> 16);
       frame->data[2] =
-          (uint8_t) ((msg->data.encoder_raw_data.left & 0x0000ff00) >> 8);
+          (uint8_t)((msg->data.encoder_raw_data.left & 0x0000ff00) >> 8);
       frame->data[3] =
-          (uint8_t) ((msg->data.encoder_raw_data.left & 0x000000ff) >> 0);
+          (uint8_t)((msg->data.encoder_raw_data.left & 0x000000ff) >> 0);
       frame->data[4] =
-          (uint8_t) ((msg->data.encoder_raw_data.right & 0xff000000) >> 24);
+          (uint8_t)((msg->data.encoder_raw_data.right & 0xff000000) >> 24);
       frame->data[5] =
-          (uint8_t) ((msg->data.encoder_raw_data.right & 0x00ff0000) >> 16);
+          (uint8_t)((msg->data.encoder_raw_data.right & 0x00ff0000) >> 16);
       frame->data[6] =
-          (uint8_t) ((msg->data.encoder_raw_data.right & 0x0000ff00) >> 8);
+          (uint8_t)((msg->data.encoder_raw_data.right & 0x0000ff00) >> 8);
       frame->data[7] =
-          (uint8_t) ((msg->data.encoder_raw_data.right & 0x000000ff) >> 0);
+          (uint8_t)((msg->data.encoder_raw_data.right & 0x000000ff) >> 0);
       break;
     }
     case kTbotEncoderFilteredData: {
       frame->id = TBOT_ENCODER_FILTERED_DATA_CAN_ID;
       frame->dlc = 8;
       frame->data[0] =
-          (uint8_t) ((msg->data.encoder_filtered_data.left & 0xff000000) >> 24);
+          (uint8_t)((msg->data.encoder_filtered_data.left & 0xff000000) >> 24);
       frame->data[1] =
-          (uint8_t) ((msg->data.encoder_filtered_data.left & 0x00ff0000) >> 16);
+          (uint8_t)((msg->data.encoder_filtered_data.left & 0x00ff0000) >> 16);
       frame->data[2] =
-          (uint8_t) ((msg->data.encoder_filtered_data.left & 0x0000ff00) >> 8);
+          (uint8_t)((msg->data.encoder_filtered_data.left & 0x0000ff00) >> 8);
       frame->data[3] =
-          (uint8_t) ((msg->data.encoder_filtered_data.left & 0x000000ff) >> 0);
+          (uint8_t)((msg->data.encoder_filtered_data.left & 0x000000ff) >> 0);
       frame->data[4] =
-          (uint8_t) ((msg->data.encoder_filtered_data.right & 0xff000000) >> 24);
+          (uint8_t)((msg->data.encoder_filtered_data.right & 0xff000000) >> 24);
       frame->data[5] =
-          (uint8_t) ((msg->data.encoder_filtered_data.right & 0x00ff0000) >> 16);
+          (uint8_t)((msg->data.encoder_filtered_data.right & 0x00ff0000) >> 16);
       frame->data[6] =
-          (uint8_t) ((msg->data.encoder_filtered_data.right & 0x0000ff00) >> 8);
+          (uint8_t)((msg->data.encoder_filtered_data.right & 0x0000ff00) >> 8);
       frame->data[7] =
-          (uint8_t) ((msg->data.encoder_filtered_data.right & 0x000000ff) >> 0);
+          (uint8_t)((msg->data.encoder_filtered_data.right & 0x000000ff) >> 0);
       break;
     }
     default: {
@@ -71,11 +71,20 @@ bool DecodeCanMessage(const struct zcan_frame *frame, TbotMsg *msg) {
   switch (frame->id) {
     case TBOT_PWM_CMD_CAN_ID: {
       msg->type = kTbotPwmCommand;
-      msg->data.pwm_cmd.pwm_left = (int8_t) (frame->data[0]);
-      msg->data.pwm_cmd.pwm_right = (int8_t) (frame->data[1]);
+      msg->data.pwm_cmd.pwm_left = (int8_t)(frame->data[0]);
+      msg->data.pwm_cmd.pwm_right = (int8_t)(frame->data[1]);
       break;
     }
     case TBOT_MOTOR_CMD_CAN_ID: {
+      msg->type = kTbotPwmCommand;
+      msg->data.rpm_cmd.rpm_left = (int32_t)((uint32_t)(frame->data[0]) << 24 |
+                                             (uint32_t)(frame->data[1]) << 16 |
+                                             (uint32_t)(frame->data[2]) << 8 |
+                                             (uint32_t)(frame->data[3]));
+      msg->data.rpm_cmd.rpm_right = (int32_t)((uint32_t)(frame->data[4]) << 24 |
+                                              (uint32_t)(frame->data[5]) << 16 |
+                                              (uint32_t)(frame->data[6]) << 8 |
+                                              (uint32_t)(frame->data[7]));
       break;
     }
     case TBOT_MOTION_CMD_CAN_ID: {
