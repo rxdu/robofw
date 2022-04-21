@@ -10,8 +10,11 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include <zephyr.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 #include <device.h>
+#include <zephyr.h>
 
 typedef struct {
   k_tid_t tid;
@@ -20,6 +23,12 @@ typedef struct {
   uint32_t delay_ms;
   uint32_t period_ms;
 } ThreadConfig;
+
+typedef struct {
+  float x;
+  float y;
+  float z;
+} Vector3f;
 
 // e.g.
 // {
@@ -31,7 +40,7 @@ typedef struct {
 //      // sleep for "period - (t - t0)"
 //      k_msleep_until(period_ms, t0);
 // }
-#define k_loop_start()  k_uptime_get()
+#define k_loop_start() k_uptime_get()
 #define k_msleep_until(period, t0) k_msleep(period - k_uptime_delta(&t0))
 
 #endif /* SERVICE_H */

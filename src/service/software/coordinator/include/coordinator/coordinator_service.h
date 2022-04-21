@@ -10,22 +10,10 @@
 #ifndef SYSTEM_SERVICE_H
 #define SYSTEM_SERVICE_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#include <zephyr.h>
-#include <device.h>
-
 #include "interface/service.h"
 
 #include "receiver/receiver_service.h"
 #include "mcal/interface/led_interface.h"
-
-typedef struct {
-  float x;
-  float y;
-  float z;
-} Vector3f;
 
 typedef struct {
   Vector3f linear;
