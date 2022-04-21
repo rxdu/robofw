@@ -21,13 +21,13 @@ void main(void) {
   InitHardware();
 
   // LED
-  LedDescription* leds = GetLedDescription();
+  LedDescription *leds = GetLedDescription();
   TurnOnLed(&leds->descriptor[0]);
   TurnOffLed(&leds->descriptor[1]);
   TurnOnLed(&leds->descriptor[2]);
 
   // DIO
-  DioDescription* dios = GetDioDescription();
+  DioDescription *dios = GetDioDescription();
   ConfigureDio(&dios->descriptor[0], GPIO_OUTPUT | GPIO_PULL_UP);
   ConfigureDio(&dios->descriptor[1], GPIO_OUTPUT | GPIO_PULL_UP);
   ConfigureDio(&dios->descriptor[2], GPIO_OUTPUT | GPIO_PULL_UP);
@@ -40,14 +40,18 @@ void main(void) {
   SetDio(&dios->descriptor[4], 1);
 
   // PWM
-  PwmDescription* pwms = GetPwmDescription();
-  SetPwmDutyCycle(&pwms->descriptor[0], 0.5);
-  SetPwmDutyCycle(&pwms->descriptor[1], 0.5);
-  SetPwmDutyCycle(&pwms->descriptor[2], 0.5);
-  SetPwmDutyCycle(&pwms->descriptor[3], 0.5);
+  PwmDescription *pwms = GetPwmDescription();
+//  SetPwmDutyCycle(&pwms->descriptor[0], 0.5);
+//  SetPwmDutyCycle(&pwms->descriptor[1], 0.5);
+//  SetPwmDutyCycle(&pwms->descriptor[2], 0.5);
+//  SetPwmDutyCycle(&pwms->descriptor[3], 0.5);
+  SetPwmDutyCycle(&pwms->descriptor[0], 1);
+  SetPwmDutyCycle(&pwms->descriptor[1], 1);
+  SetPwmDutyCycle(&pwms->descriptor[2], 1);
+  SetPwmDutyCycle(&pwms->descriptor[3], 1);
 
   // UART
-  UartDescription* uarts = GetUartDescription();
+  UartDescription *uarts = GetUartDescription();
 
   struct uart_config sbus_cfg;
   GetUartSbusConfig(&sbus_cfg);
@@ -71,22 +75,24 @@ void main(void) {
   //   StartUartAsyncReceive(DD_UART2);
 
   // CAN
-  //   struct zcan_filter can_filter;
-  //   can_filter.id_type = CAN_STANDARD_IDENTIFIER;
-  //   can_filter.rtr = CAN_DATAFRAME;
-  //   can_filter.rtr_mask = 1;
-  //   can_filter.id_mask = 0;
-  //   ConfigureCan(DD_CAN0, CAN_NORMAL_MODE, 500000, can_filter);
-  //   ConfigureCan(DD_CAN1, CAN_NORMAL_MODE, 1000000, can_filter);
+  CanDescription *cans = GetCanDescription();
+
+  struct zcan_filter can_filter;
+  can_filter.id_type = CAN_STANDARD_IDENTIFIER;
+  can_filter.rtr = CAN_DATAFRAME;
+  can_filter.rtr_mask = 1;
+  can_filter.id_mask = 0;
+  ConfigureCan(&cans->descriptor[0], CAN_NORMAL_MODE, 500000, can_filter);
+//     ConfigureCan(DD_CAN1, CAN_NORMAL_MODE, 1000000, can_filter);
 
   printk("--------------------------------------------\n");
 
   uint8_t count = 0;
   uint8_t data[] = "hello";
-  //   uint8_t candata[] = {0x11, 0x22, 0x55, 0x66};
+  uint8_t candata[] = {0x11, 0x22, 0x55, 0x66};
   //   struct zcan_frame rx_frame;
 
-  (void)data;
+  (void) data;
 
   //   CanDescription* can_desc = GetCanDescription();
 
@@ -105,12 +111,12 @@ void main(void) {
     //   printk("%s failed to send\n",
     // uart_desc->descriptor[1].device->name);
     // }
-    if (k_sem_take(&uarts->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
-      uint8_t ch;
-      while (ring_buf_get(&uarts->descriptor[0].ring_buffer, &ch, 1) != 0) {
-        printk("%02x ", ch);
-      }
-    }
+//    if (k_sem_take(&uarts->descriptor[0].rx_sem, K_MSEC(50)) == 0) {
+//      uint8_t ch;
+//      while (ring_buf_get(&uarts->descriptor[0].ring_buffer, &ch, 1) != 0) {
+//        printk("%02x ", ch);
+//      }
+//    }
 
     // if (k_msgq_get(can_desc->descriptor[0].msgq, &rx_frame, K_MSEC(50)) == 0)
     // {
@@ -119,13 +125,13 @@ void main(void) {
     //   rx_frame.data[i]); printk("\n");
     // }
     // // printk("%s sending\n", can_desc->descriptor[0].device->name);
-    // int ret = SendCanFrame(DD_CAN0, 0x121, true, candata, 4);
-    // if (ret != CAN_TX_OK) {
-    //   printk("%s send failed: %d\n", can_desc->descriptor[0].device->name,
-    //   ret);
-    // } else {
-    //   //   printk("%s sent\n", can_desc->descriptor[0].device->name);
-    // }
+    int ret = SendCanFrame(&cans->descriptor[0], 0x121, true, candata, 4);
+    if (ret != CAN_TX_OK) {
+      printk("%s send failed: %d\n", cans->descriptor[0].device->name,
+             ret);
+    } else {
+      printk("%s sent\n", cans->descriptor[0].device->name);
+    }
 
     // if (k_msgq_get(can_desc->descriptor[1].msgq, &rx_frame, K_MSEC(50)) == 0)
     // {

@@ -16,10 +16,13 @@ endif ()
 # default app and board if not specified
 if (NOT DEFINED APP_NAME)
     set(APP_NAME "tbot")
+    #    set(APP_NAME "hwconfig")
 endif ()
 if (NOT DEFINED BOARD)
     set(BOARD "tbotctrl_f405")
 endif ()
+
+add_definitions("-DAPP_${APP_NAME}")
 
 list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -45,12 +48,12 @@ project(robofw)
 # Architecture-specific flags
 if (BUILD_POSIX_NATIVE)
     set(ARCH_FLAGS "-m32")
-else()
+else ()
     set(CPU "-mcpu=cortex-m4")
     set(FPU "-mfpu=fpv4-sp-d16")
     set(FLOAT_ABI "-mfloat-abi=hard")
     set(ARCH_FLAGS "${CPU} -mthumb -mabi=aapcs ${FPU} ${FLOAT_ABI}")
-endif()
+endif ()
 
 set(GCC_FLAG "-lgcc")
 
