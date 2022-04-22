@@ -156,10 +156,12 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
           raw_rpm_history[i][1] = speed_estimate.rpms[i];
           last_filtered_rpms[i] = speed_estimate.filtered_rpms[i];
         }
-//        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s), %d, %d, %d\n", accumulated_time,
-//               is_counting_up[0] ? "up" : "down", encoder_reading[0], accumulated_error[0],
-//               speed_estimate.rpms[0], is_counting_up[1] ? "up" : "down",
-//               encoder_reading[1], accumulated_error[1], speed_estimate.rpms[1]);
+        //        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s),
+        //        %d, %d, %d\n", accumulated_time,
+        //               is_counting_up[0] ? "up" : "down", encoder_reading[0],
+        //               accumulated_error[0], speed_estimate.rpms[0],
+        //               is_counting_up[1] ? "up" : "down", encoder_reading[1],
+        //               accumulated_error[1], speed_estimate.rpms[1]);
 
         // clear time and error
         accumulated_time = 0;

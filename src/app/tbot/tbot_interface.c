@@ -178,6 +178,7 @@ bool InitRobot() {
   spdcon_srv.tconf.delay_ms = 100;
   spdcon_srv.tconf.period_ms = 20;
 
+  spdcon_srv.dependencies.encoder_interface = &(encoder_srv.interface);
   spdcon_srv.dependencies.actuator_interface = &(actr_srv.interface);
 
   spdcon_srv.sdata.desired_rpm_msgq = &desired_rpm_queue;

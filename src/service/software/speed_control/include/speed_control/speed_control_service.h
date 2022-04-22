@@ -32,6 +32,7 @@ typedef struct {
 
 // struct ReceiverInterface;
 struct ActuatorInterface;
+struct EncoderInterface;
 
 struct SpeedControlInterface {
   struct k_msgq* desired_rpm_msgq_in;
@@ -47,6 +48,7 @@ typedef struct {
 
   // dependent interfaces
   struct {
+    struct EncoderInterface* encoder_interface;
     struct ActuatorInterface* actuator_interface;
   } dependencies;
 

@@ -104,8 +104,8 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
             break;
           }
           case kTbotMotorCommand: {
-            printk("rpm cmd: %d, %d\n", msg.data.rpm_cmd.rpm_left,
-                   msg.data.rpm_cmd.rpm_right);
+            //            printk("rpm cmd: %d, %d\n", msg.data.rpm_cmd.rpm_left,
+            //                   msg.data.rpm_cmd.rpm_right);
             desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
             desired_rpm.motors[1] = msg.data.rpm_cmd.rpm_right;
             while (k_msgq_put(def->dependencies.speed_control_interface
