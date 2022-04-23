@@ -2,6 +2,14 @@
 
 ## 1. Computer --> Robot
 
+### Supervisor command (companion computer)
+
+* supervised mode: none - 0, pwm - 1, rpm - 2
+
+|  ID   |  Byte 0  | Byte 1 | Byte 2 | Byte 3 | Byte 4 | Byte 5 | Byte 6 | Byte 7 |
+| :---: |:--------:| :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| 0x100 | sup_mode |        |        |        |        |        |        |        |
+
 ### PWM command
 
 * Left PWM: uint8_t

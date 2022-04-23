@@ -39,6 +39,9 @@ bool StartMessengerService(MessengerServiceDef *def) {
   if (def->sdata.desired_motion_msgq == NULL) return false;
   def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
 
+  if (def->sdata.supervisor_cmd_msgq == NULL) return false;
+  def->interface.supervisor_cmd_msgq_out = def->sdata.supervisor_cmd_msgq;
+
   // sanity check
   if (def->sconf.dd_can == NULL) {
     printk("Messenger can descriptor not set properly\n");
@@ -78,6 +81,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
   DecodeMsgType msg;
 #endif
 
+  SupervisorCommand sup_cmd;
   ActuatorCmd actuator_cmd;
   DesiredRpm desired_rpm;
   DesiredMotion desired_motion;
@@ -90,6 +94,14 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 #ifndef UNKOWN_DECODER
       if (DecodeCanMessage(&rx_frame, &msg)) {
         switch (msg.type) {
+          case kTbotSuperviserCmmand: {
+            sup_cmd.supervised_mode = msg.data.sup_cmd.sup_mode;
+            while (k_msgq_put(def->interface.supervisor_cmd_msgq_out, &sup_cmd,
+                              K_NO_WAIT) != 0) {
+              k_msgq_purge(def->interface.supervisor_cmd_msgq_out);
+            }
+            break;
+          }
           case kTbotPwmCommand: {
             //            printk("pwm cmd: %d, %d\n", msg.data.pwm_cmd.pwm_left,
             //                   msg.data.pwm_cmd.pwm_right);

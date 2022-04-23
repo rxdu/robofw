@@ -54,10 +54,14 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
   desired_motion_from_can.linear = 0;
   desired_motion_from_can.angular = 0;
 
+  SupervisorCommand sup_cmd;
+  sup_cmd.supervised_mode = kNonSupervised;
+
   RobotState robot_state;
   robot_state.rc_connected = false;
   robot_state.estop_triggered = false;
   robot_state.control_mode = kControlModeCAN;
+  robot_state.sup_mode = kNonSupervised;
 
   DesiredMotion desired_motion;
   desired_motion.linear = 0;
@@ -141,25 +145,35 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
       desired_motion.angular = desired_motion_from_can.angular;
     }
 
-    if (robot_state.estop_triggered) {
-      desired_motion.linear = 0;
-      desired_motion.angular = 0;
+    // check supervisor command
+    if (k_msgq_get(
+            def->dependencies.messenger_interface->supervisor_cmd_msgq_out,
+            &sup_cmd, K_NO_WAIT) == 0) {
+      robot_state.sup_mode = sup_cmd.supervised_mode;
     }
 
-    // send out desired motion command
-    while (
-        k_msgq_put(
-            def->dependencies.motion_control_interface->desired_motion_msgq_in,
-            &desired_motion, K_NO_WAIT) != 0) {
-      k_msgq_purge(
-          def->dependencies.motion_control_interface->desired_motion_msgq_in);
-    }
+    printk(
+        "rc: %s, estop: %s, sup: %d, mode: %d, linear: %.4f, angular: %.4f\n",
+        robot_state.rc_connected ? "on" : "off",
+        robot_state.estop_triggered ? "on" : "off", robot_state.sup_mode,
+        robot_state.control_mode, desired_motion.linear,
+        desired_motion.angular);
 
-    //    printk("rc: %s, estop: %s, mode: %d, linear: %.4f, angular: %.4f\n",
-    //           robot_state.rc_connected ? "on" : "off",
-    //           robot_state.estop_triggered ? "on" : "off",
-    //           robot_state.control_mode, desired_motion.linear,
-    //           desired_motion.angular);
+    // send out desired motion if not in supervised mode
+    if (robot_state.sup_mode == kNonSupervised) {
+      if (robot_state.estop_triggered) {
+        desired_motion.linear = 0;
+        desired_motion.angular = 0;
+      }
+
+      // send out desired motion command
+      while (k_msgq_put(def->dependencies.motion_control_interface
+                            ->desired_motion_msgq_in,
+                        &desired_motion, K_NO_WAIT) != 0) {
+        k_msgq_purge(
+            def->dependencies.motion_control_interface->desired_motion_msgq_in);
+      }
+    }
 
     // task timing
     ++loop_counter;

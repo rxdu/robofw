@@ -9,6 +9,7 @@
 
 #include "tbot/tbot_messenger.h"
 
+#define TBOT_SUP_CMD_CAN_ID 0x100
 #define TBOT_PWM_CMD_CAN_ID 0x101
 #define TBOT_MOTOR_CMD_CAN_ID 0x102
 #define TBOT_MOTION_CMD_CAN_ID 0x103
@@ -69,6 +70,11 @@ void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame) {
 bool DecodeCanMessage(const struct zcan_frame *frame, TbotMsg *msg) {
   bool ret = true;
   switch (frame->id) {
+    case TBOT_SUP_CMD_CAN_ID: {
+      msg->type = kTbotSuperviserCmmand;
+      msg->data.sup_cmd.sup_mode = frame->data[0];
+      break;
+    }
     case TBOT_PWM_CMD_CAN_ID: {
       msg->type = kTbotPwmCommand;
       msg->data.pwm_cmd.pwm_left = (int8_t)(frame->data[0]);

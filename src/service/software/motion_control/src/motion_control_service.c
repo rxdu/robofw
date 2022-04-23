@@ -47,8 +47,8 @@ _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
 
     if (k_msgq_get(def->interface.desired_motion_msgq_in, &desired_motion,
                    K_NO_WAIT) == 0) {
-      printk("desired motion: %.4f, %.4f\n", desired_motion.linear,
-             desired_motion.angular);
+//      printk("desired motion: %.4f, %.4f\n", desired_motion.linear,
+//             desired_motion.angular);
     }
 
     k_msleep_until(def->tconf.period_ms, t0);

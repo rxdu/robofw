@@ -13,6 +13,11 @@
 #include <stdint.h>
 
 #include "mcal/interface/can_interface.h"
+#include "interface/service.h"
+
+typedef struct {
+  SupervisedMode sup_mode;
+} TbotSupervisorCommand;
 
 typedef struct {
   int8_t pwm_left;
@@ -37,9 +42,12 @@ typedef struct {
 typedef TbotEncoderRawData TbotEncoderFilteredData;
 
 typedef enum {
-  kTbotPwmCommand = 0,
+  // command
+  kTbotSuperviserCmmand = 0,
+  kTbotPwmCommand,
   kTbotMotorCommand,
   kTbotMotionCommand,
+  // feedback
   kTbotEncoderRawData,
   kTbotEncoderFilteredData
 } TbotMsgType;
@@ -48,6 +56,7 @@ typedef struct {
   TbotMsgType type;
   union {
     // command
+    TbotSupervisorCommand sup_cmd;
     TbotPwmCommand pwm_cmd;
     TbotMotorCommand rpm_cmd;
     TbotMotionCommand motion_cmd;

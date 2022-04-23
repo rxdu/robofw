@@ -69,6 +69,7 @@ K_MSGQ_DEFINE(motion_control_feedback_queue, sizeof(MotionControlFeedback), 1,
               8);
 K_MSGQ_DEFINE(robot_state_queue, sizeof(RobotState), 1, 8);
 K_MSGQ_DEFINE(can_desired_motion_queue, sizeof(DesiredMotion), 1, 8);
+K_MSGQ_DEFINE(supervisor_cmd_queue, sizeof(SupervisorCommand), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
@@ -208,6 +209,7 @@ bool InitRobot() {
   msger_srv.tx_tconf.delay_ms = 100;
   msger_srv.tx_tconf.period_ms = 20;
 
+  msger_srv.sdata.supervisor_cmd_msgq = &supervisor_cmd_queue;
   msger_srv.sdata.desired_motion_msgq = &can_desired_motion_queue;
 
   msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);

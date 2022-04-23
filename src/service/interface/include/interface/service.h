@@ -30,6 +30,16 @@ typedef struct {
   float z;
 } Vector3f;
 
+typedef enum {
+  kNonSupervised = 0,
+  kSupervisedPwm = 1,
+  kSupervisedRpm = 2
+} SupervisedMode;
+
+typedef struct {
+  SupervisedMode supervised_mode;
+} __attribute__((aligned(8))) SupervisorCommand;
+
 #define FLOAT_VALUE_DELTA 0.00001f
 
 // e.g.

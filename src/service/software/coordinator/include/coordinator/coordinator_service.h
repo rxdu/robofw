@@ -20,6 +20,7 @@ typedef struct {
   bool rc_connected;
   bool estop_triggered;
   enum RobotControlMode control_mode;
+  uint8_t sup_mode;
 } __attribute__((aligned(8))) RobotState;
 
 typedef struct {

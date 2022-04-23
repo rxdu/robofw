@@ -75,40 +75,40 @@ _Noreturn void SpeedServiceLoop(void *p1, void *p2, void *p3) {
 
     if (k_msgq_get(def->interface.desired_rpm_msgq_in, &target_rpm,
                    K_NO_WAIT) == 0) {
+      //    printk("rpm cmd: %d, %d\n", desired_rpm.motors[0],
+      //    desired_rpm.motors[1]);
+
+      if (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
+                     &measured_rpm, K_NO_WAIT) == 0) {
+        //      measured_rpm.filtered_rpms[1] = -measured_rpm.filtered_rpms[1];
+      }
+
+      actuator_cmd.motors[0] =
+          UpdatePidController(&left_ctrl, target_rpm.motors[0],
+                              measured_rpm.filtered_rpms[0]) /
+          100.0f;
+      actuator_cmd.motors[1] =
+          UpdatePidController(&right_ctrl, target_rpm.motors[1],
+                              measured_rpm.filtered_rpms[1]) /
+          100.0f;
+
+      //    printk("target/current: %d / %d, %d / %d, command: %f, %f\n",
+      //           target_rpm.motors[0], measured_rpm.filtered_rpms[0],
+      //           target_rpm.motors[1], measured_rpm.filtered_rpms[1],
+      //           actuator_cmd.motors[0], actuator_cmd.motors[1]);
+
+      while (
+          k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
+                     &actuator_cmd, K_NO_WAIT) != 0) {
+        k_msgq_purge(
+            def->dependencies.actuator_interface->actuator_cmd_msgq_in);
+      }
+
+      feedback.target_speed = target_rpm;
+      feedback.measured_speed = measured_rpm;
+      k_msgq_put(def->interface.control_feedback_msgq_out, &actuator_cmd,
+                 K_NO_WAIT);
     }
-
-    //    printk("rpm cmd: %d, %d\n", desired_rpm.motors[0],
-    //    desired_rpm.motors[1]);
-
-    if (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
-                   &measured_rpm, K_NO_WAIT) == 0) {
-      //      measured_rpm.filtered_rpms[1] = -measured_rpm.filtered_rpms[1];
-    }
-
-    actuator_cmd.motors[0] =
-        UpdatePidController(&left_ctrl, target_rpm.motors[0],
-                            measured_rpm.filtered_rpms[0]) /
-        100.0f;
-    actuator_cmd.motors[1] =
-        UpdatePidController(&right_ctrl, target_rpm.motors[1],
-                            measured_rpm.filtered_rpms[1]) /
-        100.0f;
-
-    //    printk("target/current: %d / %d, %d / %d, command: %f, %f\n",
-    //           target_rpm.motors[0], measured_rpm.filtered_rpms[0],
-    //           target_rpm.motors[1], measured_rpm.filtered_rpms[1],
-    //           actuator_cmd.motors[0], actuator_cmd.motors[1]);
-
-    while (
-        k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
-                   &actuator_cmd, K_NO_WAIT) != 0) {
-      k_msgq_purge(def->dependencies.actuator_interface->actuator_cmd_msgq_in);
-    }
-
-    feedback.target_speed = target_rpm;
-    feedback.measured_speed = measured_rpm;
-    k_msgq_put(def->interface.control_feedback_msgq_out, &actuator_cmd,
-               K_NO_WAIT);
 
     // task timing
     //    k_msleep(def->tconf.period_ms);
