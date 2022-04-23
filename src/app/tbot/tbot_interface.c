@@ -63,6 +63,7 @@ K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
 K_MSGQ_DEFINE(desired_rpm_queue, sizeof(DesiredRpm), 1, 8);
+K_MSGQ_DEFINE(speed_control_feedback_queue, sizeof(SpeedControlFeedback), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
@@ -107,7 +108,7 @@ bool InitRobot() {
 
   // actuator service
   actr_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  actr_srv.tconf.delay_ms = 0;
+  actr_srv.tconf.delay_ms = 500;
   actr_srv.tconf.period_ms = 20;
 
   static TbotActuatorConf tbot_motor_cfg;
@@ -182,6 +183,7 @@ bool InitRobot() {
   spdcon_srv.dependencies.actuator_interface = &(actr_srv.interface);
 
   spdcon_srv.sdata.desired_rpm_msgq = &desired_rpm_queue;
+  spdcon_srv.sdata.control_feedback_msgq = &speed_control_feedback_queue;
 
   ret = StartSpeedControlService(&spdcon_srv);
   if (!ret) {
@@ -202,7 +204,6 @@ bool InitRobot() {
 
   msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
   msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
-  msger_srv.dependencies.encoder_interface = &(encoder_srv.interface);
   msger_srv.dependencies.actuator_interface = &(actr_srv.interface);
   msger_srv.dependencies.speed_control_interface = &(spdcon_srv.interface);
 

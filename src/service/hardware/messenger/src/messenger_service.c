@@ -46,7 +46,6 @@ bool StartMessengerService(MessengerServiceDef *def) {
 
   if (def->dependencies.receiver_interface == NULL ||
       def->dependencies.actuator_interface == NULL ||
-      def->dependencies.encoder_interface == NULL ||
       def->dependencies.speed_control_interface == NULL) {
     printk("Dependency not set properly\n");
     return false;
@@ -93,7 +92,9 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
             //            printk("pwm cmd: %d, %d\n", msg.data.pwm_cmd.pwm_left,
             //                   msg.data.pwm_cmd.pwm_right);
             actuator_cmd.motors[0] = msg.data.pwm_cmd.pwm_left / 100.0f;
-            actuator_cmd.motors[1] = msg.data.pwm_cmd.pwm_right / 100.0f;
+            // invert value since motor is mechanically installed in an opposite
+            // direction
+            actuator_cmd.motors[1] = -msg.data.pwm_cmd.pwm_right / 100.0f;
             while (
                 k_msgq_put(
                     def->dependencies.actuator_interface->actuator_cmd_msgq_in,
@@ -107,7 +108,9 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
             //            printk("rpm cmd: %d, %d\n", msg.data.rpm_cmd.rpm_left,
             //                   msg.data.rpm_cmd.rpm_right);
             desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
-            desired_rpm.motors[1] = msg.data.rpm_cmd.rpm_right;
+            // invert value since motor is mechanically installed in an opposite
+            // direction
+            desired_rpm.motors[1] = -msg.data.rpm_cmd.rpm_right;
             while (k_msgq_put(def->dependencies.speed_control_interface
                                   ->desired_rpm_msgq_in,
                               &desired_rpm, K_NO_WAIT) != 0) {
@@ -129,7 +132,8 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *)p1;
 
-  EstimatedSpeed speed_estimate;
+  SpeedControlFeedback speed_control_feedback;
+  //  EstimatedSpeed speed_estimate;
 
   TbotMsg tmsg;
   struct zcan_frame tx_frame;
@@ -138,15 +142,16 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   (void)ret;
 
   while (1) {
-    while (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
-                      &speed_estimate, K_FOREVER) == 0) {
+    while (k_msgq_get(def->dependencies.speed_control_interface
+                          ->control_feedback_msgq_out,
+                      &speed_control_feedback, K_FOREVER) == 0) {
       //   printk("left: %d； right: %d\n", speed_estimate.rpms[0],
       //          speed_estimate.rpms[1]);
       tmsg.type = kTbotEncoderRawData;
-      tmsg.data.encoder_raw_data.left = speed_estimate.rpms[0];
-      // invert value since motor is mechanically installed in an opposite
-      // direction
-      tmsg.data.encoder_raw_data.right = -speed_estimate.rpms[1];
+      tmsg.data.encoder_raw_data.left =
+          speed_control_feedback.measured_speed.raw_rpms[0];
+      tmsg.data.encoder_raw_data.right =
+          speed_control_feedback.measured_speed.raw_rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
 
       ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
@@ -156,8 +161,10 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
       }
 
       tmsg.type = kTbotEncoderFilteredData;
-      tmsg.data.encoder_filtered_data.left = speed_estimate.filtered_rpms[0];
-      tmsg.data.encoder_filtered_data.right = -speed_estimate.filtered_rpms[1];
+      tmsg.data.encoder_filtered_data.left =
+          speed_control_feedback.measured_speed.filtered_rpms[0];
+      tmsg.data.encoder_filtered_data.right =
+          speed_control_feedback.measured_speed.filtered_rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
 
       ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,

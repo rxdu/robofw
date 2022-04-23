@@ -35,7 +35,7 @@ bool InitTbotActuators(TbotActuatorConf *cfg) {
 }
 
 _Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
-  ActuatorServiceDef *def = (ActuatorServiceDef *) p1;
+  ActuatorServiceDef *def = (ActuatorServiceDef *)p1;
   ActuatorCmd actuator_cmd;
 
   float cmd_left = 0;
@@ -45,7 +45,7 @@ _Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
     //    printk("actuator_cmd_msgq free: %d\n",
     //    k_msgq_num_free_get(def->sdata.actuator_cmd_msgq));
     while (k_msgq_get(def->sdata.actuator_cmd_msgq, &actuator_cmd, K_FOREVER) ==
-        0) {
+           0) {
       float cmd_left_in = actuator_cmd.motors[0];
       float cmd_right_in = actuator_cmd.motors[1];
 
@@ -54,9 +54,10 @@ _Noreturn void TbotActuatorServiceLoop(void *p1, void *p2, void *p3) {
       LimitCommand(cmd_right_in, &cmd_right);
 
       // reverse right cmd (reversed motor installation direction)
-      cmd_right = -cmd_right;
+      //      cmd_right = -cmd_right;
 
-//      printk("received cmd: %3f, %3f, final cmd: %3f, %3f\n", cmd_left_in, cmd_right_in, cmd_left, cmd_right);
+      //      printk("received cmd: %3f, %3f, final cmd: %3f, %3f\n",
+      //      cmd_left_in, cmd_right_in, cmd_left, cmd_right);
       SetMotorCmd(cmd_left, cmd_right);
     }
     //    k_msleep(def->tconf.period_ms);

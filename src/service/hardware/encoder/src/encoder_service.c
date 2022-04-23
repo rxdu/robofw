@@ -143,7 +143,7 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
         for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
           int32_t sign = 1;
           if (!is_counting_up[i]) sign = -1;
-          speed_estimate.rpms[i] = sign * (int32_t) (accumulated_error[i]) * 60 *
+          speed_estimate.raw_rpms[i] = sign * (int32_t) (accumulated_error[i]) * 60 *
               1000 / accumulated_time /
               def->sconf.pulse_per_round[i];
 
@@ -153,7 +153,7 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
 
           // save for next iternation
           raw_rpm_history[i][0] = raw_rpm_history[i][1];
-          raw_rpm_history[i][1] = speed_estimate.rpms[i];
+          raw_rpm_history[i][1] = speed_estimate.raw_rpms[i];
           last_filtered_rpms[i] = speed_estimate.filtered_rpms[i];
         }
         //        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s),

@@ -47,7 +47,6 @@ typedef struct {
   // dependent interfaces
   struct {
     struct ReceiverInterface *receiver_interface;
-    struct EncoderInterface *encoder_interface;
     struct SpeedControlInterface *speed_control_interface;
     struct ActuatorInterface *actuator_interface;
   } dependencies;

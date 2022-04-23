@@ -22,8 +22,6 @@ float UpdatePidController(PidControllerInstance* inst, float reference,
   float derivative = (error - inst->error_last) / inst->ts;
   float new_integral = inst->integral + error * inst->ts;
 
-//  printk("error: %f, dt: %f\n", error, inst->ts);
-
   float u =
       inst->kp * error + inst->ki * inst->integral + inst->kd * derivative;
 
@@ -35,6 +33,9 @@ float UpdatePidController(PidControllerInstance* inst, float reference,
   } else {
     inst->integral = new_integral;
   }
+
+  //  printk("meas: %.4f, target: %.4f, error: %.4f, integral: %.4f, u: %.4f\n",
+  //         measurement, reference, error, inst->integral, u);
 
   inst->error_last = error;
 
