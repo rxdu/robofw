@@ -88,6 +88,18 @@ bool DecodeCanMessage(const struct zcan_frame *frame, TbotMsg *msg) {
       break;
     }
     case TBOT_MOTION_CMD_CAN_ID: {
+      msg->type = kTbotMotionCommand;
+      msg->data.motion_cmd.linear = (int32_t)((uint32_t)(frame->data[0]) << 24 |
+                                              (uint32_t)(frame->data[1]) << 16 |
+                                              (uint32_t)(frame->data[2]) << 8 |
+                                              (uint32_t)(frame->data[3])) /
+                                    100.0f;
+      msg->data.motion_cmd.angular =
+          (int32_t)((uint32_t)(frame->data[4]) << 24 |
+                    (uint32_t)(frame->data[5]) << 16 |
+                    (uint32_t)(frame->data[6]) << 8 |
+                    (uint32_t)(frame->data[7])) /
+          100.0f;
       break;
     }
     default: {

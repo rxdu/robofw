@@ -25,8 +25,8 @@ typedef struct {
 } TbotMotorCommand;
 
 typedef struct {
-  int32_t linear;
-  int32_t angular;
+  float linear;
+  float angular;
 } TbotMotionCommand;
 
 typedef struct {
@@ -47,8 +47,11 @@ typedef enum {
 typedef struct {
   TbotMsgType type;
   union {
+    // command
     TbotPwmCommand pwm_cmd;
     TbotMotorCommand rpm_cmd;
+    TbotMotionCommand motion_cmd;
+    // feedback
     TbotEncoderRawData encoder_raw_data;
     TbotEncoderFilteredData encoder_filtered_data;
   } data;

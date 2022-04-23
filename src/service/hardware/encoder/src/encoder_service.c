@@ -46,16 +46,15 @@ bool StartEncoderService(EncoderServiceDef *def) {
   // create and start thread
   def->tconf.tid = k_thread_create(
       &def->tconf.thread, encoder_service_stack,
-      K_THREAD_STACK_SIZEOF(encoder_service_stack), EncoderServiceMainLoop,
-      def, NULL, NULL, def->tconf.priority, 0,
-      Z_TIMEOUT_MS(def->tconf.delay_ms));
+      K_THREAD_STACK_SIZEOF(encoder_service_stack), EncoderServiceMainLoop, def,
+      NULL, NULL, def->tconf.priority, 0, Z_TIMEOUT_MS(def->tconf.delay_ms));
   k_thread_name_set(def->tconf.tid, "encoder_service_main");
 
   return true;
 }
 
 _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
-  EncoderServiceDef *def = (EncoderServiceDef *) p1;
+  EncoderServiceDef *def = (EncoderServiceDef *)p1;
 
   static float a = 0.7284895;
   static float b[2] = {0.13575525, 0.13575525};
@@ -63,8 +62,8 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   int32_t raw_rpm_history[ENCODER_CHANNEL_NUMBER][2] = {0};
 
   bool is_counting_up[ENCODER_CHANNEL_NUMBER] = {true, true};
-  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER];
-  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER];
+  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER] = {0};
+  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0};
   uint16_t accumulated_error[ENCODER_CHANNEL_NUMBER] = {0};
 
   bool first_time = true;
@@ -97,14 +96,15 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
       for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
         if ((encoder_reading[i] >= encoder_prev_reading[i]) &&
             (encoder_reading[i] - encoder_prev_reading[i] >
-                MAX_PULSE_PER_PERIOD)) {
+             MAX_PULSE_PER_PERIOD)) {
           underflow_detected[i] = true;
-//          printk("underflow %d ----------------------------\n", i);
+          //          printk("underflow %d ----------------------------\n", i);
         } else {
           if (encoder_prev_reading[i] - encoder_reading[i] >
               MAX_PULSE_PER_PERIOD) {
             overflow_detected[i] = true;
-//            printk("overflow %d ----------------------------\n", i);
+            //            printk("overflow %d ----------------------------\n",
+            //            i);
           }
         }
 
@@ -143,13 +143,14 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
         for (int i = 0; i < def->sconf.active_encoder_num; ++i) {
           int32_t sign = 1;
           if (!is_counting_up[i]) sign = -1;
-          speed_estimate.raw_rpms[i] = sign * (int32_t) (accumulated_error[i]) * 60 *
-              1000 / accumulated_time /
-              def->sconf.pulse_per_round[i];
+          speed_estimate.raw_rpms[i] = sign * (int32_t)(accumulated_error[i]) *
+                                       60 * 1000 / accumulated_time /
+                                       def->sconf.pulse_per_round[i];
 
           // apply low-pass filter
-          speed_estimate.filtered_rpms[i] =
-              a * last_filtered_rpms[i] + b[0] * raw_rpm_history[i][1] + b[1] * raw_rpm_history[i][0];
+          speed_estimate.filtered_rpms[i] = a * last_filtered_rpms[i] +
+                                            b[0] * raw_rpm_history[i][1] +
+                                            b[1] * raw_rpm_history[i][0];
 
           // save for next iternation
           raw_rpm_history[i][0] = raw_rpm_history[i][1];

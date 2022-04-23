@@ -12,6 +12,7 @@
 #include "encoder/encoder_service.h"
 #include "actuator/actuator_service.h"
 #include "speed_control/speed_control_service.h"
+#include "motion_control/motion_control_service.h"
 
 #ifdef APP_tbot
 #include "tbot/tbot_messenger.h"
@@ -35,8 +36,8 @@ bool StartMessengerService(MessengerServiceDef *def) {
   can_filter.id_mask = 0;
   ConfigureCan(def->sconf.dd_can, CAN_NORMAL_MODE, 500000, can_filter);
 
-  //  if (def->sdata.desired_motion_msgq == NULL) return false;
-  //  def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
+  if (def->sdata.desired_motion_msgq == NULL) return false;
+  def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
 
   // sanity check
   if (def->sconf.dd_can == NULL) {
@@ -79,6 +80,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 
   ActuatorCmd actuator_cmd;
   DesiredRpm desired_rpm;
+  DesiredMotion desired_motion;
 
   while (1) {
     if (k_msgq_get(def->sconf.dd_can->msgq, &rx_frame, K_FOREVER) == 0) {
@@ -120,7 +122,16 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
             break;
           }
           case kTbotMotionCommand: {
+            desired_motion.linear = msg.data.motion_cmd.linear;
+            desired_motion.angular = msg.data.motion_cmd.angular;
+            while (k_msgq_put(def->interface.desired_motion_msgq_out,
+                              &desired_motion, K_NO_WAIT) != 0) {
+              k_msgq_purge(def->interface.desired_motion_msgq_out);
+            }
             break;
+          }
+          default: {
+            // do nothing
           }
         }
       }

@@ -12,28 +12,31 @@
 
 #include "interface/service.h"
 
-#include "receiver/receiver_service.h"
 #include "mcal/interface/led_interface.h"
 
+enum RobotControlMode { kControlModeRC = 0, kControlModeCAN };
+
 typedef struct {
-  Vector3f linear;
-  Vector3f angular;
-} __attribute__((aligned(8))) DesiredMotion;
+  bool rc_connected;
+  bool estop_triggered;
+  enum RobotControlMode control_mode;
+} __attribute__((aligned(8))) RobotState;
 
 typedef struct {
   LedDescriptor *dd_led_status;
 } CoordinatorSrvConf;
 
 typedef struct {
-  struct k_msgq *desired_motion_msgq;
+  struct k_msgq *robot_state_msgq;
 } CoordinatorSrvData;
 
 struct ReceiverInterface;
-struct ActuatorInterface;
+struct MotionControlInterface;
+struct MessengerInterface;
 
-typedef struct {
-  struct k_msgq *desired_motion_msgq_out;
-} CoordinatorInterface;
+struct CoordinatorInterface {
+  struct k_msgq *robot_state_msgq_out;
+};
 
 typedef struct {
   // thread config
@@ -46,11 +49,12 @@ typedef struct {
   // dependent interfaces
   struct {
     struct ReceiverInterface *receiver_interface;
-    struct ActuatorInterface *actuator_interface;
+    struct MessengerInterface *messenger_interface;
+    struct MotionControlInterface *motion_control_interface;
   } dependencies;
 
   // interface
-  CoordinatorInterface interface;
+  struct CoordinatorInterface interface;
 } CoordinatorServiceDef;
 
 bool StartCoordinatorService(CoordinatorServiceDef *cfg);

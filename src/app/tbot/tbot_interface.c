@@ -17,6 +17,7 @@
 #include "messenger/messenger_service.h"
 #include "coordinator/coordinator_service.h"
 #include "speed_control/speed_control_service.h"
+#include "motion_control/motion_control_service.h"
 
 #include "actuator/tbot_actuators.h"
 
@@ -60,10 +61,14 @@
 
 K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
-K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 K_MSGQ_DEFINE(encoder_rpm_queue, sizeof(EstimatedSpeed), 1, 8);
 K_MSGQ_DEFINE(desired_rpm_queue, sizeof(DesiredRpm), 1, 8);
 K_MSGQ_DEFINE(speed_control_feedback_queue, sizeof(SpeedControlFeedback), 1, 8);
+K_MSGQ_DEFINE(desired_motion_queue, sizeof(DesiredMotion), 1, 8);
+K_MSGQ_DEFINE(motion_control_feedback_queue, sizeof(MotionControlFeedback), 1,
+              8);
+K_MSGQ_DEFINE(robot_state_queue, sizeof(RobotState), 1, 8);
+K_MSGQ_DEFINE(can_desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static CoordinatorServiceDef coord_srv;
@@ -71,6 +76,7 @@ static ActuatorServiceDef actr_srv;
 static EncoderServiceDef encoder_srv;
 static MessengerServiceDef msger_srv;
 static SpeedControlServiceDef spdcon_srv;
+static MotionControlServiceDef motioncon_srv;
 
 bool InitRobot() {
   // load all drivers from device tree
@@ -133,25 +139,6 @@ bool InitRobot() {
     printk("[INFO] Started actuator service\n");
   }
 
-  // coordinator
-  coord_srv.tconf.priority = TASK_PRIORITY_MID;
-  coord_srv.tconf.delay_ms = 0;
-  coord_srv.tconf.period_ms = 20;
-
-  coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
-  coord_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
-  coord_srv.dependencies.actuator_interface = &(actr_srv.interface);
-
-  coord_srv.sdata.desired_motion_msgq = &desired_motion_queue;
-
-  ret = StartCoordinatorService(&coord_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start coordinator service\n");
-    return false;
-  } else {
-    printk("[INFO] Started coordinator service\n");
-  }
-
   // encoder
   encoder_srv.tconf.priority = TASK_PRIORITY_HIGH;
   encoder_srv.tconf.delay_ms = 100;
@@ -193,6 +180,25 @@ bool InitRobot() {
     printk("[INFO] Started speed control service\n");
   }
 
+  // motion control
+  motioncon_srv.tconf.priority = TASK_PRIORITY_MID;
+  motioncon_srv.tconf.delay_ms = 200;
+  motioncon_srv.tconf.period_ms = 20;
+
+  motioncon_srv.dependencies.coordinator_interface = &(coord_srv.interface);
+  motioncon_srv.dependencies.speed_control_interface = &(spdcon_srv.interface);
+
+  motioncon_srv.sdata.desired_motion_msgq = &desired_motion_queue;
+  motioncon_srv.sdata.control_feedback_msgq = &motion_control_feedback_queue;
+
+  ret = StartMotionService(&motioncon_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start motion control service\n");
+    return false;
+  } else {
+    printk("[INFO] Started motion control service\n");
+  }
+
   // messenger
   msger_srv.rx_tconf.priority = TASK_PRIORITY_HIGH;
   msger_srv.rx_tconf.delay_ms = 100;
@@ -201,6 +207,8 @@ bool InitRobot() {
   msger_srv.tx_tconf.priority = TASK_PRIORITY_MID;
   msger_srv.tx_tconf.delay_ms = 100;
   msger_srv.tx_tconf.period_ms = 20;
+
+  msger_srv.sdata.desired_motion_msgq = &can_desired_motion_queue;
 
   msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
   msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
@@ -215,6 +223,27 @@ bool InitRobot() {
     return false;
   } else {
     printk("[INFO] Started messenger service\n");
+  }
+
+  // coordinator
+  coord_srv.tconf.priority = TASK_PRIORITY_MID;
+  coord_srv.tconf.delay_ms = 0;
+  coord_srv.tconf.period_ms = 20;
+
+  coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
+
+  coord_srv.sdata.robot_state_msgq = &robot_state_queue;
+
+  coord_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
+  coord_srv.dependencies.motion_control_interface = &(motioncon_srv.interface);
+  coord_srv.dependencies.messenger_interface = &(msger_srv.interface);
+
+  ret = StartCoordinatorService(&coord_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start coordinator service\n");
+    return false;
+  } else {
+    printk("[INFO] Started coordinator service\n");
   }
 
   printk("-----------------------------------------------------\n");

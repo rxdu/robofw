@@ -30,6 +30,8 @@ typedef struct {
   float z;
 } Vector3f;
 
+#define FLOAT_VALUE_DELTA 0.00001f
+
 // e.g.
 // {
 //      // beginning of the loop

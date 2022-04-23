@@ -22,8 +22,8 @@
 
 ### Motion command
 
-* Linear X: float (4-byte)
-* Angular Z: float (4-byte)
+* Linear X: int32_t (4-byte), linear x 100
+* Angular Z: int32_t (4-byte), angular x 100
 
 |  ID   |  Byte 0  |  Byte 1  |  Byte 2  |  Byte 3  |  Byte 4  |  Byte 5  |  Byte 6  |  Byte 7  |
 | :---: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
