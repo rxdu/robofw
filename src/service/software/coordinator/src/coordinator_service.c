@@ -152,12 +152,12 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
       robot_state.sup_mode = sup_cmd.supervised_mode;
     }
 
-    printk(
-        "rc: %s, estop: %s, sup: %d, mode: %d, linear: %.4f, angular: %.4f\n",
-        robot_state.rc_connected ? "on" : "off",
-        robot_state.estop_triggered ? "on" : "off", robot_state.sup_mode,
-        robot_state.control_mode, desired_motion.linear,
-        desired_motion.angular);
+    //    printk(
+    //        "rc: %s, estop: %s, sup: %d, mode: %d, linear: %.4f, angular:
+    //        %.4f\n", robot_state.rc_connected ? "on" : "off",
+    //        robot_state.estop_triggered ? "on" : "off", robot_state.sup_mode,
+    //        robot_state.control_mode, desired_motion.linear,
+    //        desired_motion.angular);
 
     // send out desired motion if not in supervised mode
     if (robot_state.sup_mode == kNonSupervised) {

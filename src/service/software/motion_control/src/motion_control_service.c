@@ -8,6 +8,7 @@
  */
 
 #include "motion_control/motion_control_service.h"
+#include "speed_control/speed_control_service.h"
 
 K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
 
@@ -41,14 +42,25 @@ _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
   MotionControlServiceDef *def = (MotionControlServiceDef *)p1;
 
   DesiredMotion desired_motion;
+  DesiredRpm target_rpm;
 
   while (1) {
     int64_t t0 = k_loop_start();
 
     if (k_msgq_get(def->interface.desired_motion_msgq_in, &desired_motion,
                    K_NO_WAIT) == 0) {
-//      printk("desired motion: %.4f, %.4f\n", desired_motion.linear,
-//             desired_motion.angular);
+      // calculate desired left/right speed from desired motion
+
+      printk("desired motion: %.4f, %.4f, desired rpm: %d, %d\n",
+             desired_motion.linear, desired_motion.angular,
+             target_rpm.motors[0], target_rpm.motors[1]);
+
+      //      while (k_msgq_put(
+      //                 def->dependencies.speed_control_interface->desired_rpm_msgq_in,
+      //                 &target_rpm, K_NO_WAIT) != 0) {
+      //        k_msgq_purge(
+      //            def->dependencies.speed_control_interface->desired_rpm_msgq_in);
+      //      }
     }
 
     k_msleep_until(def->tconf.period_ms, t0);
