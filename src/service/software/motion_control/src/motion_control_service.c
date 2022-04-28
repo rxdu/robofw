@@ -41,15 +41,57 @@ bool StartMotionService(MotionControlServiceDef *def) {
   return true;
 }
 
+typedef struct {
+  int16_t accel;
+  int16_t decel;
+} MotionLimit;
+
+int16_t ApplyMotionLimit(MotionLimit *limit, int16_t prev_value,
+                         int16_t value) {
+  int16_t output;
+  int16_t diff = value - prev_value;
+
+  // check acceleration
+  if (prev_value > 0 && diff > limit->accel) {
+    output = prev_value + limit->accel;
+    //    printk("accel: %d\n", diff);
+  } else if (prev_value < 0 && diff < -limit->accel) {
+    output = prev_value - limit->accel;
+    //    printk("accel: %d\n", diff);
+  }
+  // check deceleration
+  else if (prev_value < 0 && diff > limit->decel) {
+    output = prev_value + limit->decel;
+    //    printk("decel: %d\n", diff);
+  } else if (prev_value > 0 && diff < -limit->decel) {
+    output = prev_value - limit->decel;
+    //    printk("decel: %d\n", diff);
+  } else {
+    output = value;
+  }
+
+  //  printk("diff: %d\n", diff);
+
+  return output;
+}
+
 _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
   MotionControlServiceDef *def = (MotionControlServiceDef *)p1;
+
+  const float r = 0.0188;
+  const float track = 0.185;
+  //  const float gear_ratio = 30;
 
   DesiredMotion desired_motion;
   DesiredRpm target_rpm;
 
-  const float r = 0.0188;
-  const float track = 0.185;
-  const float gear_ratio = 30;
+  DesiredRpm prev_target_rpm;
+  target_rpm.motors[0] = 0;
+  target_rpm.motors[1] = 0;
+
+  MotionLimit rpm_limit;
+  rpm_limit.accel = 3;
+  rpm_limit.decel = 8;
 
   while (1) {
     int64_t t0 = k_loop_start();
@@ -64,13 +106,24 @@ _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
       target_rpm.motors[0] = omega_l * 60 / (2 * M_PI);
       target_rpm.motors[1] = omega_r * 60 / (2 * M_PI);
 
+      // invert right motor due to mechanical installation direction
       target_rpm.motors[1] = -target_rpm.motors[1];
 
-      printk(
-          "desired motion: %.4f, %.4f, w_L: %.4f, w_R: %.4f, desired rpm: %d, "
-          "%d\n",
-          desired_motion.linear, desired_motion.angular, omega_l, omega_r,
-          target_rpm.motors[0], target_rpm.motors[1]);
+      // limit acceleration/deceleration
+      for (int i = 0; i < 2; ++i) {
+        target_rpm.motors[i] = ApplyMotionLimit(
+            &rpm_limit, prev_target_rpm.motors[i], target_rpm.motors[i]);
+      }
+
+      // save for next iteration
+      prev_target_rpm = target_rpm;
+
+      //      printk(
+      //          "desired motion: %.4f, %.4f, w_L: %.4f, w_R: %.4f, desired
+      //          rpm: %d, "
+      //          "%d\n",
+      //          desired_motion.linear, desired_motion.angular, omega_l,
+      //          omega_r, target_rpm.motors[0], target_rpm.motors[1]);
 
       while (k_msgq_put(
                  def->dependencies.speed_control_interface->desired_rpm_msgq_in,

@@ -34,10 +34,18 @@ typedef struct {
   float angular;
 } TbotMotionCommand;
 
+// typedef struct {
+//   int32_t left;
+//   int32_t right;
+// } TbotEncoderRawData;
+
 typedef struct {
   int32_t left;
   int32_t right;
-} TbotEncoderRawData;
+} TbotSpeed;
+
+typedef TbotSpeed TbotEncoderRawData;
+typedef TbotSpeed TbotTargetRpmData;
 
 typedef TbotEncoderRawData TbotEncoderFilteredData;
 
@@ -49,7 +57,8 @@ typedef enum {
   kTbotMotionCommand,
   // feedback
   kTbotEncoderRawData,
-  kTbotEncoderFilteredData
+  kTbotEncoderFilteredData,
+  kTbotTargetRpmData
 } TbotMsgType;
 
 typedef struct {
@@ -63,6 +72,7 @@ typedef struct {
     // feedback
     TbotEncoderRawData encoder_raw_data;
     TbotEncoderFilteredData encoder_filtered_data;
+    TbotTargetRpmData target_rpm_data;
   } data;
 } TbotMsg;
 

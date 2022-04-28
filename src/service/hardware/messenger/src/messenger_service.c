@@ -167,9 +167,8 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   while (1) {
     while (k_msgq_get(def->dependencies.speed_control_interface
                           ->control_feedback_msgq_out,
-                      &speed_control_feedback, K_FOREVER) == 0) {
-      //   printk("left: %d； right: %d\n", speed_estimate.rpms[0],
-      //          speed_estimate.rpms[1]);
+                      &speed_control_feedback, K_NO_WAIT) == 0) {
+      // encoder raw data
       tmsg.type = kTbotEncoderRawData;
       tmsg.data.encoder_raw_data.left =
           speed_control_feedback.measured_speed.raw_rpms[0];
@@ -183,12 +182,30 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
         printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
       }
 
+      // encoder filtered data
       tmsg.type = kTbotEncoderFilteredData;
       tmsg.data.encoder_filtered_data.left =
           speed_control_feedback.measured_speed.filtered_rpms[0];
       tmsg.data.encoder_filtered_data.right =
           speed_control_feedback.measured_speed.filtered_rpms[1];
       EncodeCanMessage(&tmsg, &tx_frame);
+
+      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
+                         tx_frame.dlc);
+      if (ret != CAN_TX_OK) {
+        printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
+      }
+
+      // control target
+      tmsg.type = kTbotTargetRpmData;
+      tmsg.data.target_rpm_data.left =
+          speed_control_feedback.target_speed.motors[0];
+      tmsg.data.target_rpm_data.right =
+          speed_control_feedback.target_speed.motors[1];
+      EncodeCanMessage(&tmsg, &tx_frame);
+
+      //      printk("target rpm: %d, %d\n", tmsg.data.target_rpm_data.left,
+      //             tmsg.data.target_rpm_data.right);
 
       ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
                          tx_frame.dlc);

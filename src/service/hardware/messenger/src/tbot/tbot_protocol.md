@@ -65,3 +65,12 @@
 |  ID   | Byte 0  | Byte 1  | Byte 2  | Byte 3  |  Byte 4  |  Byte 5  |  Byte 6  |  Byte 7  |
 | :---: | :-----: | :-----: | :-----: | :-----: | :------: | :------: | :------: | :------: |
 | 0x212 | left_B0 | left_B1 | left_B2 | left_B3 | right_B0 | right_B1 | right_B2 | right_B3 |
+
+### Target RPM
+
+* Left RPM: int32_t
+* Right RPM: int32_t
+
+|  ID   | Byte 0  | Byte 1  | Byte 2  | Byte 3  |  Byte 4  |  Byte 5  |  Byte 6  |  Byte 7  |
+| :---: | :-----: | :-----: | :-----: | :-----: | :------: | :------: | :------: | :------: |
+| 0x213 | left_B0 | left_B1 | left_B2 | left_B3 | right_B0 | right_B1 | right_B2 | right_B3 |

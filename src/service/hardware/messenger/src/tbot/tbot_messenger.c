@@ -16,6 +16,7 @@
 
 #define TBOT_ENCODER_RAW_DATA_CAN_ID 0x211
 #define TBOT_ENCODER_FILTERED_DATA_CAN_ID 0x212
+#define TBOT_TARGET_RPM_DATA_CAN_ID 0x213
 
 void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame) {
   switch (msg->type) {
@@ -59,6 +60,27 @@ void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame) {
           (uint8_t)((msg->data.encoder_filtered_data.right & 0x0000ff00) >> 8);
       frame->data[7] =
           (uint8_t)((msg->data.encoder_filtered_data.right & 0x000000ff) >> 0);
+      break;
+    }
+    case kTbotTargetRpmData: {
+      frame->id = TBOT_TARGET_RPM_DATA_CAN_ID;
+      frame->dlc = 8;
+      frame->data[0] =
+          (uint8_t)((msg->data.target_rpm_data.left & 0xff000000) >> 24);
+      frame->data[1] =
+          (uint8_t)((msg->data.target_rpm_data.left & 0x00ff0000) >> 16);
+      frame->data[2] =
+          (uint8_t)((msg->data.target_rpm_data.left & 0x0000ff00) >> 8);
+      frame->data[3] =
+          (uint8_t)((msg->data.target_rpm_data.left & 0x000000ff) >> 0);
+      frame->data[4] =
+          (uint8_t)((msg->data.target_rpm_data.right & 0xff000000) >> 24);
+      frame->data[5] =
+          (uint8_t)((msg->data.target_rpm_data.right & 0x00ff0000) >> 16);
+      frame->data[6] =
+          (uint8_t)((msg->data.target_rpm_data.right & 0x0000ff00) >> 8);
+      frame->data[7] =
+          (uint8_t)((msg->data.target_rpm_data.right & 0x000000ff) >> 0);
       break;
     }
     default: {
