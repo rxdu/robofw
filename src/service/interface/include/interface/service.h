@@ -10,37 +10,9 @@
 #ifndef SERVICE_H
 #define SERVICE_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#include <device.h>
 #include <zephyr.h>
 
-typedef struct {
-  k_tid_t tid;
-  struct k_thread thread;
-  int8_t priority;
-  uint32_t delay_ms;
-  uint32_t period_ms;
-} ThreadConfig;
-
-typedef struct {
-  float x;
-  float y;
-  float z;
-} Vector3f;
-
-typedef enum {
-  kNonSupervised = 0,
-  kSupervisedPwm = 1,
-  kSupervisedRpm = 2
-} SupervisedMode;
-
-typedef struct {
-  SupervisedMode supervised_mode;
-} __attribute__((aligned(8))) SupervisorCommand;
-
-#define FLOAT_VALUE_DELTA 0.00001f
+#include "interface/type.h"
 
 // e.g.
 // {

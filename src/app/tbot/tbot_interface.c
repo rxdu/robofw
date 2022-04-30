@@ -211,6 +211,7 @@ bool InitRobot() {
 
   msger_srv.sdata.supervisor_cmd_msgq = &supervisor_cmd_queue;
   msger_srv.sdata.desired_motion_msgq = &can_desired_motion_queue;
+  msger_srv.sdata.robot_state_msgq = &robot_state_queue;
 
   msger_srv.sconf.dd_can = GetCanDescriptor(TBOT_CAN_UPLINK);
   msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
@@ -234,7 +235,7 @@ bool InitRobot() {
 
   coord_srv.sconf.dd_led_status = GetLedDescriptor(TBOT_LED_STATUS);
 
-  coord_srv.sdata.robot_state_msgq = &robot_state_queue;
+  //   coord_srv.sdata.robot_state_msgq = &robot_state_queue;
 
   coord_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
   coord_srv.dependencies.motion_control_interface = &(motioncon_srv.interface);

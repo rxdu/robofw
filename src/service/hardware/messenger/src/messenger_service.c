@@ -36,6 +36,9 @@ bool StartMessengerService(MessengerServiceDef *def) {
   can_filter.id_mask = 0;
   ConfigureCan(def->sconf.dd_can, CAN_NORMAL_MODE, 500000, can_filter);
 
+  if (def->sdata.robot_state_msgq == NULL) return false;
+  def->interface.robot_state_msgq_in = def->sdata.robot_state_msgq;
+
   if (def->sdata.desired_motion_msgq == NULL) return false;
   def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
 
@@ -161,6 +164,8 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   TbotMsg tmsg;
   struct zcan_frame tx_frame;
 
+  RobotState robot_state;
+
   int ret = -1;
   (void)ret;
 
@@ -214,10 +219,18 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
       }
     }
 
-//    while (k_msgq_get(def->dependencies.speed_control_interface
-//                          ->control_feedback_msgq_out,
-//                      &speed_control_feedback, K_NO_WAIT) == 0) {
-//    }
+    while (k_msgq_get(def->interface.robot_state_msgq_in, &robot_state,
+                      K_NO_WAIT) == 0) {
+      tmsg.type = kTbotSupervisedStateData;
+      tmsg.data.supervised_state_data.sup_mode = robot_state.sup_mode;
+      EncodeCanMessage(&tmsg, &tx_frame);
+
+      ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
+                         tx_frame.dlc);
+      if (ret != CAN_TX_OK) {
+        printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
+      }
+    }
 
     k_msleep(def->tx_tconf.period_ms);
   }

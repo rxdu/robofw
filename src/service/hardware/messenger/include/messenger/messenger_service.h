@@ -24,6 +24,7 @@ typedef struct {
 } MessengerSrvConf;
 
 typedef struct {
+  struct k_msgq *robot_state_msgq;
   struct k_msgq *supervisor_cmd_msgq;
   struct k_msgq *desired_motion_msgq;
 } MessengerSrvData;
@@ -33,6 +34,7 @@ struct ReceiverInterface;
 struct SpeedControlInterface;
 
 struct MessengerInterface {
+  struct k_msgq *robot_state_msgq_in;
   struct k_msgq *supervisor_cmd_msgq_out;
   struct k_msgq *desired_motion_msgq_out;
 };

@@ -20,8 +20,8 @@ K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 _Noreturn static void CoordinatorServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartCoordinatorService(CoordinatorServiceDef *def) {
-  if (def->sdata.robot_state_msgq == NULL) return false;
-  def->interface.robot_state_msgq_out = def->sdata.robot_state_msgq;
+  //   if (def->sdata.robot_state_msgq == NULL) return false;
+  //   def->interface.robot_state_msgq_out = def->sdata.robot_state_msgq;
 
   //  if (def->sdata.control_feedback_msgq == NULL) return false;
   //  def->interface.control_feedback_msgq_out =
@@ -110,12 +110,6 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
       } else {
         robot_state.estop_triggered = false;
       }
-
-      // update robot state
-      while (k_msgq_put(def->interface.robot_state_msgq_out, &robot_state,
-                        K_NO_WAIT) != 0) {
-        k_msgq_purge(def->interface.robot_state_msgq_out);
-      }
     } else {
       // no RC control
       if (rc_counter > rc_timeout_count) {
@@ -173,6 +167,13 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
         k_msgq_purge(
             def->dependencies.motion_control_interface->desired_motion_msgq_in);
       }
+    }
+
+    // update robot state
+    while (
+        k_msgq_put(def->dependencies.messenger_interface->robot_state_msgq_in,
+                   &robot_state, K_NO_WAIT) != 0) {
+      k_msgq_purge(def->dependencies.messenger_interface->robot_state_msgq_in);
     }
 
     // task timing

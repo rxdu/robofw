@@ -14,12 +14,19 @@
 #define TBOT_MOTOR_CMD_CAN_ID 0x102
 #define TBOT_MOTION_CMD_CAN_ID 0x103
 
+#define TBOT_SUPERVISED_STATE_DATA_CAN_ID 0x200
 #define TBOT_ENCODER_RAW_DATA_CAN_ID 0x211
 #define TBOT_ENCODER_FILTERED_DATA_CAN_ID 0x212
 #define TBOT_TARGET_RPM_DATA_CAN_ID 0x213
 
 void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame) {
   switch (msg->type) {
+    case kTbotSupervisedStateData: {
+      frame->id = TBOT_SUPERVISED_STATE_DATA_CAN_ID;
+      frame->dlc = 1;
+      frame->data[0] = msg->data.supervised_state_data.sup_mode;
+      break;
+    }
     case kTbotEncoderRawData: {
       frame->id = TBOT_ENCODER_RAW_DATA_CAN_ID;
       frame->dlc = 8;
