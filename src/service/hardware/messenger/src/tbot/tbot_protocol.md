@@ -2,12 +2,12 @@
 
 ## 1. Computer --> Robot
 
-### Supervisor command (companion computer)
+### Supervisor command
 
 * supervised mode: none - 0, pwm - 1, rpm - 2
 
 |  ID   |  Byte 0  | Byte 1 | Byte 2 | Byte 3 | Byte 4 | Byte 5 | Byte 6 | Byte 7 |
-| :---: |:--------:| :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| :---: | :------: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | 0x100 | sup_mode |        |        |        |        |        |        |        |
 
 ### PWM command
@@ -38,6 +38,14 @@
 | 0x103 | lin_x_B0 | lin_x_B1 | lin_x_B2 | lin_x_B3 | ang_z_B0 | ang_z_B1 | ang_z_B2 | ang_z_B3 |
 
 ## 2. Robot --> Computer
+
+### Supervised state
+
+* supervised mode: none - 0, pwm - 1, rpm - 2
+
+|  ID   |  Byte 0  | Byte 1 | Byte 2 | Byte 3 | Byte 4 | Byte 5 | Byte 6 | Byte 7 |
+| :---: | :------: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| 0x200 | sup_mode |        |        |        |        |        |        |        |
 
 ### RC state
 

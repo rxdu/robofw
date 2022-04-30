@@ -86,8 +86,8 @@ _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
   DesiredRpm target_rpm;
 
   DesiredRpm prev_target_rpm;
-  target_rpm.motors[0] = 0;
-  target_rpm.motors[1] = 0;
+  prev_target_rpm.motors[0] = 0;
+  prev_target_rpm.motors[1] = 0;
 
   MotionLimit rpm_limit;
   rpm_limit.accel = 3;

@@ -213,6 +213,12 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
         printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
       }
     }
+
+//    while (k_msgq_get(def->dependencies.speed_control_interface
+//                          ->control_feedback_msgq_out,
+//                      &speed_control_feedback, K_NO_WAIT) == 0) {
+//    }
+
     k_msleep(def->tx_tconf.period_ms);
   }
 }

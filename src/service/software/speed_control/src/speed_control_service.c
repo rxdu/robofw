@@ -55,16 +55,16 @@ _Noreturn void SpeedServiceLoop(void *p1, void *p2, void *p3) {
   }
 
   PidControllerInstance left_ctrl;
-  left_ctrl.kp = 0.5;
-  left_ctrl.ki = 0.55;
+  left_ctrl.kp = 0.2;
+  left_ctrl.ki = 0.9;
   left_ctrl.kd = 0.0;
   left_ctrl.umax = 100;
   left_ctrl.ts = def->tconf.period_ms / 1000.0f;
   InitPidController(&left_ctrl);
 
   PidControllerInstance right_ctrl;
-  right_ctrl.kp = 0.5;
-  right_ctrl.ki = 0.55;  // 0.5;
+  right_ctrl.kp = 0.2;
+  right_ctrl.ki = 0.9;  // 0.5;
   right_ctrl.kd = 0;
   right_ctrl.umax = 100;
   right_ctrl.ts = def->tconf.period_ms / 1000.0f;
