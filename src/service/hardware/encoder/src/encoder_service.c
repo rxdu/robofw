@@ -18,6 +18,11 @@
 #define MAX_PULSE_PER_PERIOD 150  // by experiment, in theory should be ~50
 //#define ITERATION_NUM_PER_CALCULATION 4
 
+#define MAX_POSSIBLE_RPM 600  // 560RPM + safety margin
+
+#define AVERAGE_FILTER_LEN 10
+#define MIN_ESTIMATE_NUM_BEFORE_VALID 20
+
 static bool overflow_detected[ENCODER_CHANNEL_NUMBER] = {true};
 static bool underflow_detected[ENCODER_CHANNEL_NUMBER] = {false};
 
@@ -56,15 +61,22 @@ bool StartEncoderService(EncoderServiceDef *def) {
 _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   EncoderServiceDef *def = (EncoderServiceDef *)p1;
 
+  // low-pass filter
   static float a = 0.7284895;
   static float b[2] = {0.13575525, 0.13575525};
-  int32_t last_filtered_rpms[ENCODER_CHANNEL_NUMBER] = {0};
-  int32_t raw_rpm_history[ENCODER_CHANNEL_NUMBER][2] = {0};
+  int32_t last_filtered_rpms[ENCODER_CHANNEL_NUMBER] = {0, 0};
+  int32_t raw_rpm_history[ENCODER_CHANNEL_NUMBER][2] = {{0, 0}, {0, 0}};
 
+  // average filter
+  uint8_t indexer[ENCODER_CHANNEL_NUMBER] = {0};
+  int32_t estimated_rpm_history[ENCODER_CHANNEL_NUMBER][AVERAGE_FILTER_LEN] = {
+      0};
+
+  // encoder readings
   bool is_counting_up[ENCODER_CHANNEL_NUMBER] = {true, true};
-  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER] = {0};
-  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0};
-  uint16_t accumulated_error[ENCODER_CHANNEL_NUMBER] = {0};
+  uint16_t encoder_reading[ENCODER_CHANNEL_NUMBER] = {0, 0};
+  uint16_t encoder_prev_reading[ENCODER_CHANNEL_NUMBER] = {0, 0};
+  uint16_t accumulated_error[ENCODER_CHANNEL_NUMBER] = {0, 0};
 
   bool first_time = true;
   int64_t time_stamp = k_uptime_get();
@@ -72,6 +84,7 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
   int64_t accumulated_time = 0;
 
   uint32_t loop_counter = 0;
+  uint32_t estimator_counter = 0;
   EstimatedSpeed speed_estimate;
 
   while (1) {
@@ -152,17 +165,35 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
                                             b[0] * raw_rpm_history[i][1] +
                                             b[1] * raw_rpm_history[i][0];
 
+          // remove outlier, if found, use previous estimated value
+          if (speed_estimate.filtered_rpms[i] > MAX_POSSIBLE_RPM ||
+              speed_estimate.filtered_rpms[i] < -MAX_POSSIBLE_RPM)
+            speed_estimate.filtered_rpms[i] = last_filtered_rpms[i];
+
           // save for next iternation
           raw_rpm_history[i][0] = raw_rpm_history[i][1];
           raw_rpm_history[i][1] = speed_estimate.raw_rpms[i];
           last_filtered_rpms[i] = speed_estimate.filtered_rpms[i];
+
+          // calculate average filtered rpm
+          estimated_rpm_history[i][indexer[i]] =
+              speed_estimate.filtered_rpms[i];
+          indexer[i] = (indexer[i] + 1) % AVERAGE_FILTER_LEN;
+          if (estimator_counter >= AVERAGE_FILTER_LEN) {
+            int64_t sum = 0;
+            for (int j = 0; j < AVERAGE_FILTER_LEN; ++j) {
+              sum += estimated_rpm_history[i][j];
+            }
+            speed_estimate.filtered_rpms[i] = sum / AVERAGE_FILTER_LEN;
+          }
         }
-        //        printk("period: %lld; left: (%s), %d, %d, %d； right: (%s),
-        //        %d, %d, %d\n", accumulated_time,
-        //               is_counting_up[0] ? "up" : "down", encoder_reading[0],
-        //               accumulated_error[0], speed_estimate.rpms[0],
-        //               is_counting_up[1] ? "up" : "down", encoder_reading[1],
-        //               accumulated_error[1], speed_estimate.rpms[1]);
+
+        // printk("left: %d, %d; right %d, %d\n",
+        // speed_estimate.filtered_rpms[0],
+        //        indexer[0], speed_estimate.filtered_rpms[1], indexer[1]);
+
+        // increase counter as one estimate has been made
+        estimator_counter++;
 
         // clear time and error
         accumulated_time = 0;
@@ -170,10 +201,15 @@ _Noreturn void EncoderServiceMainLoop(void *p1, void *p2, void *p3) {
           accumulated_error[i] = 0;
         }
 
-        // write to queue
-        while (k_msgq_put(def->interface.rpm_msgq_out, &speed_estimate,
-                          K_NO_WAIT) != 0) {
-          k_msgq_purge(def->interface.rpm_msgq_out);
+        // write to queue, only after at least MIN_ESTIMATE_NUM_BEFORE_VALID
+        // estimates have been made
+        if (estimator_counter > MIN_ESTIMATE_NUM_BEFORE_VALID) {
+          // to avoid estimator_counter overflow
+          estimator_counter = MIN_ESTIMATE_NUM_BEFORE_VALID;
+          while (k_msgq_put(def->interface.rpm_msgq_out, &speed_estimate,
+                            K_NO_WAIT) != 0) {
+            k_msgq_purge(def->interface.rpm_msgq_out);
+          }
         }
       }
     }
