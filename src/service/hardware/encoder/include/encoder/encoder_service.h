@@ -23,7 +23,7 @@
 
 #define ENCODER_CHANNEL_NUMBER 2
 typedef struct {
-  int32_t rpms[ENCODER_CHANNEL_NUMBER];
+  int32_t raw_rpms[ENCODER_CHANNEL_NUMBER];
   int32_t filtered_rpms[ENCODER_CHANNEL_NUMBER];
 } __attribute__((aligned(8))) EstimatedSpeed;
 

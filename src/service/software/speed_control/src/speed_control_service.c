@@ -9,6 +9,8 @@
 
 #include "speed_control/speed_control_service.h"
 
+#include "pid_controller.h"
+
 K_THREAD_STACK_DEFINE(speed_control_service_stack, 1024);
 
 _Noreturn static void SpeedServiceLoop(void *p1, void *p2, void *p3);
@@ -17,8 +19,12 @@ bool StartSpeedControlService(SpeedControlServiceDef *def) {
   if (def->sdata.desired_rpm_msgq == NULL) return false;
   def->interface.desired_rpm_msgq_in = def->sdata.desired_rpm_msgq;
 
+  if (def->sdata.control_feedback_msgq == NULL) return false;
+  def->interface.control_feedback_msgq_out = def->sdata.control_feedback_msgq;
+
   // sanity check
-  if (def->dependencies.actuator_interface == NULL) {
+  if (def->dependencies.actuator_interface == NULL ||
+      def->dependencies.encoder_interface == NULL) {
     printk("Dependency not set properly\n");
     return false;
   }
@@ -36,17 +42,60 @@ bool StartSpeedControlService(SpeedControlServiceDef *def) {
 _Noreturn void SpeedServiceLoop(void *p1, void *p2, void *p3) {
   SpeedControlServiceDef *def = (SpeedControlServiceDef *)p1;
 
-  DesiredRpm desired_rpm;
+  DesiredRpm target_rpm;
+  EstimatedSpeed measured_rpm;
   ActuatorCmd actuator_cmd;
 
-  while (1) {
-    if (k_msgq_get(def->interface.desired_rpm_msgq_in, &desired_rpm,
-                   K_NO_WAIT) == 0) {
-//      printk("desired rpm: %04d %04d\n", desired_rpm.motors[0],
-//             desired_rpm.motors[1]);
+  SpeedControlFeedback feedback;
 
-      //      actuator_cmd.motors[0] = receiver_data.channels[2];
-      //      actuator_cmd.motors[1] = receiver_data.channels[2];
+  for (int i = 0; i < ACTUATOR_CHANNEL_NUMBER; ++i) {
+    target_rpm.motors[i] = 0;
+    measured_rpm.filtered_rpms[i] = 0;
+    actuator_cmd.motors[i] = 0;
+  }
+
+  PidControllerInstance left_ctrl;
+  left_ctrl.kp = 0.2;
+  left_ctrl.ki = 1.2;
+  left_ctrl.kd = 0.0;
+  left_ctrl.umax = 100;
+  left_ctrl.ts = def->tconf.period_ms / 1000.0f;
+  InitPidController(&left_ctrl);
+
+  PidControllerInstance right_ctrl;
+  right_ctrl.kp = 0.2;
+  right_ctrl.ki = 0.95;  // 0.5;
+  right_ctrl.kd = 0;
+  right_ctrl.umax = 100;
+  right_ctrl.ts = def->tconf.period_ms / 1000.0f;
+  InitPidController(&right_ctrl);
+
+  while (1) {
+    int64_t t0 = k_loop_start();
+
+    if (k_msgq_get(def->dependencies.encoder_interface->rpm_msgq_out,
+                   &measured_rpm, K_NO_WAIT) == 0) {
+      //      measured_rpm.filtered_rpms[1] = -measured_rpm.filtered_rpms[1];
+    }
+
+    if (k_msgq_get(def->interface.desired_rpm_msgq_in, &target_rpm,
+                   K_NO_WAIT) == 0) {
+      //    printk("rpm cmd: %d, %d\n", desired_rpm.motors[0],
+      //    desired_rpm.motors[1]);
+
+      actuator_cmd.motors[0] =
+          UpdatePidController(&left_ctrl, target_rpm.motors[0],
+                              measured_rpm.filtered_rpms[0]) /
+          100.0f;
+      actuator_cmd.motors[1] =
+          UpdatePidController(&right_ctrl, target_rpm.motors[1],
+                              measured_rpm.filtered_rpms[1]) /
+          100.0f;
+
+      //    printk("target/current: %d / %d, %d / %d, command: %f, %f\n",
+      //           target_rpm.motors[0], measured_rpm.filtered_rpms[0],
+      //           target_rpm.motors[1], measured_rpm.filtered_rpms[1],
+      //           actuator_cmd.motors[0], actuator_cmd.motors[1]);
 
       while (
           k_msgq_put(def->dependencies.actuator_interface->actuator_cmd_msgq_in,
@@ -56,7 +105,18 @@ _Noreturn void SpeedServiceLoop(void *p1, void *p2, void *p3) {
       }
     }
 
+    feedback.target_speed = target_rpm;
+    feedback.measured_speed = measured_rpm;
+    //    printk("sent target rpm: %d, %d\n", feedback.target_speed.motors[0],
+    //           feedback.target_speed.motors[1]);
+
+    while (k_msgq_put(def->interface.control_feedback_msgq_out, &feedback,
+                      K_NO_WAIT) != 0) {
+      k_msgq_purge(def->interface.control_feedback_msgq_out);
+    }
+
     // task timing
-    k_msleep(def->tconf.period_ms);
+    //    k_msleep(def->tconf.period_ms);
+    k_msleep_until(def->tconf.period_ms, t0);
   }
 }

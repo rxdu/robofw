@@ -16,6 +16,7 @@
 #include <zephyr.h>
 
 #include "interface/service.h"
+#include "encoder/encoder_service.h"
 #include "actuator/actuator_service.h"
 
 typedef struct {
@@ -23,18 +24,26 @@ typedef struct {
 } __attribute__((aligned(8))) DesiredRpm;
 
 typedef struct {
+  DesiredRpm target_speed;
+  EstimatedSpeed measured_speed;
+} __attribute__((aligned(8))) SpeedControlFeedback;
+
+typedef struct {
   //  LedDescriptor* dd_led_status;
 } SpeedControlSrvConf;
 
 typedef struct {
   struct k_msgq* desired_rpm_msgq;
+  struct k_msgq* control_feedback_msgq;
 } SpeedControlSrvData;
 
 // struct ReceiverInterface;
 struct ActuatorInterface;
+struct EncoderInterface;
 
 struct SpeedControlInterface {
   struct k_msgq* desired_rpm_msgq_in;
+  struct k_msgq* control_feedback_msgq_out;
 };
 
 typedef struct {
@@ -47,6 +56,7 @@ typedef struct {
 
   // dependent interfaces
   struct {
+    struct EncoderInterface* encoder_interface;
     struct ActuatorInterface* actuator_interface;
   } dependencies;
 

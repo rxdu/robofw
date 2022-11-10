@@ -24,7 +24,9 @@ typedef struct {
 } MessengerSrvConf;
 
 typedef struct {
-  //  struct k_msgq *desired_motion_msgq;
+  struct k_msgq *robot_state_msgq;
+  struct k_msgq *supervisor_cmd_msgq;
+  struct k_msgq *desired_motion_msgq;
 } MessengerSrvData;
 
 struct EncoderInterface;
@@ -32,7 +34,9 @@ struct ReceiverInterface;
 struct SpeedControlInterface;
 
 struct MessengerInterface {
-  //  struct k_msgq *desired_motion_msgq_out;
+  struct k_msgq *robot_state_msgq_in;
+  struct k_msgq *supervisor_cmd_msgq_out;
+  struct k_msgq *desired_motion_msgq_out;
 };
 
 typedef struct {
@@ -47,9 +51,8 @@ typedef struct {
   // dependent interfaces
   struct {
     struct ReceiverInterface *receiver_interface;
-    struct EncoderInterface *encoder_interface;
-    struct SpeedControlInterface *speed_control_interface;
     struct ActuatorInterface *actuator_interface;
+    struct SpeedControlInterface *speed_control_interface;
   } dependencies;
 
   // interface

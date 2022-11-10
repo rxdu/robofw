@@ -13,6 +13,11 @@
 #include <stdint.h>
 
 #include "mcal/interface/can_interface.h"
+#include "interface/service.h"
+
+typedef struct {
+  SupervisedMode sup_mode;
+} TbotSupervisorCommand;
 
 typedef struct {
   int8_t pwm_left;
@@ -25,32 +30,49 @@ typedef struct {
 } TbotMotorCommand;
 
 typedef struct {
-  int32_t linear;
-  int32_t angular;
+  float linear;
+  float angular;
 } TbotMotionCommand;
 
 typedef struct {
+  SupervisedMode sup_mode;
+} TbotSupervisedStateData;
+typedef struct {
   int32_t left;
   int32_t right;
-} TbotEncoderRawData;
+} TbotSpeed;
+
+typedef TbotSpeed TbotEncoderRawData;
+typedef TbotSpeed TbotTargetRpmData;
 
 typedef TbotEncoderRawData TbotEncoderFilteredData;
 
 typedef enum {
-  kTbotPwmCommand = 0,
+  // command
+  kTbotSuperviserCmmand = 0,
+  kTbotPwmCommand,
   kTbotMotorCommand,
   kTbotMotionCommand,
+  // feedback
+  kTbotSupervisedStateData,
   kTbotEncoderRawData,
-  kTbotEncoderFilteredData
+  kTbotEncoderFilteredData,
+  kTbotTargetRpmData
 } TbotMsgType;
 
 typedef struct {
   TbotMsgType type;
   union {
+    // command
+    TbotSupervisorCommand sup_cmd;
     TbotPwmCommand pwm_cmd;
     TbotMotorCommand rpm_cmd;
+    TbotMotionCommand motion_cmd;
+    // feedback
+    TbotSupervisedStateData supervised_state_data;
     TbotEncoderRawData encoder_raw_data;
     TbotEncoderFilteredData encoder_filtered_data;
+    TbotTargetRpmData target_rpm_data;
   } data;
 } TbotMsg;
 
