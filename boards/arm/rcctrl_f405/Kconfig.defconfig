@@ -1,0 +1,10 @@
+# tbot_ctrl_f405rg board configuration
+
+# Copyright (c) 2022 Ruixiang Du (rdu)
+
+if BOARD_RCCTRL_F405
+
+config BOARD
+	default "rcctrl_f405"
+
+endif # BOARD_RCCTRL_F405

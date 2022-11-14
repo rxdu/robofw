@@ -1,0 +1,18 @@
+identifier: rcctrl_f405
+name: RC Car Control Board
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+ram: 192
+flash: 1024
+supported:
+  - i2c
+  - spi
+  - gpio
+  - pwm
+  - counter
+  - usb_device
+  - watchdog
