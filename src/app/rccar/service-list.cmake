@@ -1,6 +1,6 @@
 # hardware services
-add_subdirectory(${SERVICE_PATH}/hardware/receiver)
-add_subdirectory(${SERVICE_PATH}/hardware/actuator)
+add_subdirectory(${SERVICE_PATH}/common/receiver)
+add_subdirectory(${SERVICE_PATH}/common/actuator)
 # add_subdirectory(${SERVICE_PATH}/hardware/encoder)
 # add_subdirectory(${SERVICE_PATH}/hardware/messenger)
 

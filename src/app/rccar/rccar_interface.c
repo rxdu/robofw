@@ -17,35 +17,17 @@
 
 #include "actuator/tbot_actuators.h"
 
-#define TBOT_LED_STATUS DD_LED0
-#define TBOT_LED_USER1 DD_LED1
+#define RCCAR_LED_STATUS DD_LED0
+#define RCCAR_LED_USER1 DD_LED1
 
-// left motor
-#define TBOT_DIO_EN1 DD_DIO0
-#define TBOT_DIO_DIR1 DD_DIO1
-#define TBOT_PWM1 DD_PWM0
-
-// right motor
-#define TBOT_DIO_EN2 DD_DIO2
-#define TBOT_DIO_DIR2 DD_DIO3
-#define TBOT_PWM2 DD_PWM1
-
-// encoder
-#define TBOT_ENCODER1 DD_ENCODER1
-#define TBOT_ENCODER2 DD_ENCODER0
+#define RCCAR_PWM1 DD_PWM0
+#define RCCAR_PWM2 DD_PWM1
 
 // rc input
-#define TBOT_UART_SBUS DD_UART0
+#define RCCAR_UART_SBUS DD_UART0
 
 // CAN uplink/downlink
-#define TBOT_CAN_UPLINK DD_CAN0
-#define TBOT_CAN_DOWNLINK DD_CAN1
-
-// gps receiver
-#define TBOT_UART_GPS DD_UART1
-
-// ultrasonic sensor
-#define TBOT_UART_ULTRASONIC DD_UART2
+#define RCCAR_CAN_UPLINK DD_CAN0
 
 // Negative prio threads will not be pre-empted
 #define TASK_PRIORITY_VIP -1
@@ -79,8 +61,8 @@ bool InitRobot() {
 
   // configure drivers required by robot
   // LED for debugging
-  TurnOffLed(GetLedDescriptor(TBOT_LED_STATUS));
-  TurnOffLed(GetLedDescriptor(TBOT_LED_USER1));
+  TurnOnLed(GetLedDescriptor(RCCAR_LED_STATUS));
+  TurnOffLed(GetLedDescriptor(RCCAR_LED_USER1));
 
   // receiver service
   rcvr_srv.tconf.priority = TASK_PRIORITY_HIGHEST;
@@ -88,7 +70,7 @@ bool InitRobot() {
   rcvr_srv.tconf.period_ms = 7;
 
   static SbusConf sbus_cfg;
-  sbus_cfg.dd_uart = GetUartDescriptor(TBOT_UART_SBUS);
+  sbus_cfg.dd_uart = GetUartDescriptor(RCCAR_UART_SBUS);
 
   rcvr_srv.sconf.type = RCVR_SBUS;
   rcvr_srv.sconf.rcvr_cfg = &sbus_cfg;
@@ -109,26 +91,19 @@ bool InitRobot() {
   actr_srv.tconf.period_ms = 20;
 
   static TbotActuatorConf tbot_motor_cfg;
-  tbot_motor_cfg.dd_dio_en1 = GetDioDescriptor(TBOT_DIO_EN1);
-  tbot_motor_cfg.dd_dio_dir1 = GetDioDescriptor(TBOT_DIO_DIR1);
-  tbot_motor_cfg.dd_dio_en2 = GetDioDescriptor(TBOT_DIO_EN2);
-  tbot_motor_cfg.dd_dio_dir2 = GetDioDescriptor(TBOT_DIO_DIR2);
-  tbot_motor_cfg.dd_pwm1 = GetPwmDescriptor(TBOT_PWM1);
-  tbot_motor_cfg.dd_pwm2 = GetPwmDescriptor(TBOT_PWM2);
-
   actr_srv.sconf.type = ACTR_TBOT;
   actr_srv.sconf.active_motor_num = 2;
   actr_srv.sconf.actuator_cfg = &tbot_motor_cfg;
 
   actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
 
-  ret = StartActuatorService(&actr_srv);
-  if (!ret) {
-    printk("[ERROR] Failed to start actuator service\n");
-    return false;
-  } else {
-    printk("[INFO] Started actuator service\n");
-  }
+//   ret = StartActuatorService(&actr_srv);
+//   if (!ret) {
+//     printk("[ERROR] Failed to start actuator service\n");
+//     return false;
+//   } else {
+//     printk("[INFO] Started actuator service\n");
+//   }
 
   printk("-----------------------------------------------------\n");
 
@@ -136,8 +111,8 @@ bool InitRobot() {
 }
 
 _Noreturn void ShowRobotPanic() {
-  LedDescriptor *led0 = GetLedDescriptor(TBOT_LED_STATUS);
-  LedDescriptor *led1 = GetLedDescriptor(TBOT_LED_USER1);
+  LedDescriptor *led0 = GetLedDescriptor(RCCAR_LED_STATUS);
+  LedDescriptor *led1 = GetLedDescriptor(RCCAR_LED_USER1);
 
   k_thread_abort(rcvr_srv.tconf.tid);
   k_thread_abort(actr_srv.tconf.tid);
