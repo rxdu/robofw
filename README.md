@@ -12,20 +12,18 @@ low-level control.
 
 ### Install dependencies, west, toolchain, setup Zephyr
 
-Follow the official instructions
+Follow the official [getting started instructions](https://docs.zephyrproject.org/2.7.0/getting_started/index.html).
 
-https://docs.zephyrproject.org/2.5.0/getting_started/index.html
-
-You may need to add the following environment variables to your ~/.bashrc. Remember to adjust the two paths according to
-your setups accordingly. For example, if you put zephyr at "~/zephyrproject/zephyr", then the variable "ZEPHYR_BASE"
-should equal to "~/zephyrproject/zephyr" instead of "~/RduWs/zephyrproject/zephyr".
+You may need to add the following environment variables to your \~/.bashrc. 
 
 ```
 export ZEPHYR_BASE=~/RduWs/zephyrproject/zephyr
 export ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk-0.12.3
 ```
 
-If everything is setup correctly, you should be able to compile a sample project
+Remember to adjust the two paths according to your setup accordingly. For example, if you put zephyr at "\~/zephyrproject/zephyr", then the variable "ZEPHYR_BASE" should equal to "\~/zephyrproject/zephyr" instead of "\~/RduWs/zephyrproject/zephyr".
+
+If everything is set up correctly, you should be able to compile a sample project
 
 ```
 $ cd <path-of-zephyrproject>/zephyr
@@ -39,7 +37,7 @@ $ cd <path-of-zephyrproject>/zephyr
 $ git remote rename origin upstream
 $ git remote add origin https://github.com/rxdu/zephyr.git
 $ git remote fetch origin
-$ git checkout can_native_posix_v2.4
+$ git checkout rcu-zephyr-v2.7
 ```
 
 Update Zephyr dependencies
@@ -50,18 +48,20 @@ $ west update
 $ west zephyr-export
 ```
 
-### Build firmware for the sensor module
-
-```
-$ cd <path-of-this-repo>/sensor_fw
-$ west build
-```
-
 ### Build and flash bootloader
 
 ```
-$ west build -d build-mcuboot -b bbb_racer_cape -s ~/RduWs/zephyrproject/bootloader/mcuboot/boot/zephyr/ -- -DBOARD_ROOT=/home/rdu/RduWs/auto_racing/firmware/zephyr
-$ west flash -d build-mcuboot
+$ cd <path-of-this-repo>
+$ make bl_rcctrl_f405
+$ make flash_bootloader
+```
+
+### Build and flash firmware
+
+```
+$ cd <path-of-this-repo>
+$ make fw_rcctrl_f405
+$ make flash_rcctrl_f405
 ```
 
 ## Use JLink Tracing
