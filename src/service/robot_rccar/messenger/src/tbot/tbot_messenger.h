@@ -1,0 +1,82 @@
+/*
+ * tbot_messenger.h
+ *
+ * Created on 4/3/22 10:07 PM
+ * Description:
+ *
+ * Copyright (c) 2022 Ruixiang Du (rdu)
+ */
+
+#ifndef TBOT_TBOT_MESSENGER_H
+#define TBOT_TBOT_MESSENGER_H
+
+#include <stdint.h>
+
+#include "mcal/interface/can_interface.h"
+#include "interface/service.h"
+
+typedef struct {
+  SupervisedMode sup_mode;
+} TbotSupervisorCommand;
+
+typedef struct {
+  int8_t pwm_left;
+  int8_t pwm_right;
+} TbotPwmCommand;
+
+typedef struct {
+  int32_t rpm_left;
+  int32_t rpm_right;
+} TbotMotorCommand;
+
+typedef struct {
+  float linear;
+  float angular;
+} TbotMotionCommand;
+
+typedef struct {
+  SupervisedMode sup_mode;
+} TbotSupervisedStateData;
+typedef struct {
+  int32_t left;
+  int32_t right;
+} TbotSpeed;
+
+typedef TbotSpeed TbotEncoderRawData;
+typedef TbotSpeed TbotTargetRpmData;
+
+typedef TbotEncoderRawData TbotEncoderFilteredData;
+
+typedef enum {
+  // command
+  kTbotSuperviserCmmand = 0,
+  kTbotPwmCommand,
+  kTbotMotorCommand,
+  kTbotMotionCommand,
+  // feedback
+  kTbotSupervisedStateData,
+  kTbotEncoderRawData,
+  kTbotEncoderFilteredData,
+  kTbotTargetRpmData
+} TbotMsgType;
+
+typedef struct {
+  TbotMsgType type;
+  union {
+    // command
+    TbotSupervisorCommand sup_cmd;
+    TbotPwmCommand pwm_cmd;
+    TbotMotorCommand rpm_cmd;
+    TbotMotionCommand motion_cmd;
+    // feedback
+    TbotSupervisedStateData supervised_state_data;
+    TbotEncoderRawData encoder_raw_data;
+    TbotEncoderFilteredData encoder_filtered_data;
+    TbotTargetRpmData target_rpm_data;
+  } data;
+} TbotMsg;
+
+void EncodeCanMessage(const TbotMsg *msg, struct zcan_frame *frame);
+bool DecodeCanMessage(const struct zcan_frame *frame, TbotMsg *msg);
+
+#endif /* TBOT_TBOT_MESSENGER_H */

@@ -51,6 +51,7 @@ K_MSGQ_DEFINE(supervisor_cmd_queue, sizeof(SupervisorCommand), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static ActuatorServiceDef actr_srv;
+// static CoordinatorServiceDef coord_srv;
 
 bool InitRobot() {
   // load all drivers from device tree

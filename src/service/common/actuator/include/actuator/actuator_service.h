@@ -12,8 +12,8 @@
  * Copyright (c) 2021 Ruixiang Du (rdu)
  */
 
-#ifndef ACTUATOR_SERVICE_H
-#define ACTUATOR_SERVICE_H
+#ifndef ACTUATOR_ACTUATOR_SERVICE_H
+#define ACTUATOR_ACTUATOR_SERVICE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -23,7 +23,7 @@
 
 #include "interface/service.h"
 
-typedef enum { ACTR_TBOT = 0, ACTR_TA07PRO } ActuatorType;
+typedef enum { ACTR_TBOT = 0, ACTR_RCCAR } ActuatorType;
 
 #define ACTUATOR_CHANNEL_NUMBER 2
 typedef struct {
@@ -60,4 +60,4 @@ typedef struct {
 
 bool StartActuatorService(ActuatorServiceDef *def);
 
-#endif /* ACTUATOR_SERVICE_H */
+#endif /* ACTUATOR_ACTUATOR_SERVICE_H */
