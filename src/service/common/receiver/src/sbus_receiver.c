@@ -72,15 +72,11 @@ _Noreturn void SbusReceiverServiceLoop(void *p1, void *p2, void *p3) {
 //                 sbus_cfg->sbus_msg_buffer.channels[6],
 //                 sbus_cfg->sbus_msg_buffer.channels[7]);
 
-//          printk("receiver: %04f %04f %04f %04f, %04f %04f %04f %04f\n",
-//                 receiver_data.channels[0],
-//                 receiver_data.channels[1],
-//                 receiver_data.channels[2],
-//                 receiver_data.channels[3],
-//                 receiver_data.channels[4],
-//                 receiver_data.channels[5],
-//                 receiver_data.channels[6],
-//                 receiver_data.channels[7]);
+          printk("receiver: %04f %04f %04f %04f, %04f %04f %04f %04f\n",
+                 receiver_data.channels[0], receiver_data.channels[1],
+                 receiver_data.channels[2], receiver_data.channels[3],
+                 receiver_data.channels[4], receiver_data.channels[5],
+                 receiver_data.channels[6], receiver_data.channels[7]);
         }
       }
     }

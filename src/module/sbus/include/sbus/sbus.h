@@ -16,8 +16,8 @@
  * Copyright (c) 2019 Ruixiang Du (rdu)
  */
 
-#ifndef SBUS_H
-#define SBUS_H
+#ifndef SBUS_SBUS_H
+#define SBUS_SBUS_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -48,4 +48,4 @@ void SbusDecoderInit(SbusDecoderInstance *inst);
 bool SbusDecodeMessage(SbusDecoderInstance *inst, uint8_t ch, SbusMessage *sbus_msg);
 bool ValidateSbusMessage(const SbusMessage *sbus_msg);
 
-#endif /* SBUS_H */
+#endif /* SBUS_SBUS_H */

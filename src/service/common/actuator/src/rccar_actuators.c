@@ -44,9 +44,6 @@ _Noreturn void RcCarActuatorServiceLoop(void *p1, void *p2, void *p3) {
       LimitCommand(cmd_servo_in, &cmd_servo);
       LimitCommand(cmd_motor_in, &cmd_motor);
 
-      // reverse right cmd (reversed motor installation direction)
-      //      cmd_motor = -cmd_motor;
-
       //      printk("received cmd: %3f, %3f, final cmd: %3f, %3f\n",
       //      cmd_servo_in, cmd_motor_in, cmd_servo, cmd_motor);
       SetMotorCmd(cmd_servo, cmd_motor);
@@ -63,32 +60,15 @@ void LimitCommand(float in, float *out) {
   float cmd = in;
   if (cmd > 0.99) cmd = 0.99;
   if (cmd < -0.99) cmd = -0.99;
-  if (cmd > 0) {
-    cmd = 1.0f - cmd;
-  } else {
-    cmd = -(1.0f + cmd);
-  }
+  //   if (cmd > 0) {
+  //     cmd = 1.0f - cmd;
+  //   } else {
+  //     cmd = -(1.0f + cmd);
+  //   }
   *out = cmd;
 }
 
 void SetMotorCmd(float left, float right) {
-  //   if (left < 0) {
-  //     left = -left;
-  //     SetDio(rccar_actr_cfg->dd_dio_en1, 1);
-  //     SetDio(rccar_actr_cfg->dd_dio_dir1, 1);
-  //   } else {
-  //     SetDio(rccar_actr_cfg->dd_dio_en1, 1);
-  //     SetDio(rccar_actr_cfg->dd_dio_dir1, 0);
-  //   }
-  //   SetPwmDutyCycle(rccar_actr_cfg->dd_pwm1, left);
-
-  //   if (right < 0) {
-  //     right = -right;
-  //     SetDio(rccar_actr_cfg->dd_dio_en2, 1);
-  //     SetDio(rccar_actr_cfg->dd_dio_dir2, 1);
-  //   } else {
-  //     SetDio(rccar_actr_cfg->dd_dio_en2, 1);
-  //     SetDio(rccar_actr_cfg->dd_dio_dir2, 0);
-  //   }
-  //   SetPwmDutyCycle(rccar_actr_cfg->dd_pwm2, right);
+  SetPwmDutyCycle(rccar_actr_cfg->dd_pwm1, left);
+  SetPwmDutyCycle(rccar_actr_cfg->dd_pwm2, right);
 }

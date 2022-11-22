@@ -7,8 +7,8 @@
  * Copyright (c) 2022 Ruixiang Du (rdu)
  */
 
-#ifndef ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_MESSENGER_SERVICE_H
-#define ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_MESSENGER_SERVICE_H
+#ifndef MESSENGER_MESSENGER_SERVICE_H
+#define MESSENGER_MESSENGER_SERVICE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -29,8 +29,7 @@ typedef struct {
   struct k_msgq *desired_motion_msgq;
 } MessengerSrvData;
 
-struct EncoderInterface;
-struct ReceiverInterface;
+struct ActuatorInterface;
 struct SpeedControlInterface;
 
 struct MessengerInterface {
@@ -50,7 +49,6 @@ typedef struct {
 
   // dependent interfaces
   struct {
-    struct ReceiverInterface *receiver_interface;
     struct ActuatorInterface *actuator_interface;
     struct SpeedControlInterface *speed_control_interface;
   } dependencies;
@@ -61,4 +59,4 @@ typedef struct {
 
 bool StartMessengerService(MessengerServiceDef *def);
 
-#endif  // ROBOFW_SRC_SERVICE_HARDWARE_MESSENGER_SRC_MESSENGER_SERVICE_H
+#endif /* MESSENGER_MESSENGER_SERVICE_H */
