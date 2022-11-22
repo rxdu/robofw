@@ -13,6 +13,7 @@
 
 #include "receiver/receiver_service.h"
 #include "actuator/actuator_service.h"
+#include "messenger/messenger_service.h"
 // #include "coordinator/coordinator_service.h"
 
 #include "actuator/tbot_actuators.h"
@@ -51,6 +52,7 @@ K_MSGQ_DEFINE(supervisor_cmd_queue, sizeof(SupervisorCommand), 1, 8);
 
 static ReceiverServiceDef rcvr_srv;
 static ActuatorServiceDef actr_srv;
+static MessengerServiceDef msger_srv;
 // static CoordinatorServiceDef coord_srv;
 
 bool InitRobot() {
@@ -98,13 +100,41 @@ bool InitRobot() {
 
   actr_srv.sdata.actuator_cmd_msgq = &actuator_data_queue;
 
-//   ret = StartActuatorService(&actr_srv);
-//   if (!ret) {
-//     printk("[ERROR] Failed to start actuator service\n");
-//     return false;
-//   } else {
-//     printk("[INFO] Started actuator service\n");
-//   }
+  //   ret = StartActuatorService(&actr_srv);
+  //   if (!ret) {
+  //     printk("[ERROR] Failed to start actuator service\n");
+  //     return false;
+  //   } else {
+  //     printk("[INFO] Started actuator service\n");
+  //   }
+
+  // messenger
+  msger_srv.rx_tconf.priority = TASK_PRIORITY_HIGH;
+  msger_srv.rx_tconf.delay_ms = 100;
+  msger_srv.rx_tconf.period_ms = 20;
+
+  msger_srv.tx_tconf.priority = TASK_PRIORITY_MID;
+  msger_srv.tx_tconf.delay_ms = 100;
+  msger_srv.tx_tconf.period_ms = 20;
+
+//   msger_srv.sdata.supervisor_cmd_msgq = &supervisor_cmd_queue;
+//   msger_srv.sdata.desired_motion_msgq = &can_desired_motion_queue;
+//   msger_srv.sdata.robot_state_msgq = &robot_state_queue;
+
+  msger_srv.sconf.dd_can = GetCanDescriptor(RCCAR_CAN_UPLINK);
+//   msger_srv.dependencies.receiver_interface = &(rcvr_srv.interface);
+//   msger_srv.dependencies.actuator_interface = &(actr_srv.interface);
+//   msger_srv.dependencies.speed_control_interface = &(spdcon_srv.interface);
+
+  //  msger_srv.sdata.encoder_rpm_msgq = &encoder_rpm_queue;
+
+  ret = StartMessengerService(&msger_srv);
+  if (!ret) {
+    printk("[ERROR] Failed to start messenger service\n");
+    return false;
+  } else {
+    printk("[INFO] Started messenger service\n");
+  }
 
   printk("-----------------------------------------------------\n");
 

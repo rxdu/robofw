@@ -30,6 +30,27 @@ _Noreturn static void MessengerServiceRxLoop(void *p1, void *p2, void *p3);
 _Noreturn static void MessengerServiceTxLoop(void *p1, void *p2, void *p3);
 
 bool StartMessengerService(MessengerServiceDef *def) {
+  // sanity check
+  //   if (def->sdata.robot_state_msgq == NULL) return false;
+  //   def->interface.robot_state_msgq_in = def->sdata.robot_state_msgq;
+
+  //   if (def->sdata.desired_motion_msgq == NULL) return false;
+  //   def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
+
+  //   if (def->sdata.supervisor_cmd_msgq == NULL) return false;
+  //   def->interface.supervisor_cmd_msgq_out = def->sdata.supervisor_cmd_msgq;
+
+  //   if (def->sconf.dd_can == NULL) {
+  //     printk("Messenger can descriptor not set properly\n");
+  //     return false;
+  //   }
+
+  //   if (def->dependencies.actuator_interface == NULL ||
+  //       def->dependencies.speed_control_interface == NULL) {
+  //     printk("Dependency not set properly\n");
+  //     return false;
+  //   }
+
   // initialize hardware
   struct zcan_filter can_filter;
   can_filter.id_type = CAN_STANDARD_IDENTIFIER;
@@ -37,27 +58,6 @@ bool StartMessengerService(MessengerServiceDef *def) {
   can_filter.rtr_mask = 1;
   can_filter.id_mask = 0;
   ConfigureCan(def->sconf.dd_can, CAN_NORMAL_MODE, 500000, can_filter);
-
-  if (def->sdata.robot_state_msgq == NULL) return false;
-  def->interface.robot_state_msgq_in = def->sdata.robot_state_msgq;
-
-  if (def->sdata.desired_motion_msgq == NULL) return false;
-  def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
-
-  if (def->sdata.supervisor_cmd_msgq == NULL) return false;
-  def->interface.supervisor_cmd_msgq_out = def->sdata.supervisor_cmd_msgq;
-
-  // sanity check
-  if (def->sconf.dd_can == NULL) {
-    printk("Messenger can descriptor not set properly\n");
-    return false;
-  }
-
-  if (def->dependencies.actuator_interface == NULL ||
-      def->dependencies.speed_control_interface == NULL) {
-    printk("Dependency not set properly\n");
-    return false;
-  }
 
   // create and start thread
   def->rx_tconf.tid = k_thread_create(
@@ -81,77 +81,84 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *)p1;
   struct zcan_frame rx_frame;
 
-// #ifndef UNKOWN_DECODER
-//   DecodeMsgType msg;
-// #endif
+  // #ifndef UNKOWN_DECODER
+  //   DecodeMsgType msg;
+  // #endif
 
   SupervisorCommand sup_cmd;
   ActuatorCmd actuator_cmd;
-//   DesiredRpm desired_rpm;
-//   DesiredMotion desired_motion;
+  //   DesiredRpm desired_rpm;
+  //   DesiredMotion desired_motion;
 
   while (1) {
     if (k_msgq_get(def->sconf.dd_can->msgq, &rx_frame, K_FOREVER) == 0) {
       //   printk("CAN1 %02x: ", rx_frame.id);
       //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
       //   rx_frame.data[i]); printk("\n");
-// #ifndef UNKOWN_DECODER
-//       if (DecodeCanMessage(&rx_frame, &msg)) {
-//         switch (msg.type) {
-//           case kTbotSuperviserCmmand: {
-//             sup_cmd.supervised_mode = msg.data.sup_cmd.sup_mode;
-//             while (k_msgq_put(def->interface.supervisor_cmd_msgq_out, &sup_cmd,
-//                               K_NO_WAIT) != 0) {
-//               k_msgq_purge(def->interface.supervisor_cmd_msgq_out);
-//             }
-//             break;
-//           }
-//           case kTbotPwmCommand: {
-//             //            printk("pwm cmd: %d, %d\n", msg.data.pwm_cmd.pwm_left,
-//             //                   msg.data.pwm_cmd.pwm_right);
-//             actuator_cmd.motors[0] = msg.data.pwm_cmd.pwm_left / 100.0f;
-//             // invert value since motor is mechanically installed in an opposite
-//             // direction
-//             actuator_cmd.motors[1] = -msg.data.pwm_cmd.pwm_right / 100.0f;
-//             while (
-//                 k_msgq_put(
-//                     def->dependencies.actuator_interface->actuator_cmd_msgq_in,
-//                     &actuator_cmd, K_NO_WAIT) != 0) {
-//               k_msgq_purge(
-//                   def->dependencies.actuator_interface->actuator_cmd_msgq_in);
-//             }
-//             break;
-//           }
-//           case kTbotMotorCommand: {
-//             //            printk("rpm cmd: %d, %d\n", msg.data.rpm_cmd.rpm_left,
-//             //                   msg.data.rpm_cmd.rpm_right);
-//             desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
-//             // invert value since motor is mechanically installed in an opposite
-//             // direction
-//             desired_rpm.motors[1] = -msg.data.rpm_cmd.rpm_right;
-//             while (k_msgq_put(def->dependencies.speed_control_interface
-//                                   ->desired_rpm_msgq_in,
-//                               &desired_rpm, K_NO_WAIT) != 0) {
-//               k_msgq_purge(def->dependencies.speed_control_interface
-//                                ->desired_rpm_msgq_in);
-//             }
-//             break;
-//           }
-//           case kTbotMotionCommand: {
-//             desired_motion.linear = msg.data.motion_cmd.linear;
-//             desired_motion.angular = msg.data.motion_cmd.angular;
-//             while (k_msgq_put(def->interface.desired_motion_msgq_out,
-//                               &desired_motion, K_NO_WAIT) != 0) {
-//               k_msgq_purge(def->interface.desired_motion_msgq_out);
-//             }
-//             break;
-//           }
-//           default: {
-//             // do nothing
-//           }
-//         }
-//       }
-// #endif
+
+      // #ifndef UNKOWN_DECODER
+      //       if (DecodeCanMessage(&rx_frame, &msg)) {
+      //         switch (msg.type) {
+      //           case kTbotSuperviserCmmand: {
+      //             sup_cmd.supervised_mode = msg.data.sup_cmd.sup_mode;
+      //             while (k_msgq_put(def->interface.supervisor_cmd_msgq_out,
+      //             &sup_cmd,
+      //                               K_NO_WAIT) != 0) {
+      //               k_msgq_purge(def->interface.supervisor_cmd_msgq_out);
+      //             }
+      //             break;
+      //           }
+      //           case kTbotPwmCommand: {
+      //             //            printk("pwm cmd: %d, %d\n",
+      //             msg.data.pwm_cmd.pwm_left,
+      //             //                   msg.data.pwm_cmd.pwm_right);
+      //             actuator_cmd.motors[0] = msg.data.pwm_cmd.pwm_left /
+      //             100.0f;
+      //             // invert value since motor is mechanically installed in an
+      //             opposite
+      //             // direction
+      //             actuator_cmd.motors[1] = -msg.data.pwm_cmd.pwm_right /
+      //             100.0f; while (
+      //                 k_msgq_put(
+      //                     def->dependencies.actuator_interface->actuator_cmd_msgq_in,
+      //                     &actuator_cmd, K_NO_WAIT) != 0) {
+      //               k_msgq_purge(
+      //                   def->dependencies.actuator_interface->actuator_cmd_msgq_in);
+      //             }
+      //             break;
+      //           }
+      //           case kTbotMotorCommand: {
+      //             //            printk("rpm cmd: %d, %d\n",
+      //             msg.data.rpm_cmd.rpm_left,
+      //             //                   msg.data.rpm_cmd.rpm_right);
+      //             desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
+      //             // invert value since motor is mechanically installed in an
+      //             opposite
+      //             // direction
+      //             desired_rpm.motors[1] = -msg.data.rpm_cmd.rpm_right;
+      //             while (k_msgq_put(def->dependencies.speed_control_interface
+      //                                   ->desired_rpm_msgq_in,
+      //                               &desired_rpm, K_NO_WAIT) != 0) {
+      //               k_msgq_purge(def->dependencies.speed_control_interface
+      //                                ->desired_rpm_msgq_in);
+      //             }
+      //             break;
+      //           }
+      //           case kTbotMotionCommand: {
+      //             desired_motion.linear = msg.data.motion_cmd.linear;
+      //             desired_motion.angular = msg.data.motion_cmd.angular;
+      //             while (k_msgq_put(def->interface.desired_motion_msgq_out,
+      //                               &desired_motion, K_NO_WAIT) != 0) {
+      //               k_msgq_purge(def->interface.desired_motion_msgq_out);
+      //             }
+      //             break;
+      //           }
+      //           default: {
+      //             // do nothing
+      //           }
+      //         }
+      //       }
+      // #endif
     }
   }
 }
