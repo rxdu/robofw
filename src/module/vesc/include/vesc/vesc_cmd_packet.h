@@ -10,18 +10,50 @@
 #ifndef VESC_VESC_CMD_PACKET_H
 #define VESC_VESC_CMD_PACKET_H
 
-#include "vesc/vesc_frame.h"
+typedef enum {
+  VescUnknownCmd = -1,
+  VescSetServoPosCmd = 0,
+  VescSetDutyCycleCmd,
+  VescSetCurrentCmd,
+  VescSetCurrentBrakeCmd,
+  VescSetRpmCmd,
+  VescSetPositionCmd
+} VescCmdPacketType;
 
-VescFrame VescSetServoPosCmdPacket(uint8_t vesc_id, float pos);
+typedef struct {
+  float pos;
+} VescSetServoPosCmdPacket;
 
-VescFrame VescSetDutyCycleCmdPacket(uint8_t vesc_id, float duty);
+typedef struct {
+  float duty;
+} VescSetDutyCycleCmdPacket;
 
-VescFrame VescSetCurrentCmdPacket(uint8_t vesc_id, float current);
+typedef struct {
+  float current;
+} VescSetCurrentCmdPacket;
 
-VescFrame VescSetCurrentBrakeCmdPacket(uint8_t vesc_id, float current);
+typedef struct {
+  float current;
+} VescSetCurrentBrakeCmdPacket;
 
-VescFrame VescSetRpmCmdPacket(uint8_t vesc_id, int32_t rpm);
+typedef struct {
+  int32_t rpm;
+} VescSetRpmCmdPacket;
 
-VescFrame VescSetPositionCmdPacket(uint8_t vesc_id, float pos);
+typedef struct {
+  float pos;
+} VescSetPositionCmdPacket;
+
+typedef struct {
+  VescCmdPacketType type;
+  union VescCmdPacketBody {
+    VescSetServoPosCmdPacket servo_pos;
+    VescSetDutyCycleCmdPacket duty_cycle;
+    VescSetCurrentCmdPacket current;
+    VescSetCurrentBrakeCmdPacket current_brake;
+    VescSetRpmCmdPacket rpm;
+    VescSetPositionCmdPacket position;
+  } packet;
+} VescCmdPacket;
 
 #endif /* VESC_VESC_CMD_PACKET_H */
