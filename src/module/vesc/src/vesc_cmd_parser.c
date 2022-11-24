@@ -25,9 +25,9 @@
 // command id
 static const uint8_t VescCommSetServoPosId = 0x0c;
 
-static void ClampCommand(float *cmd, float min, float max);
+static void ClampCommand(float* cmd, float min, float max);
 
-void ClampCommand(float *cmd, float min, float max) {
+void ClampCommand(float* cmd, float min, float max) {
   if (*cmd > max) *cmd = max;
   if (*cmd < min) *cmd = min;
 }
@@ -138,23 +138,54 @@ VescFrame VescSetPositionCmdPacketToFrame(uint8_t vesc_id, float pos) {
   return frame_;
 }
 
-VescCmdPacket VescFrameToCmdPacket(VescFrame *frame) {
-  VescCmdPacket pkt;
-  switch (frame->can_id) {
-    case VescProcessShortBufferCmdFrameId | MCU_ID | CAN_EFF_FLAG: {
+bool CanFrameToCmdPacket(const struct zcan_frame* frame, VescCmdPacket* pkt) {
+  bool ret = true;
+  if (frame->id == (VescProcessShortBufferCmdFrameId | MCU_ID | CAN_EFF_FLAG)) {
+    if (frame->data[2] == VescCommSetServoPosId) {
+      pkt->type = VescSetServoPosCmd;
+      pkt->packet.servo_pos.pos =
+          (((uint16_t)frame->data[3]) << 8 | (uint16_t)(frame->data[4])) /
+          1000.0f;
     }
-    case VescDutyCycleCmdFrameId | MCU_ID | CAN_EFF_FLAG: {
-    }
-    case VescCurrentCmdFrameId | MCU_ID | CAN_EFF_FLAG: {
-    }
-    case VescCurrentBrakeCmdFrameId | MCU_ID | CAN_EFF_FLAG: {
-    }
-    case VescRpmCmdFrameId | MCU_ID | CAN_EFF_FLAG: {
-    }
-    case VescPositionCmdFrameId | MCU_ID | CAN_EFF_FLAG: {
-    }
-    default:
-      pkt.type = VescUnknownCmd;
+  } else if (frame->id == (VescDutyCycleCmdFrameId | MCU_ID | CAN_EFF_FLAG)) {
+    pkt->type = VescSetDutyCycleCmd;
+    pkt->packet.duty_cycle.duty = (int32_t)(((uint32_t)frame->data[0]) << 24 |
+                                            ((uint32_t)frame->data[1]) << 16 |
+                                            ((uint32_t)frame->data[2]) << 8 |
+                                            ((uint32_t)frame->data[3]) << 0) /
+                                  100000.0f;
+  } else if (frame->id == (VescCurrentCmdFrameId | MCU_ID | CAN_EFF_FLAG)) {
+    pkt->type = VescSetCurrentCmd;
+    pkt->packet.current.current = (int32_t)(((uint32_t)frame->data[0]) << 24 |
+                                            ((uint32_t)frame->data[1]) << 16 |
+                                            ((uint32_t)frame->data[2]) << 8 |
+                                            ((uint32_t)frame->data[3]) << 0) /
+                                  1000.0f;
+  } else if (frame->id ==
+             (VescCurrentBrakeCmdFrameId | MCU_ID | CAN_EFF_FLAG)) {
+    pkt->type = VescSetCurrentBrakeCmd;
+    pkt->packet.current_brake.current =
+        (int32_t)(((uint32_t)frame->data[0]) << 24 |
+                  ((uint32_t)frame->data[1]) << 16 |
+                  ((uint32_t)frame->data[2]) << 8 |
+                  ((uint32_t)frame->data[3]) << 0) /
+        1000.0f;
+  } else if (frame->id == (VescRpmCmdFrameId | MCU_ID | CAN_EFF_FLAG)) {
+    pkt->type = VescSetRpmCmd;
+    pkt->packet.rpm.rpm = (int32_t)(((uint32_t)frame->data[0]) << 24 |
+                                    ((uint32_t)frame->data[1]) << 16 |
+                                    ((uint32_t)frame->data[2]) << 8 |
+                                    ((uint32_t)frame->data[3]) << 0);
+  } else if (frame->id == (VescPositionCmdFrameId | MCU_ID | CAN_EFF_FLAG)) {
+    pkt->type = VescSetPositionCmd;
+    pkt->packet.position.pos = (int32_t)(((uint32_t)frame->data[0]) << 24 |
+                                         ((uint32_t)frame->data[1]) << 16 |
+                                         ((uint32_t)frame->data[2]) << 8 |
+                                         ((uint32_t)frame->data[3]) << 0) /
+                               100000.0f;
+  } else {
+    ret = false;
   }
-  return pkt;
+
+  return ret;
 }

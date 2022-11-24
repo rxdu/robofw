@@ -21,7 +21,7 @@
 // #define UNKOWN_DECODER
 // #endif
 
-#include "vesc/vesc_cmd_packet.h"
+#include "vesc/vesc_cmd_parser.h"
 
 K_THREAD_STACK_DEFINE(messenger_rx_service_stack, 512);
 K_THREAD_STACK_DEFINE(messenger_tx_service_stack, 1024);
@@ -81,11 +81,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *)p1;
   struct zcan_frame rx_frame;
 
-  // #ifndef UNKOWN_DECODER
-  //   DecodeMsgType msg;
-  // #endif
-
-  SupervisorCommand sup_cmd;
+  VescCmdPacket pkt;
   ActuatorCmd actuator_cmd;
   //   DesiredRpm desired_rpm;
   //   DesiredMotion desired_motion;
@@ -96,69 +92,40 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
       //   for (int i = 0; i < rx_frame.dlc; ++i) printk("%02x ",
       //   rx_frame.data[i]); printk("\n");
 
-      // #ifndef UNKOWN_DECODER
-      //       if (DecodeCanMessage(&rx_frame, &msg)) {
-      //         switch (msg.type) {
-      //           case kTbotSuperviserCmmand: {
-      //             sup_cmd.supervised_mode = msg.data.sup_cmd.sup_mode;
-      //             while (k_msgq_put(def->interface.supervisor_cmd_msgq_out,
-      //             &sup_cmd,
-      //                               K_NO_WAIT) != 0) {
-      //               k_msgq_purge(def->interface.supervisor_cmd_msgq_out);
-      //             }
-      //             break;
-      //           }
-      //           case kTbotPwmCommand: {
-      //             //            printk("pwm cmd: %d, %d\n",
-      //             msg.data.pwm_cmd.pwm_left,
-      //             //                   msg.data.pwm_cmd.pwm_right);
-      //             actuator_cmd.motors[0] = msg.data.pwm_cmd.pwm_left /
-      //             100.0f;
-      //             // invert value since motor is mechanically installed in an
-      //             opposite
-      //             // direction
-      //             actuator_cmd.motors[1] = -msg.data.pwm_cmd.pwm_right /
-      //             100.0f; while (
-      //                 k_msgq_put(
-      //                     def->dependencies.actuator_interface->actuator_cmd_msgq_in,
-      //                     &actuator_cmd, K_NO_WAIT) != 0) {
-      //               k_msgq_purge(
-      //                   def->dependencies.actuator_interface->actuator_cmd_msgq_in);
-      //             }
-      //             break;
-      //           }
-      //           case kTbotMotorCommand: {
-      //             //            printk("rpm cmd: %d, %d\n",
-      //             msg.data.rpm_cmd.rpm_left,
-      //             //                   msg.data.rpm_cmd.rpm_right);
-      //             desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
-      //             // invert value since motor is mechanically installed in an
-      //             opposite
-      //             // direction
-      //             desired_rpm.motors[1] = -msg.data.rpm_cmd.rpm_right;
-      //             while (k_msgq_put(def->dependencies.speed_control_interface
-      //                                   ->desired_rpm_msgq_in,
-      //                               &desired_rpm, K_NO_WAIT) != 0) {
-      //               k_msgq_purge(def->dependencies.speed_control_interface
-      //                                ->desired_rpm_msgq_in);
-      //             }
-      //             break;
-      //           }
-      //           case kTbotMotionCommand: {
-      //             desired_motion.linear = msg.data.motion_cmd.linear;
-      //             desired_motion.angular = msg.data.motion_cmd.angular;
-      //             while (k_msgq_put(def->interface.desired_motion_msgq_out,
-      //                               &desired_motion, K_NO_WAIT) != 0) {
-      //               k_msgq_purge(def->interface.desired_motion_msgq_out);
-      //             }
-      //             break;
-      //           }
-      //           default: {
-      //             // do nothing
-      //           }
-      //         }
-      //       }
-      // #endif
+      if (CanFrameToCmdPacket(&rx_frame, &pkt)) {
+        switch (pkt.type) {
+          case VescSetServoPosCmd: {
+            //         //            printk("rpm cmd: %d, %d\n",
+            //         msg.data.rpm_cmd.rpm_left,
+            //             //                   msg.data.rpm_cmd.rpm_right);
+            //             desired_rpm.motors[0] = msg.data.rpm_cmd.rpm_left;
+            //         // invert value since motor is mechanically installed in
+            //         an opposite
+            //             // direction
+            //             desired_rpm.motors[1] = -msg.data.rpm_cmd.rpm_right;
+            //         while
+            //         (k_msgq_put(def->dependencies.speed_control_interface
+            //                               ->desired_rpm_msgq_in,
+            //                           &desired_rpm, K_NO_WAIT) != 0) {
+            //           k_msgq_purge(def->dependencies.speed_control_interface
+            //                            ->desired_rpm_msgq_in);
+            //         }
+            break;
+          }
+          case VescSetRpmCmd: {
+            //         desired_motion.linear = msg.data.motion_cmd.linear;
+            //         desired_motion.angular = msg.data.motion_cmd.angular;
+            //         while (k_msgq_put(def->interface.desired_motion_msgq_out,
+            //                           &desired_motion, K_NO_WAIT) != 0) {
+            //           k_msgq_purge(def->interface.desired_motion_msgq_out);
+            //         }
+            break;
+          }
+          default: {
+            // do nothing
+          }
+        }
+      }
     }
   }
 }
@@ -188,10 +155,12 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
     //       speed_control_feedback.measured_speed.raw_rpms[1];
     //   EncodeCanMessage(&tmsg, &tx_frame);
 
-    //   ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
+    //   ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
+    //   tx_frame.data,
     //                      tx_frame.dlc);
     //   if (ret != CAN_TX_OK) {
-    //     printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
+    //     printk("%s send failed: %d\n", def->sconf.dd_can->device->name,
+    //     ret);
     //   }
     // }
 
@@ -201,10 +170,12 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
     //   tmsg.data.supervised_state_data.sup_mode = robot_state.sup_mode;
     //   EncodeCanMessage(&tmsg, &tx_frame);
 
-    //   ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true, tx_frame.data,
+    //   ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
+    //   tx_frame.data,
     //                      tx_frame.dlc);
     //   if (ret != CAN_TX_OK) {
-    //     printk("%s send failed: %d\n", def->sconf.dd_can->device->name, ret);
+    //     printk("%s send failed: %d\n", def->sconf.dd_can->device->name,
+    //     ret);
     //   }
     // }
 

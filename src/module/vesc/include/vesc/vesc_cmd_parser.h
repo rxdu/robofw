@@ -10,6 +10,10 @@
 #ifndef VESC_VESC_CMD_PARSER_H
 #define VESC_VESC_CMD_PARSER_H
 
+#include "stdbool.h"
+
+#include <drivers/can.h>
+
 #include "vesc/vesc_frame.h"
 #include "vesc/vesc_cmd_packet.h"
 
@@ -20,6 +24,6 @@ VescFrame VescSetCurrentBrakeCmdPacketToFrame(uint8_t vesc_id, float current);
 VescFrame VescSetRpmCmdPacketToFrame(uint8_t vesc_id, int32_t rpm);
 VescFrame VescSetPositionCmdPacketToFrame(uint8_t vesc_id, float pos);
 
-VescCmdPacket VescFrameToCmdPacket(VescFrame* frame);
+bool CanFrameToCmdPacket(const struct zcan_frame* frame, VescCmdPacket* pkt);
 
 #endif /* VESC_VESC_CMD_PARSER_H */

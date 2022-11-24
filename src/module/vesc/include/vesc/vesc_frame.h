@@ -34,8 +34,8 @@ static const uint32_t VescPositionCmdFrameId = 0x00000400;
 static const uint32_t VescProcessShortBufferCmdFrameId = 0x00000800;
 
 // vesc id
-#define MCU_ID 0x60
-#define VESC_ID 0x68
+#define MCU_ID ((uint32_t)0x60)
+#define VESC_ID ((uint32_t)0x68)
 
 typedef struct can_frame VescFrame;
 
