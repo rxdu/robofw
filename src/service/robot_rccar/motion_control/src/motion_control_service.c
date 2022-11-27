@@ -11,22 +11,16 @@
 
 #include <math.h>
 
-#include "speed_control/speed_control_service.h"
-
 K_THREAD_STACK_DEFINE(motion_service_stack, 1024);
 
 _Noreturn static void MotionServiceLoop(void *p1, void *p2, void *p3);
 
 bool StartMotionService(MotionControlServiceDef *def) {
+  // sanity check
   if (def->sdata.desired_motion_msgq == NULL) return false;
   def->interface.desired_motion_msgq_in = def->sdata.desired_motion_msgq;
 
-  if (def->sdata.control_feedback_msgq == NULL) return false;
-  def->interface.control_feedback_msgq_out = def->sdata.control_feedback_msgq;
-
-  // sanity check
-  if (def->dependencies.coordinator_interface == NULL ||
-      def->dependencies.speed_control_interface == NULL) {
+  if (def->dependencies.coordinator_interface == NULL) {
     printk("Dependency not set properly\n");
     return false;
   }
@@ -82,12 +76,12 @@ _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
   const float track = 0.185;
   //  const float gear_ratio = 30;
 
-  DesiredMotion desired_motion;
-  DesiredRpm target_rpm;
+  //   DesiredMotion desired_motion;
+  //   DesiredRpm target_rpm;
 
-  DesiredRpm prev_target_rpm;
-  prev_target_rpm.motors[0] = 0;
-  prev_target_rpm.motors[1] = 0;
+  //   DesiredRpm prev_target_rpm;
+  //   prev_target_rpm.motors[0] = 0;
+  //   prev_target_rpm.motors[1] = 0;
 
   MotionLimit rpm_limit;
   rpm_limit.accel = 3;
@@ -96,42 +90,42 @@ _Noreturn void MotionServiceLoop(void *p1, void *p2, void *p3) {
   while (1) {
     int64_t t0 = k_loop_start();
 
-    if (k_msgq_get(def->interface.desired_motion_msgq_in, &desired_motion,
-                   K_NO_WAIT) == 0) {
-      // calculate desired left/right speed from desired motion
-      float omega_l = 0, omega_r = 0;
-      omega_l = (desired_motion.linear - desired_motion.angular * track) / r;
-      omega_r = (desired_motion.linear + desired_motion.angular * track) / r;
+    // if (k_msgq_get(def->interface.desired_motion_msgq_in, &desired_motion,
+    //                K_NO_WAIT) == 0) {
+    //   // calculate desired left/right speed from desired motion
+    //   float omega_l = 0, omega_r = 0;
+    //   omega_l = (desired_motion.linear - desired_motion.angular * track) / r;
+    //   omega_r = (desired_motion.linear + desired_motion.angular * track) / r;
 
-      target_rpm.motors[0] = omega_l * 60 / (2 * M_PI);
-      target_rpm.motors[1] = omega_r * 60 / (2 * M_PI);
+    //   target_rpm.motors[0] = omega_l * 60 / (2 * M_PI);
+    //   target_rpm.motors[1] = omega_r * 60 / (2 * M_PI);
 
-      // invert right motor due to mechanical installation direction
-      target_rpm.motors[1] = -target_rpm.motors[1];
+    //   // invert right motor due to mechanical installation direction
+    //   target_rpm.motors[1] = -target_rpm.motors[1];
 
-      // limit acceleration/deceleration
-      for (int i = 0; i < 2; ++i) {
-        target_rpm.motors[i] = ApplyMotionLimit(
-            &rpm_limit, prev_target_rpm.motors[i], target_rpm.motors[i]);
-      }
+    //   // limit acceleration/deceleration
+    //   for (int i = 0; i < 2; ++i) {
+    //     target_rpm.motors[i] = ApplyMotionLimit(
+    //         &rpm_limit, prev_target_rpm.motors[i], target_rpm.motors[i]);
+    //   }
 
-      // save for next iteration
-      prev_target_rpm = target_rpm;
+    //   // save for next iteration
+    //   prev_target_rpm = target_rpm;
 
-      //      printk(
-      //          "desired motion: %.4f, %.4f, w_L: %.4f, w_R: %.4f, desired
-      //          rpm: %d, "
-      //          "%d\n",
-      //          desired_motion.linear, desired_motion.angular, omega_l,
-      //          omega_r, target_rpm.motors[0], target_rpm.motors[1]);
+    //   //      printk(
+    //   //          "desired motion: %.4f, %.4f, w_L: %.4f, w_R: %.4f, desired
+    //   //          rpm: %d, "
+    //   //          "%d\n",
+    //   //          desired_motion.linear, desired_motion.angular, omega_l,
+    //   //          omega_r, target_rpm.motors[0], target_rpm.motors[1]);
 
-      while (k_msgq_put(
-                 def->dependencies.speed_control_interface->desired_rpm_msgq_in,
-                 &target_rpm, K_NO_WAIT) != 0) {
-        k_msgq_purge(
-            def->dependencies.speed_control_interface->desired_rpm_msgq_in);
-      }
-    }
+    //   while (k_msgq_put(
+    //              def->dependencies.speed_control_interface->desired_rpm_msgq_in,
+    //              &target_rpm, K_NO_WAIT) != 0) {
+    //     k_msgq_purge(
+    //         def->dependencies.speed_control_interface->desired_rpm_msgq_in);
+    //   }
+    // }
 
     k_msleep_until(def->tconf.period_ms, t0);
   }

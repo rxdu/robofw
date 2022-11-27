@@ -57,14 +57,14 @@ endif ()
 
 set(GCC_FLAG "-lgcc")
 
+# Find services per application
+set(APP_PATH ${CMAKE_CURRENT_LIST_DIR}/src/app/${APP_NAME})
+set(SERVICE_PATH ${CMAKE_SOURCE_DIR}/src/service)
+include(${APP_PATH}/service-list.cmake)
+
 ## Add source code
 zephyr_include_directories(include)
 zephyr_include_directories(drivers)
 
 add_subdirectory(src)
 add_subdirectory(drivers)
-
-# Add services per application
-set(APP_PATH ${CMAKE_CURRENT_LIST_DIR}/src/app/${APP_NAME})
-set(SERVICE_PATH ${CMAKE_SOURCE_DIR}/src/service)
-include(${APP_PATH}/service-list.cmake)

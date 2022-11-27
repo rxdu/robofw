@@ -25,12 +25,12 @@ void main(void) {
     ShowRobotPanic();
   }
 
-  LedDescriptor *led0 = GetLedDescriptor(DD_LED0);
-  LedDescriptor *led1 = GetLedDescriptor(DD_LED1);
-  while (1) {
-    ToggleLed(led0);
-    ToggleLed(led1);
+  //   LedDescriptor *led0 = GetLedDescriptor(DD_LED0);
+  //   LedDescriptor *led1 = GetLedDescriptor(DD_LED1);
+  //   while (1) {
+  //     ToggleLed(led0);
+  //     ToggleLed(led1);
 
-    k_msleep(1000);
-  }
+  //     k_msleep(1000);
+  //   }
 }

@@ -28,7 +28,6 @@ typedef struct {
 
 typedef struct {
   struct k_msgq *desired_motion_msgq;
-  struct k_msgq *control_feedback_msgq;
 } MotionControlSrvData;
 
 struct CoordinatorInterface;
@@ -36,7 +35,6 @@ struct SpeedControlInterface;
 
 struct MotionControlInterface {
   struct k_msgq *desired_motion_msgq_in;
-  struct k_msgq *control_feedback_msgq_out;
 };
 
 typedef struct {
@@ -50,7 +48,6 @@ typedef struct {
   // dependent interfaces
   struct {
     struct CoordinatorInterface *coordinator_interface;
-    struct SpeedControlInterface *speed_control_interface;
   } dependencies;
 
   // interface
