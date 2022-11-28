@@ -9,8 +9,6 @@
 
 #include "messenger/messenger_service.h"
 
-#include "actuator/actuator_service.h"
-
 // #ifdef APP_tbot
 // #include "tbot/tbot_messenger.h"
 // typedef TbotMsg DecodeMsgType;
@@ -31,19 +29,16 @@ _Noreturn static void MessengerServiceTxLoop(void *p1, void *p2, void *p3);
 
 bool StartMessengerService(MessengerServiceDef *def) {
   // sanity check
-  //   if (def->sdata.robot_state_msgq == NULL) return false;
-  //   def->interface.robot_state_msgq_in = def->sdata.robot_state_msgq;
+  if (def->sconf.dd_can == NULL) {
+    printk("Messenger can descriptor not set properly\n");
+    return false;
+  }
 
-  //   if (def->sdata.desired_motion_msgq == NULL) return false;
-  //   def->interface.desired_motion_msgq_out = def->sdata.desired_motion_msgq;
+  if (def->sdata.robot_state_msgq == NULL) return false;
+  def->interface.robot_state_msgq_in = def->sdata.robot_state_msgq;
 
-  //   if (def->sdata.supervisor_cmd_msgq == NULL) return false;
-  //   def->interface.supervisor_cmd_msgq_out = def->sdata.supervisor_cmd_msgq;
-
-  //   if (def->sconf.dd_can == NULL) {
-  //     printk("Messenger can descriptor not set properly\n");
-  //     return false;
-  //   }
+  if (def->sdata.desired_motion_msgq == NULL) return false;
+  def->interface.desired_motion_msgq_in = def->sdata.desired_motion_msgq;
 
   //   if (def->dependencies.actuator_interface == NULL ||
   //       def->dependencies.speed_control_interface == NULL) {
@@ -82,7 +77,7 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
   struct zcan_frame rx_frame;
 
   VescCmdPacket pkt;
-  ActuatorCmd actuator_cmd;
+  //   ActuatorCmd actuator_cmd;
   //   DesiredRpm desired_rpm;
   //   DesiredMotion desired_motion;
 

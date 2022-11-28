@@ -19,23 +19,20 @@
 #include "interface/service.h"
 #include "mcal/interface/can_interface.h"
 
+#include "vesc/vesc_cmd_packet.h"
+
 typedef struct {
   CanDescriptor *dd_can;
 } MessengerSrvConf;
 
 typedef struct {
   struct k_msgq *robot_state_msgq;
-  struct k_msgq *supervisor_cmd_msgq;
   struct k_msgq *desired_motion_msgq;
 } MessengerSrvData;
 
-struct ActuatorInterface;
-struct SpeedControlInterface;
-
 struct MessengerInterface {
   struct k_msgq *robot_state_msgq_in;
-  struct k_msgq *supervisor_cmd_msgq_out;
-  struct k_msgq *desired_motion_msgq_out;
+  struct k_msgq *desired_motion_msgq_in;
 };
 
 typedef struct {
@@ -49,8 +46,6 @@ typedef struct {
 
   // dependent interfaces
   struct {
-    struct ActuatorInterface *actuator_interface;
-    struct SpeedControlInterface *speed_control_interface;
   } dependencies;
 
   // interface

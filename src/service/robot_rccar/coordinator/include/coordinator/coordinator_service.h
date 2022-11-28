@@ -18,17 +18,16 @@ typedef struct {
   LedDescriptor *dd_led_status;
 } CoordinatorSrvConf;
 
-typedef struct {
-  struct k_msgq *robot_state_msgq;
-} CoordinatorSrvData;
+// typedef struct {
+//   struct k_msgq *robot_state_msgq;
+// } CoordinatorSrvData;
 
 struct ReceiverInterface;
-struct MotionControlInterface;
 struct MessengerInterface;
 
-struct CoordinatorInterface {
+// struct CoordinatorInterface {
 //   struct k_msgq *robot_state_msgq_out;
-};
+// };
 
 typedef struct {
   // thread config
@@ -36,17 +35,16 @@ typedef struct {
 
   // service config
   CoordinatorSrvConf sconf;
-  CoordinatorSrvData sdata;
+  //   CoordinatorSrvData sdata;
 
   // dependent interfaces
   struct {
     struct ReceiverInterface *receiver_interface;
     struct MessengerInterface *messenger_interface;
-    struct MotionControlInterface *motion_control_interface;
   } dependencies;
 
   // interface
-  struct CoordinatorInterface interface;
+  //   struct CoordinatorInterface interface;
 } CoordinatorServiceDef;
 
 bool StartCoordinatorService(CoordinatorServiceDef *cfg);

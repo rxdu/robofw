@@ -7,8 +7,8 @@
  * Copyright (c) 2022 Ruixiang Du (rdu)
  */
 
-#ifndef ROBOFW_SRC_SERVICE_INTERFACE_INCLUDE_INTERFACE_TYPE_H
-#define ROBOFW_SRC_SERVICE_INTERFACE_INCLUDE_INTERFACE_TYPE_H
+#ifndef INTERFACE_TYPE_H
+#define INTERFACE_TYPE_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -49,6 +49,11 @@ typedef struct {
   uint8_t sup_mode;
 } __attribute__((aligned(8))) RobotState;
 
+typedef struct {
+  float linear;
+  float angular;
+} __attribute__((aligned(8))) DesiredMotion;
+
 #define FLOAT_VALUE_DELTA 0.00001f
 
-#endif  // ROBOFW_SRC_SERVICE_INTERFACE_INCLUDE_INTERFACE_TYPE_H
+#endif /* INTERFACE_TYPE_H */

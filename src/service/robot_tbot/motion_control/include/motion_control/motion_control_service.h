@@ -13,11 +13,6 @@
 #include "interface/service.h"
 
 typedef struct {
-  float linear;
-  float angular;
-} __attribute__((aligned(8))) DesiredMotion;
-
-typedef struct {
   //  DesiredRpm target_speed;
   //  EstimatedSpeed measured_speed;
 } __attribute__((aligned(8))) MotionControlFeedback;
