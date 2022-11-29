@@ -21,8 +21,17 @@
 
 #include "vesc/vesc_cmd_parser.h"
 
+#define VESC_MAX_RPM 23250
+
 K_THREAD_STACK_DEFINE(messenger_rx_service_stack, 512);
 K_THREAD_STACK_DEFINE(messenger_tx_service_stack, 1024);
+
+static bool SendServoPosCmd(CanDescriptor *dd_can, float pos);
+static bool SendSetDutyCycleCmd(CanDescriptor *dd_can, float duty);
+static bool SendSetCurrentCmd(CanDescriptor *dd_can, float current);
+static bool SendSetCurrentBrakeCmd(CanDescriptor *dd_can, float current);
+static bool SendSetRpmCmd(CanDescriptor *dd_can, int32_t rpm);
+static bool SendSetPositionCmd(CanDescriptor *dd_can, float pos);
 
 _Noreturn static void MessengerServiceRxLoop(void *p1, void *p2, void *p3);
 _Noreturn static void MessengerServiceTxLoop(void *p1, void *p2, void *p3);
@@ -39,12 +48,6 @@ bool StartMessengerService(MessengerServiceDef *def) {
 
   if (def->sdata.desired_motion_msgq == NULL) return false;
   def->interface.desired_motion_msgq_in = def->sdata.desired_motion_msgq;
-
-  //   if (def->dependencies.actuator_interface == NULL ||
-  //       def->dependencies.speed_control_interface == NULL) {
-  //     printk("Dependency not set properly\n");
-  //     return false;
-  //   }
 
   // initialize hardware
   struct zcan_filter can_filter;
@@ -128,52 +131,93 @@ _Noreturn void MessengerServiceRxLoop(void *p1, void *p2, void *p3) {
 _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
   MessengerServiceDef *def = (MessengerServiceDef *)p1;
 
-  //   SpeedControlFeedback speed_control_feedback;
-  //  EstimatedSpeed speed_estimate;
-
-  struct zcan_frame tx_frame;
-
   RobotState robot_state;
-
-  int ret = -1;
-  (void)ret;
+  DesiredMotion rc_desired_motion;
 
   while (1) {
-    // while (k_msgq_get(def->dependencies.speed_control_interface
-    //                       ->control_feedback_msgq_out,
-    //                   &speed_control_feedback, K_NO_WAIT) == 0) {
-    //   // encoder raw data
-    //   tmsg.type = kTbotEncoderRawData;
-    //   tmsg.data.encoder_raw_data.left =
-    //       speed_control_feedback.measured_speed.raw_rpms[0];
-    //   tmsg.data.encoder_raw_data.right =
-    //       speed_control_feedback.measured_speed.raw_rpms[1];
-    //   EncodeCanMessage(&tmsg, &tx_frame);
-
-    //   ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
-    //   tx_frame.data,
-    //                      tx_frame.dlc);
-    //   if (ret != CAN_TX_OK) {
-    //     printk("%s send failed: %d\n", def->sconf.dd_can->device->name,
-    //     ret);
-    //   }
-    // }
-
-    // while (k_msgq_get(def->interface.robot_state_msgq_in, &robot_state,
-    //                   K_NO_WAIT) == 0) {
-    //   tmsg.type = kTbotSupervisedStateData;
-    //   tmsg.data.supervised_state_data.sup_mode = robot_state.sup_mode;
-    //   EncodeCanMessage(&tmsg, &tx_frame);
-
-    //   ret = SendCanFrame(def->sconf.dd_can, tx_frame.id, true,
-    //   tx_frame.data,
-    //                      tx_frame.dlc);
-    //   if (ret != CAN_TX_OK) {
-    //     printk("%s send failed: %d\n", def->sconf.dd_can->device->name,
-    //     ret);
-    //   }
-    // }
+    // check robot state to determine what command to send
+    if (k_msgq_get(def->interface.robot_state_msgq_in, &robot_state,
+                   K_NO_WAIT) == 0) {
+      if (!robot_state.estop_triggered) {
+        // manual control mode
+        if (robot_state.control_mode == kControlModeRC) {
+          if (k_msgq_get(def->interface.desired_motion_msgq_in,
+                         &rc_desired_motion, K_NO_WAIT) == 0) {
+            float servo_pos = (rc_desired_motion.angular + 1.0) / 2.0f;
+            int32_t motor_rpm = VESC_MAX_RPM * rc_desired_motion.linear;
+            printk("cmd: %f, %d\n", servo_pos, motor_rpm);
+            SendServoPosCmd(def->sconf.dd_can, servo_pos);
+            SendSetRpmCmd(def->sconf.dd_can, motor_rpm);
+          }
+        }
+        // auto control mode (relay message to vesc)
+        else if (robot_state.control_mode == kControlModeCAN) {
+        }
+      }
+    }
 
     k_msleep(def->tx_tconf.period_ms);
   }
+}
+
+/******************************************************************************/
+
+bool SendServoPosCmd(CanDescriptor *dd_can, float pos) {
+  VescFrame tx_frame = VescSetServoPosCmdPacketToFrame(VESC_ID, pos);
+  int ret =
+      SendCanFrame(dd_can, tx_frame.id, false, tx_frame.data, tx_frame.dlc);
+  if (ret != CAN_TX_OK) {
+    printk("%s send failed: %d\n", dd_can->device->name, ret);
+  }
+  return ret == CAN_TX_OK;
+}
+
+bool SendSetDutyCycleCmd(CanDescriptor *dd_can, float duty) {
+  VescFrame tx_frame = VescSetDutyCycleCmdPacketToFrame(VESC_ID, duty);
+  int ret =
+      SendCanFrame(dd_can, tx_frame.id, false, tx_frame.data, tx_frame.dlc);
+  if (ret != CAN_TX_OK) {
+    printk("%s send failed: %d\n", dd_can->device->name, ret);
+  }
+  return ret == CAN_TX_OK;
+}
+
+bool SendSetCurrentCmd(CanDescriptor *dd_can, float current) {
+  VescFrame tx_frame = VescSetCurrentCmdPacketToFrame(VESC_ID, current);
+  int ret =
+      SendCanFrame(dd_can, tx_frame.id, false, tx_frame.data, tx_frame.dlc);
+  if (ret != CAN_TX_OK) {
+    printk("%s send failed: %d\n", dd_can->device->name, ret);
+  }
+  return ret == CAN_TX_OK;
+}
+
+bool SendSetCurrentBrakeCmd(CanDescriptor *dd_can, float current) {
+  VescFrame tx_frame = VescSetCurrentBrakeCmdPacketToFrame(VESC_ID, current);
+  int ret =
+      SendCanFrame(dd_can, tx_frame.id, false, tx_frame.data, tx_frame.dlc);
+  if (ret != CAN_TX_OK) {
+    printk("%s send failed: %d\n", dd_can->device->name, ret);
+  }
+  return ret == CAN_TX_OK;
+}
+
+bool SendSetRpmCmd(CanDescriptor *dd_can, int32_t rpm) {
+  VescFrame tx_frame = VescSetRpmCmdPacketToFrame(VESC_ID, rpm);
+  int ret =
+      SendCanFrame(dd_can, tx_frame.id, false, tx_frame.data, tx_frame.dlc);
+  if (ret != CAN_TX_OK) {
+    printk("%s send failed: %d\n", dd_can->device->name, ret);
+  }
+  return ret == CAN_TX_OK;
+}
+
+bool SendSetPositionCmd(CanDescriptor *dd_can, float pos) {
+  VescFrame tx_frame = VescSetPositionCmdPacketToFrame(VESC_ID, pos);
+  int ret =
+      SendCanFrame(dd_can, tx_frame.id, false, tx_frame.data, tx_frame.dlc);
+  if (ret != CAN_TX_OK) {
+    printk("%s send failed: %d\n", dd_can->device->name, ret);
+  }
+  return ret == CAN_TX_OK;
 }

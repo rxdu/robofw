@@ -39,8 +39,9 @@ VescFrame VescSetServoPosCmdPacketToFrame(uint8_t vesc_id, float pos) {
   ClampCommand(&pos, 0.0f, 1.0f);
 
   // convert to can frame
-  frame_.can_id = VescProcessShortBufferCmdFrameId | vesc_id | CAN_EFF_FLAG;
-  frame_.can_dlc = 5;
+  frame_.id =
+      VescProcessShortBufferCmdFrameId | (uint32_t)vesc_id | CAN_EFF_FLAG;
+  frame_.dlc = 5;
   frame_.data[0] = vesc_id;
   frame_.data[1] = 0x00;  // command type: send
   frame_.data[2] = VescCommSetServoPosId;
@@ -59,8 +60,8 @@ VescFrame VescSetDutyCycleCmdPacketToFrame(uint8_t vesc_id, float duty) {
   ClampCommand(&duty, 0.0f, 1.0f);
 
   // convert to can frame
-  frame_.can_id = VescDutyCycleCmdFrameId | vesc_id | CAN_EFF_FLAG;
-  frame_.can_dlc = 4;
+  frame_.id = VescDutyCycleCmdFrameId | (uint32_t)vesc_id | CAN_EFF_FLAG;
+  frame_.dlc = 4;
   int32_t duty_cmd = (int32_t)(duty * 100000.0f);
   frame_.data[0] = (duty_cmd & 0xff000000) >> 24;
   frame_.data[1] = (duty_cmd & 0x00ff0000) >> 16;
@@ -77,8 +78,8 @@ VescFrame VescSetCurrentCmdPacketToFrame(uint8_t vesc_id, float current) {
   ClampCommand(&current, 0.0f, 20.0f);
 
   // convert to can frame
-  frame_.can_id = VescCurrentCmdFrameId | vesc_id | CAN_EFF_FLAG;
-  frame_.can_dlc = 4;
+  frame_.id = VescCurrentCmdFrameId | (uint32_t)vesc_id | CAN_EFF_FLAG;
+  frame_.dlc = 4;
   int32_t duty_cmd = (int32_t)(current * 1000.0f);
   frame_.data[0] = (duty_cmd & 0xff000000) >> 24;
   frame_.data[1] = (duty_cmd & 0x00ff0000) >> 16;
@@ -95,8 +96,8 @@ VescFrame VescSetCurrentBrakeCmdPacketToFrame(uint8_t vesc_id, float current) {
   ClampCommand(&current, 0.0f, 20.0f);
 
   // convert to can frame
-  frame_.can_id = VescCurrentBrakeCmdFrameId | vesc_id | CAN_EFF_FLAG;
-  frame_.can_dlc = 4;
+  frame_.id = VescCurrentBrakeCmdFrameId | (uint32_t)vesc_id | CAN_EFF_FLAG;
+  frame_.dlc = 4;
   int32_t duty_cmd = (int32_t)(current * 1000.0f);
   frame_.data[0] = (duty_cmd & 0xff000000) >> 24;
   frame_.data[1] = (duty_cmd & 0x00ff0000) >> 16;
@@ -110,8 +111,8 @@ VescFrame VescSetRpmCmdPacketToFrame(uint8_t vesc_id, int32_t rpm) {
   VescFrame frame_;
 
   // convert to can frame
-  frame_.can_id = VescRpmCmdFrameId | vesc_id | CAN_EFF_FLAG;
-  frame_.can_dlc = 4;
+  frame_.id = VescRpmCmdFrameId | (uint32_t)vesc_id | CAN_EFF_FLAG;
+  frame_.dlc = 4;
   frame_.data[0] = (rpm & 0xff000000) >> 24;
   frame_.data[1] = (rpm & 0x00ff0000) >> 16;
   frame_.data[2] = (rpm & 0x0000ff00) >> 8;
@@ -127,8 +128,8 @@ VescFrame VescSetPositionCmdPacketToFrame(uint8_t vesc_id, float pos) {
   ClampCommand(&pos, 0.0f, 1.0f);
 
   // convert to can frame
-  frame_.can_id = VescPositionCmdFrameId | vesc_id | CAN_EFF_FLAG;
-  frame_.can_dlc = 4;
+  frame_.id = VescPositionCmdFrameId | (uint32_t)vesc_id | CAN_EFF_FLAG;
+  frame_.dlc = 4;
   int32_t pos_cmd = (int32_t)(pos * 100000.0f);
   frame_.data[0] = (pos_cmd & 0xff000000) >> 24;
   frame_.data[1] = (pos_cmd & 0x00ff0000) >> 16;

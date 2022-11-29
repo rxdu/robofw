@@ -15,6 +15,9 @@
 #include "receiver/receiver_service.h"
 #include "messenger/messenger_service.h"
 
+#define LINEAR_MOTION_DEADZONE 0.05
+#define ANGULAR_MOTION_DEADZONE 0.05
+
 K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 
 _Noreturn static void CoordinatorServiceLoop(void *p1, void *p2, void *p3);
@@ -64,13 +67,16 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
   uint8_t rc_counter = 0;
   const uint8_t rc_timeout_count = 5;
 
-  uint8_t can_counter = 0;
-  const uint8_t can_timeout_count = 5;
+  //   uint8_t can_counter = 0;
+  //   const uint8_t can_timeout_count = 5;
 
   while (1) {
     int64_t t0 = k_loop_start();
 
-    if (loop_counter % 25 == 0) ToggleLed(def->sconf.dd_led_status);
+    if (loop_counter % 25 == 0) {
+      loop_counter = 0;
+      ToggleLed(def->sconf.dd_led_status);
+    }
 
     /*********** read receiver data and update robot state ***********/
     if (k_msgq_get(def->dependencies.receiver_interface->rc_data_msgq_out,
@@ -84,6 +90,15 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
         robot_state.control_mode = kControlModeRC;
         desired_motion.linear = receiver_data.channels[2];
         desired_motion.angular = -receiver_data.channels[1];
+
+        if (desired_motion.linear < LINEAR_MOTION_DEADZONE &&
+            desired_motion.linear > -LINEAR_MOTION_DEADZONE) {
+          desired_motion.linear = 0;
+        }
+        if (desired_motion.angular < ANGULAR_MOTION_DEADZONE &&
+            desired_motion.angular > -ANGULAR_MOTION_DEADZONE) {
+          desired_motion.angular = 0;
+        }
       } else {
         robot_state.control_mode = kControlModeCAN;
       }
@@ -123,9 +138,6 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
     // send out desired motion if not in supervised mode
     if (robot_state.sup_mode == kNonSupervised) {
       if (robot_state.control_mode == kControlModeRC) {
-        desired_motion.linear = desired_motion_from_can.linear;
-        desired_motion.angular = desired_motion_from_can.angular;
-
         // send out desired motion command from RC
         while (
             k_msgq_put(
@@ -148,7 +160,8 @@ _Noreturn void CoordinatorServiceLoop(void *p1, void *p2, void *p3) {
     }
 
     // printk(
-    //     "rc connected: %d, estop: %d, control mode: %d, linear: %4f, angular: "
+    //     "rc connected: %d, estop: %d, control mode: %d, linear: %4f, angular:
+    //     "
     //     "%4f\n",
     //     robot_state.rc_connected, robot_state.estop_triggered,
     //     robot_state.control_mode, desired_motion.linear,

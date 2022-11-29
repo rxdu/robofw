@@ -19,6 +19,7 @@
 #include "messenger/messenger_service.h"
 #include "coordinator/coordinator_service.h"
 
+#include "vesc/vesc_cmd_packet.h"
 #include "actuator/tbot_actuators.h"
 
 #define RCCAR_LED_STATUS DD_LED0
@@ -46,7 +47,7 @@ K_MSGQ_DEFINE(receiver_data_queue, sizeof(ReceiverData), 1, 8);
 K_MSGQ_DEFINE(actuator_data_queue, sizeof(ActuatorCmd), 16, 8);
 // messenger service queue
 K_MSGQ_DEFINE(robot_state_queue, sizeof(RobotState), 1, 8);
-K_MSGQ_DEFINE(rc_desired_motion_queue, sizeof(VescCmdPacket), 5, 8);
+K_MSGQ_DEFINE(rc_desired_motion_queue, sizeof(DesiredMotion), 2, 8);
 // coordinator service queue
 K_MSGQ_DEFINE(can_desired_motion_queue, sizeof(DesiredMotion), 1, 8);
 
@@ -110,7 +111,7 @@ bool InitRobot() {
 
   // messenger
   msger_srv.rx_tconf.priority = TASK_PRIORITY_HIGH;
-  msger_srv.rx_tconf.delay_ms = 100;
+  msger_srv.rx_tconf.delay_ms = 50;
   msger_srv.rx_tconf.period_ms = 20;
 
   msger_srv.tx_tconf.priority = TASK_PRIORITY_MID;
@@ -132,7 +133,7 @@ bool InitRobot() {
 
   // coordinator
   coord_srv.tconf.priority = TASK_PRIORITY_HIGH;
-  coord_srv.tconf.delay_ms = 0;
+  coord_srv.tconf.delay_ms = 50;
   coord_srv.tconf.period_ms = 20;
 
   coord_srv.sconf.dd_led_status = GetLedDescriptor(RCCAR_LED_STATUS);

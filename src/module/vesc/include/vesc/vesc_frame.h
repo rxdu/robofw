@@ -15,13 +15,8 @@
 #ifndef VESC_VESC_FRAME_H
 #define VESC_VESC_FRAME_H
 
-#ifdef __linux__
-#include <linux/can.h>
-#else
-#include <drivers/can.h>
-#endif
-
 #include <stdint.h>
+#include <drivers/can.h>
 
 // CAN id
 static const uint32_t VescDutyCycleCmdFrameId = 0x00000000;
@@ -37,6 +32,6 @@ static const uint32_t VescProcessShortBufferCmdFrameId = 0x00000800;
 #define MCU_ID ((uint32_t)0x60)
 #define VESC_ID ((uint32_t)0x68)
 
-typedef struct can_frame VescFrame;
+typedef struct zcan_frame VescFrame;
 
 #endif /* VESC_VESC_FRAME_H */

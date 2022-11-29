@@ -10,6 +10,8 @@
 #ifndef VESC_VESC_CMD_PACKET_H
 #define VESC_VESC_CMD_PACKET_H
 
+#include <stdint.h>
+
 typedef enum {
   VescUnknownCmd = -1,
   VescSetServoPosCmd = 0,
