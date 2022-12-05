@@ -14,9 +14,7 @@
 // #include "actuator/actuator_service.h"
 #include "receiver/receiver_service.h"
 #include "messenger/messenger_service.h"
-
-#define LINEAR_MOTION_DEADZONE 0.05
-#define ANGULAR_MOTION_DEADZONE 0.05
+#include "robotconf/robotconf.h"
 
 K_THREAD_STACK_DEFINE(coord_service_stack, 1024);
 

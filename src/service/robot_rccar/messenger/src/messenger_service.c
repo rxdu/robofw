@@ -20,8 +20,7 @@
 // #endif
 
 #include "vesc/vesc_cmd_parser.h"
-
-#define VESC_MAX_RPM 23250
+#include "robotconf/robotconf.h"
 
 K_THREAD_STACK_DEFINE(messenger_rx_service_stack, 512);
 K_THREAD_STACK_DEFINE(messenger_tx_service_stack, 1024);
@@ -144,6 +143,9 @@ _Noreturn void MessengerServiceTxLoop(void *p1, void *p2, void *p3) {
           if (k_msgq_get(def->interface.desired_motion_msgq_in,
                          &rc_desired_motion, K_NO_WAIT) == 0) {
             float servo_pos = (rc_desired_motion.angular + 1.0) / 2.0f;
+            if (ENABLE_SERVO_INVERT) {
+              servo_pos = 1.0 - servo_pos;
+            }
             int32_t motor_rpm = VESC_MAX_RPM * rc_desired_motion.linear;
             printk("cmd: %f, %d\n", servo_pos, motor_rpm);
             SendServoPosCmd(def->sconf.dd_can, servo_pos);
