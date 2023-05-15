@@ -47,8 +47,12 @@ VescFrame VescSetServoPosCmdPacketToFrame(uint8_t vesc_id, float pos) {
   frame_.data[2] = VescCommSetServoPosId;
 
   int16_t pos_cmd = (int16_t)(pos * 1000);
-  frame_.data[3] = ((uint16_t)pos_cmd) & 0xff00 >> 8;
+  frame_.data[3] = ((uint16_t)pos_cmd & 0xff00) >> 8;
   frame_.data[4] = ((uint16_t)pos_cmd) & 0x00ff;
+
+//   printk("servo pos: %d\n", pos_cmd);
+//   printk("%x %x %x %x %x\n", frame_.data[0], frame_.data[1],
+//          frame_.data[2], frame_.data[3], frame_.data[4]);
 
   return frame_;
 }
